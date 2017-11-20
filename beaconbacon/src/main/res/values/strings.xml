@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Beacon Bacon</string>
+    <string name="action_close">Close</string>
+    <string name="toolbar_chevron_left">Navigate left in places</string>
+    <string name="toolbar_chevron_right">Navigate right in places</string>
+    <string name="toolbar_place_title">Name of place</string>
+</resources>
