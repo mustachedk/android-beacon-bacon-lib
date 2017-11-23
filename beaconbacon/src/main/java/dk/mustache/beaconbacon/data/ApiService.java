@@ -39,14 +39,14 @@ public interface ApiService {
             "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm"
     })
     @GET("place")
-    Call<String> getAllPlaces();
+    Call<JsonObject> getAllPlaces();
 
     @Headers({
             "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",
             "Accept: application/json"
     })
     @GET("place/{place_id}")
-    Call<String> getSpecificPlace(@Path("place_id") String place_id);
+    Call<JsonObject> getSpecificPlace(@Path("place_id") String place_id);
 
     @Headers({
             "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",

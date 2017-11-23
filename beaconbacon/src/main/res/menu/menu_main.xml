@@ -1,8 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/menu_main">
 
     <item
         android:id="@+id/action_close"
+        android:icon="@drawable/ic_close"
         android:title="@string/action_close"
         app:showAsAction="ifRoom" />
 </menu>

@@ -1,7 +1,16 @@
 package dk.mustache.beaconbacon.data;
 
-import java.io.IOException;
+import android.os.AsyncTask;
+import android.view.View;
 
+import com.google.gson.JsonObject;
+
+import java.io.IOException;
+import java.util.List;
+
+import dk.mustache.beaconbacon.datamodels.AllPlaces;
+import dk.mustache.beaconbacon.datamodels.Place;
+import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -31,14 +40,17 @@ THE SOFTWARE.
 
 public class ApiManager {
     //Test Environment
-    private String baseUrl = "https://app.beaconbacon.io/api/";
+    private static String baseUrl = "https://app.beaconbacon.io/api/";
     private String apiKey = "$2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm";
-    private static final String apiVersion = "v2";
+    private static final String apiVersion = "v2/";
 
     private static ApiManager instance = new ApiManager();
-    private ApiService apiService;
+    private static ApiService apiService;
 
-    private String allPlaces;
+    private AllPlaces allPlaces;
+    private List<Place> placesList;
+    private Place currentPlace;
+    private Integer currentFloor;
 
     public static ApiManager createInstance() {
         if (instance == null) {
@@ -67,21 +79,38 @@ public class ApiManager {
     }
 
     public void setApiService(ApiService apiService) {
-        this.apiService = apiService;
+        ApiManager.apiService = apiService;
     }
 
-    public String getAllPlaces() {
-        //We're already on a background thread, so just execute the call
-        Response<String> response = null;
-        try {
-            return getApiService().getAllPlaces().execute().body();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public void fetchAllPlacesAsync(GetAllPlacesAsync getAllPlacesAsync) {
+        getAllPlacesAsync.execute();
     }
 
-    public void setAllPlaces(String allPlaces) {
+    public void fetchSpecificPlaceAsync(GetSpecificPlaceAsync getSpecificPlaceAsync, String placeId) {
+        getSpecificPlaceAsync.execute(placeId, null, null);
+    }
+
+    public AllPlaces getAllPlaces() {
+        return allPlaces;
+    }
+
+    public void setAllPlaces(AllPlaces allPlaces) {
         this.allPlaces = allPlaces;
+    }
+
+    public Place getCurrentPlace() {
+        return currentPlace;
+    }
+
+    public void setCurrentPlace(Place currentPlace) {
+        this.currentPlace = currentPlace;
+    }
+
+    public Integer getCurrentFloor() {
+        return currentFloor;
+    }
+
+    public void setCurrentFloor(Integer currentFloor) {
+        this.currentFloor = currentFloor;
     }
 }

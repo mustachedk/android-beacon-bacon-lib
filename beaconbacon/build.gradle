@@ -35,7 +35,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
 
     //3rd Party Libraries
-    compile 'se.emilsjolander:stickylistheaders:2.5.0'
+    implementation 'se.emilsjolander:stickylistheaders:2.5.0' //Sticky header list
+    implementation 'de.hdodenhof:circleimageview:2.1.0' //CircleImageView
+    implementation 'com.squareup.picasso:picasso:2.5.2' //Picasso Image handling
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

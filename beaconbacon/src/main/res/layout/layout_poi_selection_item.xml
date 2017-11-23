@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:orientation="horizontal"
+    android:weightSum="100"
+    android:id="@+id/poi_selection_item_layout">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_weight="80">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/poi_selection_item_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_close"
+            android:layout_gravity="center_vertical|end"
+            android:gravity="center_vertical|end"
+            android:layout_marginStart="@dimen/general_horizontal_margin"/>
+
+        <TextView
+            android:id="@+id/poi_selection_item_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:paddingEnd="@dimen/general_horizontal_margin"
+            android:paddingStart="@dimen/general_horizontal_margin"
+            android:text="Museum"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="20"
+        android:gravity="center_vertical|end">
+
+        <LinearLayout
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="@dimen/general_horizontal_margin"
+            android:background="@drawable/checkbox_image_frame"
+            android:gravity="center_vertical|end">
+
+            <android.support.v7.widget.AppCompatCheckBox
+                android:id="@+id/poi_selection_item_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:button="@drawable/checkbox_selector"
+                android:checked="true" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -4,4 +4,6 @@
     <string name="toolbar_chevron_left">Navigate left in places</string>
     <string name="toolbar_chevron_right">Navigate right in places</string>
     <string name="toolbar_place_title">Name of place</string>
+    <string name="toolbar_poi_selection">Points of Interest</string>
+    <string name="toolbar_place_selection">Select Library</string>
 </resources>

@@ -1,10 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <!--Dummy View for elevation-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:background="@drawable/toolbar_drop_shadow" />
+
+    <include layout="@layout/layout_toolbar_regular"/>
+    <include layout="@layout/layout_toolbar_custom" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/map_poi_fab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/general_vertical_margin"
+        android:layout_marginEnd="@dimen/general_horizontal_margin"
+        android:layout_marginStart="@dimen/general_horizontal_margin"
+        android:layout_marginTop="@dimen/general_vertical_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:srcCompat="@drawable/ic_location" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_close"/>
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</android.support.constraint.ConstraintLayout>
+        android:layout_height="match_parent">
+
+    </android.support.design.widget.CoordinatorLayout>
+</FrameLayout>
