@@ -1,9 +1,9 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "dk.mustache.beaconbacon"
+        //applicationId "dk.mustache.beaconbacon"
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
@@ -38,6 +38,9 @@ dependencies {
     implementation 'se.emilsjolander:stickylistheaders:2.5.0' //Sticky header list
     implementation 'de.hdodenhof:circleimageview:2.1.0' //CircleImageView
     implementation 'com.squareup.picasso:picasso:2.5.2' //Picasso Image handling
+    implementation 'com.squareup.okhttp:okhttp:2.0.0' //Needed?
+    implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
+
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

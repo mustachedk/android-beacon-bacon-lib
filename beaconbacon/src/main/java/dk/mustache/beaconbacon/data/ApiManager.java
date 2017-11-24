@@ -113,4 +113,12 @@ public class ApiManager {
     public void setCurrentFloor(Integer currentFloor) {
         this.currentFloor = currentFloor;
     }
+
+    public List<Place> getPlacesList() {
+        return placesList;
+    }
+
+    public void setPlacesList(List<Place> placesList) {
+        this.placesList = placesList;
+    }
 }

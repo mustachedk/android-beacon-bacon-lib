@@ -81,9 +81,11 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
                 holder.checkBox.setChecked(!holder.checkBox.isChecked());
                 currentPlace = places.get(position);
                 ApiManager.getInstance().setCurrentPlace(places.get(position));
+                ApiManager.getInstance().setCurrentFloor(0);
                 notifyDataSetChanged();
 
                 ((MapActivity) context).setNewCurrentPlace(places.get(position));
+                ((MapActivity) context).floatingActionButton.show();
                 //TODO pop the fragment
             }
         });

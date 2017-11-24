@@ -1,5 +1,6 @@
 package dk.mustache.beaconbacon;
 
+import android.content.pm.ApplicationInfo;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
@@ -19,7 +20,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.jakewharton.picasso.OkHttp3Downloader;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import dk.mustache.beaconbacon.customviews.CustomToolbar;
 import dk.mustache.beaconbacon.data.ApiManager;
 import dk.mustache.beaconbacon.data.AllPlacesAsyncResponse;
 import dk.mustache.beaconbacon.data.GetAllPlacesAsync;
@@ -27,6 +35,10 @@ import dk.mustache.beaconbacon.data.GetSpecificPlaceAsync;
 import dk.mustache.beaconbacon.data.SpecificPlaceAsyncResponse;
 import dk.mustache.beaconbacon.datamodels.AllPlaces;
 import dk.mustache.beaconbacon.datamodels.Place;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MapActivity extends AppCompatActivity implements View.OnClickListener, AllPlacesAsyncResponse, SpecificPlaceAsyncResponse {
     GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
@@ -39,7 +51,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     private TextView toolbarSubtitle;
     private ImageView arrowLeft;
     private ImageView arrowRight;
-    private LinearLayout toolbarLayout;
+
+    private ImageView mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +65,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         if(getSupportActionBar() != null)
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
-
-        toolbarLayout = findViewById(R.id.bb_toolbar_layout);
-
         LinearLayout toolbarTitleLayout = findViewById(R.id.bb_toolbar_title_layout);
         toolbarTitleLayout.setOnClickListener(this);
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) toolbarTitleLayout.getLayoutParams();
-        layoutParams.width = width/4*2;
-        toolbarTitleLayout.setLayoutParams(layoutParams);
 
         toolbarTitle = findViewById(R.id.bb_toolbar_title);
         toolbarSubtitle = findViewById(R.id.bb_toolbar_subtitle);
@@ -78,6 +81,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
         getAllPlacesAsync.delegate = this;
         ApiManager.createInstance().fetchAllPlacesAsync(getAllPlacesAsync);
+
+        mapView = findViewById(R.id.map_view);
     }
 
     @Override
@@ -135,42 +140,44 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                         .commit();
                 break;
             case R.id.bb_toolbar_arrow_left:
-                if(ApiManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
-
-                    if (ApiManager.getInstance().getCurrentFloor() != 0)
-                        ApiManager.getInstance().setCurrentFloor(ApiManager.getInstance().getCurrentFloor()-1);
-
-                    if (ApiManager.getInstance().getCurrentFloor() == 0)
-                        arrowLeft.setColorFilter(R.color.colorArrowsEnd, PorterDuff.Mode.SRC_ATOP);
-                    else
-                        arrowLeft.setColorFilter(R.color.colorArrows, PorterDuff.Mode.SRC_ATOP);
-
-                    if (ApiManager.getInstance().getCurrentFloor() == ApiManager.getInstance().getCurrentPlace().getFloors().size() - 1)
-                        arrowRight.setColorFilter(R.color.colorArrowsEnd, PorterDuff.Mode.SRC_ATOP);
-                    else
-                        arrowRight.setColorFilter(R.color.colorArrows, PorterDuff.Mode.SRC_ATOP);
-
-                    toolbarLayout.requestLayout();
-                }
+                updateArrows(-1);
                 break;
             case R.id.bb_toolbar_arrow_right:
-                if(ApiManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
-                    if (ApiManager.getInstance().getCurrentFloor() != ApiManager.getInstance().getCurrentPlace().getFloors().size() - 1)
-                        ApiManager.getInstance().setCurrentFloor(ApiManager.getInstance().getCurrentFloor()+1);
-
-                    if (ApiManager.getInstance().getCurrentFloor() == 0)
-                        arrowLeft.setColorFilter(R.color.colorArrowsEnd, PorterDuff.Mode.SRC_ATOP);
-                    else
-                        arrowLeft.setColorFilter(R.color.colorArrows, PorterDuff.Mode.SRC_ATOP);
-
-                    if (ApiManager.getInstance().getCurrentFloor() == ApiManager.getInstance().getCurrentPlace().getFloors().size() - 1)
-                        arrowRight.setColorFilter(R.color.colorArrowsEnd, PorterDuff.Mode.SRC_ATOP);
-                    else
-                        arrowRight.setColorFilter(R.color.colorArrows, PorterDuff.Mode.SRC_ATOP);
-
-                    toolbarLayout.requestLayout();
-                }
+                updateArrows(1);
                 break;
+        }
+    }
+
+    //TODO Apply order of Floors to the mix - currently 1. sal comes before Stuen on Museum 6 i.e.
+    private void updateArrows(int direction) {
+        if(ApiManager.getInstance().getCurrentPlace().getFloors() != null && ApiManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
+            //Change the floor
+            if (direction == 1 && ApiManager.getInstance().getCurrentFloor() != ApiManager.getInstance().getCurrentPlace().getFloors().size() - 1)
+                ApiManager.getInstance().setCurrentFloor(ApiManager.getInstance().getCurrentFloor() + direction);
+            else if (direction == -1 && ApiManager.getInstance().getCurrentFloor() != 0)
+                ApiManager.getInstance().setCurrentFloor(ApiManager.getInstance().getCurrentFloor() + direction);
+
+            //Update text
+            toolbarSubtitle.setText(ApiManager.getInstance().getCurrentPlace().getName());
+            if(ApiManager.getInstance().getCurrentPlace().getFloors() != null &&
+                    ApiManager.getInstance().getCurrentPlace().getFloors().size() != 0)
+                toolbarTitle.setText(ApiManager.getInstance().getCurrentPlace().getFloors().get(ApiManager.getInstance().getCurrentFloor()).getName());
+            else
+                toolbarTitle.setText("-"); //TODO What should we present when only 1 floor is available?
+
+            //Update arrows
+            if (ApiManager.getInstance().getCurrentFloor() == 0)
+                arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left_light));
+            else
+                arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left));
+
+            if (ApiManager.getInstance().getCurrentFloor() == ApiManager.getInstance().getCurrentPlace().getFloors().size() - 1)
+                arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right_light));
+            else
+                arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right));
+        } else {
+            arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left_light));
+            arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right_light));
         }
     }
 
@@ -210,28 +217,72 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
         for(int i=0; i<ApiManager.createInstance().getAllPlaces().getData().size(); i++) {
             if (ApiManager.createInstance().getAllPlaces().getData().get(i).getId() == place.getId()) {
+
+                ApiManager.getInstance().getAllPlaces().getData().set(i, place);
+
                 if(i == 0) {
                     //TODO Where and how do we determine current place?
                     ApiManager.getInstance().setCurrentPlace(place);
                     ApiManager.getInstance().setCurrentFloor(0);
-                    toolbarTitle.setText(ApiManager.getInstance().getCurrentPlace().getName());
-                    toolbarSubtitle.setText(ApiManager.getInstance().getCurrentPlace().getFloors().get(0).getName());
-                    arrowLeft.setColorFilter(R.color.colorArrowsEnd, PorterDuff.Mode.SRC_ATOP);
-                }
+                    toolbarSubtitle.setText(ApiManager.getInstance().getCurrentPlace().getName());
+                    toolbarTitle.setText(ApiManager.getInstance().getCurrentPlace().getFloors().get(0).getName());
 
-                ApiManager.createInstance().getAllPlaces().getData().set(i, place);
+                    updateArrows(0);
+
+
+                    //In progress
+                    //TODO Seems we need further access to get image through picasso
+                    OkHttpClient client = new OkHttpClient.Builder()
+                            .addInterceptor(new Interceptor() {
+                                @Override
+                                public Response intercept(Chain chain) throws IOException {
+                                    Request newRequest = chain.request().newBuilder()
+                                            .addHeader("Authorization", "Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm")
+                                            .addHeader("Accept", "application/json")
+                                            .build();
+                                    return chain.proceed(newRequest);
+                                }
+                            })
+                            .build();
+
+                    Picasso picasso = new Picasso.Builder(this)
+                            .downloader(new OkHttp3Downloader(client))
+                            .build();
+
+                    if(place.getFloors() != null) {
+                        //Usually Picasso.with(context), but possibly not when using okhttp3downloader
+                        picasso.load(place.getFloors().get(0).getImage())
+                                .resize(Integer.valueOf(place.getFloors().get(0).getMap_width_in_pixels() != null ? place.getFloors().get(0).getMap_width_in_pixels() : "0"),
+                                        Integer.valueOf(place.getFloors().get(0).getMap_height_int_pixels() != null ? place.getFloors().get(0).getMap_height_int_pixels() : "0"))
+                                .centerCrop()
+                                .into(mapView, new com.squareup.picasso.Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Log.d("Picasso", "success");
+                                    }
+
+                                    @Override
+                                    public void onError() {
+                                        Log.d("Picasso", "error");
+                                    }
+                                });
+                    }
+                }
             }
         }
     }
 
     public void setNewCurrentPlace(Place newCurrentPlace) {
-        toolbarTitle.setText(newCurrentPlace.getName());
-        if(newCurrentPlace.getFloors().size() != 0)
-            toolbarSubtitle.setText(newCurrentPlace.getFloors().get(0).getName());
-        else
-            toolbarSubtitle.setText("-"); //TODO What should we present when only 1 floor is available?
+        Log.d("new Place, id", newCurrentPlace.getId() + "");
+        Log.d("New place, floors", newCurrentPlace.getFloors() != null ? newCurrentPlace.getFloors().size() + "" : "0");
 
-        arrowLeft.setColorFilter(R.color.colorArrowsEnd, PorterDuff.Mode.SRC_ATOP);
+        toolbarSubtitle.setText(newCurrentPlace.getName());
+        if(newCurrentPlace.getFloors() != null && newCurrentPlace.getFloors().size() != 0)
+            toolbarTitle.setText(newCurrentPlace.getFloors().get(0).getName());
+        else
+            toolbarTitle.setText("-"); //TODO What should we present when only 1 floor is available?
+
+        updateArrows(0);
 
         getSupportFragmentManager().popBackStack();
 
