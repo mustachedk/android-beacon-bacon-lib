@@ -118,33 +118,33 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.bb_toolbar_title_layout:
-                floatingActionButton.hide();
-                placeSelectionFragment = new PlaceSelectionFragment();
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_bottom, R.anim.slide_in_bottom, R.anim.slide_out_bottom)
-                        .replace(R.id.fragment_container, placeSelectionFragment, "place_selection_fragment")
-                        .addToBackStack(null)
-                        .commit();
-                break;
-            case R.id.map_poi_fab:
-                floatingActionButton.hide();
-                poiSelectionFragment = new PoiSelectionFragment();
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_bottom, R.anim.slide_in_bottom, R.anim.slide_out_bottom)
-                        .replace(R.id.fragment_container, poiSelectionFragment, "poi_selection_fragment")
-                        .addToBackStack(null)
-                        .commit();
-                break;
-            case R.id.bb_toolbar_arrow_left:
-                updateArrows(-1);
-                break;
-            case R.id.bb_toolbar_arrow_right:
-                updateArrows(1);
-                break;
+        int i = view.getId();
+        if (i == R.id.bb_toolbar_title_layout) {
+            floatingActionButton.hide();
+            placeSelectionFragment = new PlaceSelectionFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_bottom, R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+                    .replace(R.id.fragment_container, placeSelectionFragment, "place_selection_fragment")
+                    .addToBackStack(null)
+                    .commit();
+
+        } else if (i == R.id.map_poi_fab) {
+            floatingActionButton.hide();
+            poiSelectionFragment = new PoiSelectionFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_bottom, R.anim.slide_in_bottom, R.anim.slide_out_bottom)
+                    .replace(R.id.fragment_container, poiSelectionFragment, "poi_selection_fragment")
+                    .addToBackStack(null)
+                    .commit();
+
+        } else if (i == R.id.bb_toolbar_arrow_left) {
+            updateArrows(-1);
+
+        } else if (i == R.id.bb_toolbar_arrow_right) {
+            updateArrows(1);
+
         }
     }
 
