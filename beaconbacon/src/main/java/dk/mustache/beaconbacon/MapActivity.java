@@ -230,8 +230,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                     updateArrows(0);
 
 
-                    //In progress
-                    //TODO Seems we need further access to get image through picasso
+
+                    //----- Picasso testing
                     OkHttpClient client = new OkHttpClient.Builder()
                             .addInterceptor(new Interceptor() {
                                 @Override
@@ -239,6 +239,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                                     Request newRequest = chain.request().newBuilder()
                                             .addHeader("Authorization", "Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm")
                                             .build();
+
                                     return chain.proceed(newRequest);
                                 }
                             })
@@ -247,6 +248,27 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                     Picasso picasso = new Picasso.Builder(this)
                             .downloader(new OkHttp3Downloader(client))
                             .build();
+                    //-------Picasso testing
+
+//
+//
+//                    //In progress
+//                    //TODO Seems we need further access to get image through picasso
+//                    OkHttpClient client = new OkHttpClient.Builder()
+//                            .addInterceptor(new Interceptor() {
+//                                @Override
+//                                public Response intercept(Chain chain) throws IOException {
+//                                    Request newRequest = chain.request().newBuilder()
+//                                            .addHeader("Authorization", "Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm")
+//                                            .build();
+//                                    return chain.proceed(newRequest);%s
+//                                }
+//                            })
+//                            .build();
+//
+//                    Picasso picasso = new Picasso.Builder(this)
+//                            .downloader(new OkHttp3Downloader(client))
+//                            .build();
 
                     if(place.getFloors() != null) {
                         //Usually Picasso.with(context), but possibly not when using okhttp3downloader
