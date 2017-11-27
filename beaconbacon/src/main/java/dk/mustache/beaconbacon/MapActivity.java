@@ -238,7 +238,6 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                                 public Response intercept(Chain chain) throws IOException {
                                     Request newRequest = chain.request().newBuilder()
                                             .addHeader("Authorization", "Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm")
-                                            .addHeader("Accept", "application/json")
                                             .build();
                                     return chain.proceed(newRequest);
                                 }
