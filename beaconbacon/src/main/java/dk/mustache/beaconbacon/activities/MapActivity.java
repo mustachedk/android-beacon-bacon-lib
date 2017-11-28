@@ -1,7 +1,6 @@
 package dk.mustache.beaconbacon.activities;
 
 import android.content.DialogInterface;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -290,6 +289,16 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         String jsonOutput = output.getString("json");
         Type listType = new TypeToken<List<BBPoiMenuItem>>(){}.getType();
         List<BBPoiMenuItem> menuItems = gson.fromJson(jsonOutput, listType);
+
+        //Sort the Place's floors by Order
+        if(menuItems != null) {
+            Collections.sort(menuItems, new Comparator<BBPoiMenuItem>() {
+                @Override
+                public int compare(BBPoiMenuItem order1, BBPoiMenuItem order2) {
+                    return order1.getOrder() - order2.getOrder();
+                }
+            });
+        }
 
         for(int i=0; i<DataManager.getInstance().getAllPlaces().getData().size(); i++) {
             if(placeId == DataManager.getInstance().getAllPlaces().getData().get(i).getId()) {

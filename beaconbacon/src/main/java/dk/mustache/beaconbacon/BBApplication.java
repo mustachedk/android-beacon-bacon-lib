@@ -31,6 +31,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.Collections;
+import java.util.Comparator;
+
+import dk.mustache.beaconbacon.datamodels.BBPlace;
+import dk.mustache.beaconbacon.datamodels.BBPoiMenuItem;
 import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.data.DataManager;
@@ -64,22 +69,17 @@ public class BBApplication extends Application implements AllPlacesAsyncResponse
         JsonElement mJson =  new JsonParser().parse(output.toString());
         AllPlaces allPlaces = new Gson().fromJson(mJson, AllPlaces.class);
 
+        //Sort the Place's floors by Order
+        if(allPlaces.getData() != null) {
+            Collections.sort(allPlaces.getData(), new Comparator<BBPlace>() {
+                @Override
+                public int compare(BBPlace place1, BBPlace place2) {
+                    return place1.getOrder() - place2.getOrder();
+                }
+            });
+        }
+
         //Set all places in our DataManager
         DataManager.getInstance().setAllPlaces(allPlaces);
-
-        //THIS IS FOR SPECIFIC PLACE
-//        for(int i=0; i<allPlaces.getData().size(); i++) {
-//            GetSpecificPlaceAsync getSpecificPlaceAsync = new GetSpecificPlaceAsync();
-//            getSpecificPlaceAsync.delegate = this;
-//            ApiManager.createInstance(this).fetchSpecificPlaceAsync(getSpecificPlaceAsync, String.valueOf(allPlaces.getData().get(i).getId()));
-//        }
-//
-//        if(placeSelectionFragment != null && placeSelectionFragment.adapter != null)
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    placeSelectionFragment.adapter.notifyDataSetChanged();
-//                }
-//            });
     }
 }
