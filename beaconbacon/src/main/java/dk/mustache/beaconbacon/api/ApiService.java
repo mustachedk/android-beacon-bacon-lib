@@ -1,9 +1,9 @@
-package dk.mustache.beaconbacon.data;
+package dk.mustache.beaconbacon.api;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import retrofit2.Call;
-import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
@@ -33,10 +33,9 @@ THE SOFTWARE.
 */
 
 public interface ApiService {
-
     @Headers({
-            "Accept: application/json",
-            "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm"
+            "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",
+            "Accept: application/json"
     })
     @GET("place")
     Call<JsonObject> getAllPlaces();
@@ -53,12 +52,12 @@ public interface ApiService {
             "Accept: application/json",
     })
     @GET("place/{place_id}/menu")
-    Call<String> getMenuOverview(@Path("place_id") String place_id);
+    Call<JsonArray> getMenuOverview(@Path("place_id") String place_id);
 
     @Headers({
             "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",
             "Accept: application/json"
     })
     @POST("place/{place_id}/find")
-    Call<String> findTheBook(@Path("place_id") String place_id);
+    Call<JsonObject> findTheBook(@Path("place_id") String place_id);
 }

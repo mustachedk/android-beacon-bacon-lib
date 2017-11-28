@@ -1,26 +1,20 @@
-package dk.mustache.beaconbacon;
+package dk.mustache.beaconbacon.fragments;
 
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import dk.mustache.beaconbacon.adapters.PlaceSelectionAdapter;
+import dk.mustache.beaconbacon.R;
+import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.adapters.PoiSelectionAdapter;
-import dk.mustache.beaconbacon.data.ApiManager;
-import dk.mustache.beaconbacon.datamodels.Place;
+import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.data.DataManager;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -47,7 +41,7 @@ public class PoiSelectionFragment extends Fragment {
 
         //RecyclerView Setup
         stickyListHeadersListView = view.findViewById(R.id.poi_list);
-        stickyListHeadersAdapter = new PoiSelectionAdapter(getActivity(), ApiManager.createInstance().getAllPlaces().getData().get(0));
+        stickyListHeadersAdapter = new PoiSelectionAdapter(getActivity(), DataManager.getInstance().getCurrentPlace().getPoiMenuItem());
         stickyListHeadersListView.setAdapter(stickyListHeadersAdapter);
 
         return view;

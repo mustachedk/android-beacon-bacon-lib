@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.data;
+package dk.mustache.beaconbacon.api;
 
 /* CLASS NAME GOES HERE
 
@@ -23,40 +23,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-
 import android.os.AsyncTask;
+import android.os.Bundle;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 
 import java.io.IOException;
 
+import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.interfaces.MenuOverviewAsyncResponse;
 import retrofit2.Call;
 import retrofit2.Response;
 
-//region AsyncTasks
-public class GetAllPlacesAsync extends AsyncTask<Void, Void, JsonObject> {
-    public AllPlacesAsyncResponse delegate = null;
+public class GetMenuOverviewAsync extends AsyncTask<String, Void, Bundle> {
+    public MenuOverviewAsyncResponse delegate = null;
 
     @Override
-    protected JsonObject doInBackground(Void... voids) {
+    protected Bundle doInBackground(String... strings) {
 
-        Call<JsonObject> call = ApiManager.createInstance().getApiService().getAllPlaces();
+        Call<JsonArray> call = ApiManager.getInstance().getApiService().getMenuOverview(strings[0]);
 
-        Response<JsonObject> response = null;
+        Response<JsonArray> response = null;
         try {
             response = call.execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return response != null ? response.body() : null;
+        Bundle bundle = new Bundle();
+
+        if(response != null && response.body() != null)
+            bundle.putString("json", response.body().toString());
+
+        bundle.putString("place_id", strings[0]);
+
+        return bundle;
     }
 
     @Override
-    protected void onPostExecute(JsonObject result) {
+    protected void onPostExecute(Bundle result) {
         super.onPostExecute(result);
 
-        delegate.allPlacesAsyncFinished(result);
+        delegate.menuOverviewAsyncFinished(result);
     }
 }
 //endregion

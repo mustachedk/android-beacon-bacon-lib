@@ -34,7 +34,7 @@ public class AllPlaces {
     private String prev_page_url;
     private int from;
     private int to;
-    private List<Place> data;
+    private List<BBPlace> data;
 
     public AllPlaces() {
     }
@@ -104,11 +104,11 @@ public class AllPlaces {
         this.to = to;
     }
 
-    public List<Place> getData() {
+    public List<BBPlace> getData() {
         return data;
     }
 
-    public void setData(List<Place> data) {
+    public void setData(List<BBPlace> data) {
         this.data = data;
     }
 }

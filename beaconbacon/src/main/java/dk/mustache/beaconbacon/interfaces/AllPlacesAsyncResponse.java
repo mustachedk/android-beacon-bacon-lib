@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.data;
+package dk.mustache.beaconbacon.interfaces;
 
 /* CLASS NAME GOES HERE
 
@@ -25,6 +25,6 @@ THE SOFTWARE.
 
 import com.google.gson.JsonObject;
 
-public interface SpecificPlaceAsyncResponse {
-    void specificPlaceAsyncFinished(JsonObject output);
+public interface AllPlacesAsyncResponse {
+    void allPlacesAsyncFinished(JsonObject output);
 }

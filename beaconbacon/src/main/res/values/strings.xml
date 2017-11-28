@@ -6,4 +6,10 @@
     <string name="toolbar_place_title">Name of place</string>
     <string name="toolbar_poi_selection">Points of Interest</string>
     <string name="toolbar_place_selection">Select Library</string>
+
+    <!--Alerts-->
+    <string name="alert_title">Something went wrong</string>
+    <string name="alert_message_library">We could not find any map for your current library</string>
+
+    <string name="general_ok">OK</string>
 </resources>

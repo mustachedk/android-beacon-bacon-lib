@@ -23,10 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import java.util.Date;
 import java.util.List;
 
-public class Place {
+public class BBPlace {
     private int id;
     private int team_id;
     private String name;
@@ -45,7 +44,9 @@ public class Place {
     private int beacon_proximity_enabled;
     private int order;
     private int activated;
-    private List<Floor> floors;
+    private List<BBFloor> floors;
+
+    private List<BBPoiMenuItem> poiMenuItem;
 
     public int getId() {
         return id;
@@ -191,11 +192,19 @@ public class Place {
         this.activated = activated;
     }
 
-    public List<Floor> getFloors() {
+    public List<BBFloor> getFloors() {
         return floors;
     }
 
-    public void setFloors(List<Floor> floors) {
+    public void setFloors(List<BBFloor> floors) {
         this.floors = floors;
+    }
+
+    public List<BBPoiMenuItem> getPoiMenuItem() {
+        return poiMenuItem;
+    }
+
+    public void setPoiMenuItem(List<BBPoiMenuItem> poiMenuItem) {
+        this.poiMenuItem = poiMenuItem;
     }
 }

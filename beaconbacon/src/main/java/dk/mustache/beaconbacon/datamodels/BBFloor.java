@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 import java.util.List;
 
-public class Floor {
+public class BBFloor {
     private int id;
     private int team_id;
     private int place_id;

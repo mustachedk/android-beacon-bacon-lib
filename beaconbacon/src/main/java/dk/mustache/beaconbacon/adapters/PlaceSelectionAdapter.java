@@ -24,30 +24,28 @@ THE SOFTWARE.
 */
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.List;
 
-import dk.mustache.beaconbacon.MapActivity;
+import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.R;
-import dk.mustache.beaconbacon.data.ApiManager;
-import dk.mustache.beaconbacon.datamodels.Place;
+import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.datamodels.BBPlace;
 
 public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAdapter.ViewHolder> {
     private Context context;
-    private List<Place> places;
-    private Place currentPlace;
+    private List<BBPlace> places;
+    private BBPlace currentPlace;
 
-    public PlaceSelectionAdapter(Context context, List<Place> places, Place currentPlace) {
+    public PlaceSelectionAdapter(Context context, List<BBPlace> places, BBPlace currentPlace) {
         this.context = context;
         this.places = places;
         this.currentPlace = currentPlace;
@@ -65,7 +63,7 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.placeText.setText(places.get(position).getName());
 
-        if(places.get(position).getId() == currentPlace.getId())
+        if(currentPlace != null && places.get(position).getId() == currentPlace.getId())
             holder.checkBox.setChecked(true);
         else
             holder.checkBox.setChecked(false);
@@ -80,13 +78,12 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
             public void onClick(View view) {
                 holder.checkBox.setChecked(!holder.checkBox.isChecked());
                 currentPlace = places.get(position);
-                ApiManager.getInstance().setCurrentPlace(places.get(position));
-                ApiManager.getInstance().setCurrentFloor(0);
+                DataManager.getInstance().setCurrentPlace(places.get(position));
+                DataManager.getInstance().setCurrentFloor(0);
                 notifyDataSetChanged();
 
                 ((MapActivity) context).setNewCurrentPlace(places.get(position));
                 ((MapActivity) context).floatingActionButton.show();
-                //TODO pop the fragment
             }
         });
     }

@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#FFFFFF</color>
-    <color name="colorAccent">#FFFFFF</color>
+    <color name="colorAccent">#999999</color>
 
     <color name="colorToolbarShadow">#80999999</color>
     <color name="colorOverScroll">#80999999</color>

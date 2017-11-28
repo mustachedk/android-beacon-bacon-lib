@@ -1,10 +1,9 @@
-package dk.mustache.beaconbacon;
+package dk.mustache.beaconbacon.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -13,17 +12,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import dk.mustache.beaconbacon.R;
+import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.adapters.PlaceSelectionAdapter;
-import dk.mustache.beaconbacon.data.ApiManager;
-import dk.mustache.beaconbacon.datamodels.AllPlaces;
-import dk.mustache.beaconbacon.datamodels.Floor;
-import dk.mustache.beaconbacon.datamodels.Place;
+import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.datamodels.BBFloor;
 
 public class PlaceSelectionFragment extends Fragment {
-    private Floor currentFloor;
+    private BBFloor currentFloor;
 
     //RecyclerView Setup
     private RecyclerView recyclerView;
@@ -48,7 +45,7 @@ public class PlaceSelectionFragment extends Fragment {
 
         //RecyclerView Setup
         recyclerView = view.findViewById(R.id.place_list);
-        adapter = new PlaceSelectionAdapter(getActivity(), ApiManager.createInstance().getAllPlaces().getData(), ApiManager.createInstance().getCurrentPlace());
+        adapter = new PlaceSelectionAdapter(getActivity(), DataManager.getInstance().getAllPlaces().getData(), DataManager.getInstance().getCurrentPlace());
         recyclerView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);

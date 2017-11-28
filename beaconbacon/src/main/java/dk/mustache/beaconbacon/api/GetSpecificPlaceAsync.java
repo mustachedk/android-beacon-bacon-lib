@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.data;
+package dk.mustache.beaconbacon.api;
 
 /* CLASS NAME GOES HERE
 
@@ -23,8 +23,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+
+import android.os.AsyncTask;
+
 import com.google.gson.JsonObject;
 
-public interface AllPlacesAsyncResponse {
-    void allPlacesAsyncFinished(JsonObject output);
+import java.io.IOException;
+
+import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
+import retrofit2.Call;
+import retrofit2.Response;
+
+//region AsyncTasks
+public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
+    public SpecificPlaceAsyncResponse delegate = null;
+
+    @Override
+    protected JsonObject doInBackground(String... strings) {
+
+        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
+
+        Response<JsonObject> response = null;
+        try {
+            response = call.execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response != null ? response.body() : null;
+    }
+
+    @Override
+    protected void onPostExecute(JsonObject result) {
+        super.onPostExecute(result);
+
+        delegate.specificPlaceAsyncFinished(result);
+    }
 }
+//endregion
