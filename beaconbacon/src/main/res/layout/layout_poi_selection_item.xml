@@ -12,14 +12,23 @@
         android:orientation="horizontal"
         android:layout_weight="80">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/poi_selection_item_image"
+        <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_close"
             android:layout_gravity="center_vertical|end"
-            android:gravity="center_vertical|end"
-            android:layout_marginStart="@dimen/general_horizontal_margin"/>
+            android:layout_marginStart="@dimen/general_horizontal_margin"
+            android:gravity="center_vertical|end">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/poi_selection_item_image"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+            <dk.mustache.beaconbacon.customviews.AreaView
+                android:id="@+id/poi_selection_item_image_area"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/poi_selection_item_text"

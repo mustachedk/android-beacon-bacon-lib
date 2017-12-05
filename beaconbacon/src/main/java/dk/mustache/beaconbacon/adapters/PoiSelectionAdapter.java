@@ -41,6 +41,8 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.customviews.AreaView;
+import dk.mustache.beaconbacon.datamodels.BBPoi;
 import dk.mustache.beaconbacon.datamodels.BBPoiMenuItem;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
@@ -48,8 +50,14 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
     private LayoutInflater inflater;
     private List<BBPoiMenuItem> poiMenuItems = new ArrayList<>();
     private Context context;
+    private addSelectedPoisInterface addSelectedPoisInterface;
 
-    public PoiSelectionAdapter(Context context, List<BBPoiMenuItem> poiMenuItems) {
+    public interface addSelectedPoisInterface {
+        void addSelectedPoi(BBPoi pois);
+    }
+
+    public PoiSelectionAdapter(Context context, List<BBPoiMenuItem> poiMenuItems, addSelectedPoisInterface addSelectedPoisInterface) {
+        this.addSelectedPoisInterface = addSelectedPoisInterface;
         inflater = LayoutInflater.from(context);
         this.poiMenuItems = poiMenuItems;
         this.context = context;
@@ -86,6 +94,7 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                 holder.image = convertView.findViewById(R.id.poi_selection_item_image);
                 holder.checkBox = convertView.findViewById(R.id.poi_selection_item_checkbox);
                 holder.text = convertView.findViewById(R.id.poi_selection_item_text);
+                holder.areaView = convertView.findViewById(R.id.poi_selection_item_image_area);
 
 //                convertView.setTag(holder);
 //            } else {
@@ -101,6 +110,9 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                 @Override
                 public void onClick(View view) {
                     holder.checkBox.setChecked(!holder.checkBox.isChecked());
+                    addSelectedPoisInterface.addSelectedPoi(poiMenuItems.get(position).getPoi());
+
+                    //TODO Add the Filter category to a list, from which we'll add POIs to the Map when clsoing the Fragment
                 }
             });
 
@@ -110,7 +122,7 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
             if(!Objects.equals(poiMenuItems.get(position).getPoi().getIcon(), "")) {
                 ApiManager.getInstance().getPicasso().load(poiMenuItems.get(position).getPoi().getIcon())
                         .resize(200,//Integer.valueOf(place.getFloors().get(0).getMap_width_in_pixels() != null ? place.getFloors().get(0).getMap_width_in_pixels() : "0"),
-                                200)//Integer.valueOf(place.getFloors().get(0).getMap_height_int_pixels() != null ? place.getFloors().get(0).getMap_height_int_pixels() : "0"))
+                                200)//Integer.valueOf(place.getFloors().get(0).getMap_height_in_pixels() != null ? place.getFloors().get(0).getMap_height_in_pixels() : "0"))
                         .centerCrop()
                         .into(holder.image, new com.squareup.picasso.Callback() {
                             @Override
@@ -124,7 +136,7 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                             }
                         });
             } else if(Objects.equals(poiMenuItems.get(position).getPoi().getType(), "area")) {
-                //TODO Replace with custom colored drawable for area
+                holder.areaView.setCircleColor(Color.parseColor(poiMenuItems.get(position).getPoi().getColor()));
             }
 
             return convertView;
@@ -169,5 +181,6 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
         CircleImageView image;
         AppCompatCheckBox checkBox;
         TextView text;
+        AreaView areaView;
     }
 }

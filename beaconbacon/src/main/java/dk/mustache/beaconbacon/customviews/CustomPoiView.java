@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.api;
+package dk.mustache.beaconbacon.customviews;
 
 /* CLASS NAME GOES HERE
 
@@ -23,39 +23,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 
-import android.os.AsyncTask;
+import static dk.mustache.beaconbacon.utils.Converter.pxToDp;
 
-import com.google.gson.JsonObject;
+public class CustomPoiView {
+    private Bitmap bitmap;
+    //TODO create an infoBitmap (possibly as a layout resource to change the title)
+    private Bitmap infoBitmap;
+    private String title;
 
-import java.io.IOException;
+    public float radius;
 
-import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
-import retrofit2.Call;
-import retrofit2.Response;
+    public float cx;
+    public float cy;
 
-public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
-    public SpecificPlaceAsyncResponse delegate = null;
+    public CustomPoiView(Bitmap bitmap, float x, float y, float radius, String title) {
+        cx = pxToDp(x);
+        cy = pxToDp(y);
 
-    @Override
-    protected JsonObject doInBackground(String... strings) {
+        this.radius = radius;
+        this.title = title;
+        this.bitmap = bitmap;
+    }
 
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
+    public void draw(Canvas canvas) {
+        canvas.drawBitmap(Bitmap.createScaledBitmap(bitmap, (int) (radius*2), (int) (radius*2), false), cx-radius, cy-radius, null);
+    }
 
-        Response<JsonObject> response = null;
-        try {
-            response = call.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response != null ? response.body() : null;
+    public boolean contains(float x, float y) {
+        return Math.hypot(cx - x, cy - y) < radius;
     }
 
     @Override
-    protected void onPostExecute(JsonObject result) {
-        super.onPostExecute(result);
-
-        delegate.specificPlaceAsyncFinished(result);
+    public String toString() {
+        return title;
     }
 }

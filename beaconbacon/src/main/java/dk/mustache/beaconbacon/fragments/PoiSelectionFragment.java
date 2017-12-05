@@ -1,7 +1,7 @@
 package dk.mustache.beaconbacon.fragments;
 
-import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,18 +10,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.adapters.PoiSelectionAdapter;
-import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.datamodels.BBPoi;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
-public class PoiSelectionFragment extends Fragment {
+public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapter.addSelectedPoisInterface {
     //RecyclerView Setup
     private StickyListHeadersListView stickyListHeadersListView;
     private StickyListHeadersAdapter stickyListHeadersAdapter;
+    public List<BBPoi> selectedPois = new ArrayList<>();
 
     public PoiSelectionFragment() {
     }
@@ -41,7 +45,7 @@ public class PoiSelectionFragment extends Fragment {
 
         //RecyclerView Setup
         stickyListHeadersListView = view.findViewById(R.id.poi_list);
-        stickyListHeadersAdapter = new PoiSelectionAdapter(getActivity(), DataManager.getInstance().getCurrentPlace().getPoiMenuItem());
+        stickyListHeadersAdapter = new PoiSelectionAdapter(getActivity(), DataManager.getInstance().getCurrentPlace().getPoiMenuItem(), this);
         stickyListHeadersListView.setAdapter(stickyListHeadersAdapter);
 
         return view;
@@ -56,11 +60,18 @@ public class PoiSelectionFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
-            ((MapActivity) getActivity()).floatingActionButton.show();
+            ((MapActivity) getActivity()).setSelectedPois(selectedPois);
+            ((MapActivity) getActivity()).fabPoi.show();
+            ((MapActivity) getActivity()).fabFindTheBook.show();
             getActivity().getSupportFragmentManager().popBackStack();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void addSelectedPoi(BBPoi poi) {
+        selectedPois.add(poi);
     }
 }

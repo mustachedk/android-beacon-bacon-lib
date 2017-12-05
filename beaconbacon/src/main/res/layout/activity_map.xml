@@ -19,25 +19,46 @@
     <include layout="@layout/layout_toolbar_regular"/>
     <include layout="@layout/layout_toolbar_custom" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/map_poi_fab"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/general_vertical_margin"
-        android:layout_marginEnd="@dimen/general_horizontal_margin"
-        android:layout_marginStart="@dimen/general_horizontal_margin"
-        android:layout_marginTop="@dimen/general_vertical_margin"
-        android:clickable="true"
-        android:focusable="true"
-        app:backgroundTint="@android:color/white"
-        app:srcCompat="@drawable/ic_location" />
-
-    <ImageView
-        android:id="@+id/map_view"
+    <FrameLayout
+        android:id="@+id/map_view_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/ic_close"/>
+        android:src="@drawable/ic_close"
+        android:background="@color/mapBackground"
+        android:layout_marginTop="?attr/actionBarSize" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|end">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/map_poi_fab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/general_vertical_margin"
+            android:layout_marginEnd="@dimen/general_horizontal_margin"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@android:color/white"
+            app:srcCompat="@drawable/ic_location" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/map_ftb_fab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/map_poi_fab"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/general_vertical_margin"
+            android:layout_marginEnd="@dimen/general_horizontal_margin"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            app:backgroundTint="@android:color/white"
+            app:srcCompat="@drawable/ic_book" />
+
+    </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/map_progress_bar"
@@ -49,8 +70,5 @@
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </android.support.design.widget.CoordinatorLayout>
-
+        android:layout_height="match_parent"/>
 </FrameLayout>

@@ -10,4 +10,7 @@
     <color name="colorArrows">#80CCCCCC</color>
     <color name="colorArrowsEnd">#80EEEEEE</color>
     <color name="colorListHeader">#999999</color>
+    <color name="mapBackground">#80999999</color>
+
+    <color name="black">#4D000000</color>
 </resources>

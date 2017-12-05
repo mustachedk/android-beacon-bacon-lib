@@ -38,7 +38,7 @@ public class BBFloor {
     private String map_width_in_centimeters;
     private String map_height_in_centimeters;
     private String map_width_in_pixels;
-    private String map_height_int_pixels;
+    private String map_height_in_pixels;
     private String map_pixel_to_centimeter_ratio;
     private String map_walkable_color;
     private String map_background_color;
@@ -140,12 +140,12 @@ public class BBFloor {
         this.map_width_in_pixels = map_width_in_pixels;
     }
 
-    public String getMap_height_int_pixels() {
-        return map_height_int_pixels;
+    public String getMap_height_in_pixels() {
+        return map_height_in_pixels;
     }
 
-    public void setMap_height_int_pixels(String map_height_int_pixels) {
-        this.map_height_int_pixels = map_height_int_pixels;
+    public void setMap_height_in_pixels(String map_height_in_pixels) {
+        this.map_height_in_pixels = map_height_in_pixels;
     }
 
     public String getMap_pixel_to_centimeter_ratio() {

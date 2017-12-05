@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
@@ -59,5 +60,5 @@ public interface ApiService {
             "Accept: application/json"
     })
     @POST("place/{place_id}/find")
-    Call<JsonObject> findTheBook(@Path("place_id") String place_id);
+    Call<JsonObject> findTheBook(@Path("place_id") String place_id, @Body JsonObject body);
 }

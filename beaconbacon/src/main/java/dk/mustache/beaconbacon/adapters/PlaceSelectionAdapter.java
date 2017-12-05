@@ -36,7 +36,6 @@ import java.util.List;
 
 import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.R;
-import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.data.DataManager;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
 
@@ -83,7 +82,8 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
                 notifyDataSetChanged();
 
                 ((MapActivity) context).setNewCurrentPlace(places.get(position));
-                ((MapActivity) context).floatingActionButton.show();
+                ((MapActivity) context).fabPoi.show();
+                ((MapActivity) context).fabFindTheBook.show();
             }
         });
     }

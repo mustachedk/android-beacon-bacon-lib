@@ -7,7 +7,9 @@ import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.List;
 
+import dk.mustache.beaconbacon.datamodels.BBPoi;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -136,6 +138,18 @@ public class ApiManager {
 
     public void fetchMenuOverviewAsync(GetMenuOverviewAsync getMenuOverviewAsync, String placeId) {
         getMenuOverviewAsync.execute(placeId, null, null);
+    }
+
+    public void findTheBookAsync(FindTheBookAsync findTheBookAsync, String placeId) {
+        findTheBookAsync.execute(placeId, null, null);
+    }
+
+    public void getFloorImage(GetFloorImageAsync getFloorImageAsync) {
+        getFloorImageAsync.execute(null, null, null);
+    }
+
+    public void getIconImage(GetIconImageAsync getIconImageAsync, List<BBPoi> selectedPois) {
+        getIconImageAsync.execute(selectedPois, null, null);
     }
     //endregion
 }

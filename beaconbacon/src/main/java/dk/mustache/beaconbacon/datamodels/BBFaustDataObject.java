@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.api;
+package dk.mustache.beaconbacon.datamodels;
 
 /* CLASS NAME GOES HERE
 
@@ -23,39 +23,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+public class BBFaustDataObject {
+    private BBFaustDataFloor floor;
+    private BBFaustDataLocation location;
 
-import android.os.AsyncTask;
-
-import com.google.gson.JsonObject;
-
-import java.io.IOException;
-
-import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
-import retrofit2.Call;
-import retrofit2.Response;
-
-public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
-    public SpecificPlaceAsyncResponse delegate = null;
-
-    @Override
-    protected JsonObject doInBackground(String... strings) {
-
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
-
-        Response<JsonObject> response = null;
-        try {
-            response = call.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response != null ? response.body() : null;
+    public BBFaustDataFloor getFloor() {
+        return floor;
     }
 
-    @Override
-    protected void onPostExecute(JsonObject result) {
-        super.onPostExecute(result);
+    public void setFloor(BBFaustDataFloor floor) {
+        this.floor = floor;
+    }
 
-        delegate.specificPlaceAsyncFinished(result);
+    public BBFaustDataLocation getLocation() {
+        return location;
+    }
+
+    public void setLocation(BBFaustDataLocation location) {
+        this.location = location;
     }
 }

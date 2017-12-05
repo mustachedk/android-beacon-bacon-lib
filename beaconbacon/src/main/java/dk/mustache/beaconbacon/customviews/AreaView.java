@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.api;
+package dk.mustache.beaconbacon.customviews;
 
 /* CLASS NAME GOES HERE
 
@@ -23,39 +23,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+import android.content.Context;
+import android.graphics.PorterDuff;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
-import android.os.AsyncTask;
+import dk.mustache.beaconbacon.R;
 
-import com.google.gson.JsonObject;
+public class AreaView extends FrameLayout {
 
-import java.io.IOException;
-
-import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
-import retrofit2.Call;
-import retrofit2.Response;
-
-public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
-    public SpecificPlaceAsyncResponse delegate = null;
-
-    @Override
-    protected JsonObject doInBackground(String... strings) {
-
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
-
-        Response<JsonObject> response = null;
-        try {
-            response = call.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response != null ? response.body() : null;
+    public AreaView(Context context) {
+        super(context);
     }
 
-    @Override
-    protected void onPostExecute(JsonObject result) {
-        super.onPostExecute(result);
+    public AreaView(Context context, int color) {
+        super(context);
+    }
 
-        delegate.specificPlaceAsyncFinished(result);
+    public AreaView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public AreaView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void setCircleColor(int color) {
+        View view = inflate(getContext(), R.layout.layout_area_icon, null);
+        ImageView circle = view.findViewById(R.id.area_circle);
+        circle.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+
+        addView(view);
     }
 }

@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.api;
+package dk.mustache.beaconbacon.datamodels;
 
 /* CLASS NAME GOES HERE
 
@@ -23,39 +23,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+public class BBFaustDataFloor {
+    private int id;
+    private String map_pixel_to_centimeter_ratio;
 
-import android.os.AsyncTask;
-
-import com.google.gson.JsonObject;
-
-import java.io.IOException;
-
-import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
-import retrofit2.Call;
-import retrofit2.Response;
-
-public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
-    public SpecificPlaceAsyncResponse delegate = null;
-
-    @Override
-    protected JsonObject doInBackground(String... strings) {
-
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
-
-        Response<JsonObject> response = null;
-        try {
-            response = call.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response != null ? response.body() : null;
+    public int getId() {
+        return id;
     }
 
-    @Override
-    protected void onPostExecute(JsonObject result) {
-        super.onPostExecute(result);
+    public void setId(int id) {
+        this.id = id;
+    }
 
-        delegate.specificPlaceAsyncFinished(result);
+    public String getMap_pixel_to_centimeter_ratio() {
+        return map_pixel_to_centimeter_ratio;
+    }
+
+    public void setMap_pixel_to_centimeter_ratio(String map_pixel_to_centimeter_ratio) {
+        this.map_pixel_to_centimeter_ratio = map_pixel_to_centimeter_ratio;
     }
 }

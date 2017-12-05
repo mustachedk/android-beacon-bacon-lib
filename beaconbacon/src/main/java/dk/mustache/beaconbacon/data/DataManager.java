@@ -27,6 +27,7 @@ import android.content.Context;
 
 import dk.mustache.beaconbacon.datamodels.AllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
+import dk.mustache.beaconbacon.datamodels.BBRequestObject;
 
 public class DataManager {
     private static DataManager instance;
@@ -35,6 +36,8 @@ public class DataManager {
     private AllPlaces allPlaces;
     private BBPlace currentPlace;
     private Integer currentFloor;
+
+    private BBRequestObject requestObject;
 
 
 
@@ -81,6 +84,14 @@ public class DataManager {
 
     public void setCurrentFloor(Integer currentFloor) {
         this.currentFloor = currentFloor;
+    }
+
+    public BBRequestObject getRequestObject() {
+        return requestObject;
+    }
+
+    public void setRequestObject(BBRequestObject requestObject) {
+        this.requestObject = requestObject;
     }
     //endregion
 }

@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.api;
+package dk.mustache.beaconbacon.datamodels;
 
 /* CLASS NAME GOES HERE
 
@@ -23,39 +23,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+public class BBFaustDataLocation {
+    private int id;
+    private String area;
+    private String type;
+    private int posX;
+    private int posY;
 
-import android.os.AsyncTask;
-
-import com.google.gson.JsonObject;
-
-import java.io.IOException;
-
-import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
-import retrofit2.Call;
-import retrofit2.Response;
-
-public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
-    public SpecificPlaceAsyncResponse delegate = null;
-
-    @Override
-    protected JsonObject doInBackground(String... strings) {
-
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
-
-        Response<JsonObject> response = null;
-        try {
-            response = call.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response != null ? response.body() : null;
+    public int getId() {
+        return id;
     }
 
-    @Override
-    protected void onPostExecute(JsonObject result) {
-        super.onPostExecute(result);
+    public void setId(int id) {
+        this.id = id;
+    }
 
-        delegate.specificPlaceAsyncFinished(result);
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getPosX() {
+        return posX;
+    }
+
+    public void setPosX(int posX) {
+        this.posX = posX;
+    }
+
+    public int getPosY() {
+        return posY;
+    }
+
+    public void setPosY(int posY) {
+        this.posY = posY;
     }
 }

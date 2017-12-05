@@ -1,4 +1,4 @@
-package dk.mustache.beaconbacon.api;
+package dk.mustache.beaconbacon.datamodels;
 
 /* CLASS NAME GOES HERE
 
@@ -23,39 +23,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+import java.util.List;
 
-import android.os.AsyncTask;
+import dk.mustache.beaconbacon.enums.DisplayType;
 
-import com.google.gson.JsonObject;
+public class BBResponseObject {
+    private String status;
+    private List<BBFaustDataObject> data;
 
-import java.io.IOException;
+    private DisplayType displayType;
+    private int radius;
 
-import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
-import retrofit2.Call;
-import retrofit2.Response;
-
-public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
-    public SpecificPlaceAsyncResponse delegate = null;
-
-    @Override
-    protected JsonObject doInBackground(String... strings) {
-
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
-
-        Response<JsonObject> response = null;
-        try {
-            response = call.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response != null ? response.body() : null;
+    public BBResponseObject() {
     }
 
-    @Override
-    protected void onPostExecute(JsonObject result) {
-        super.onPostExecute(result);
+    public String getStatus() {
+        return status;
+    }
 
-        delegate.specificPlaceAsyncFinished(result);
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<BBFaustDataObject> getData() {
+        return data;
+    }
+
+    public void setData(List<BBFaustDataObject> data) {
+        this.data = data;
+    }
+
+    public DisplayType getDisplayType() {
+        return displayType;
+    }
+
+    public void setDisplayType(DisplayType displayType) {
+        this.displayType = displayType;
+    }
+
+    public int getRadius() {
+        return radius;
+    }
+
+    public void setRadius(int radius) {
+        this.radius = radius;
     }
 }

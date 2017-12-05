@@ -34,17 +34,17 @@ import com.google.gson.JsonParser;
 import java.util.Collections;
 import java.util.Comparator;
 
-import dk.mustache.beaconbacon.datamodels.BBPlace;
-import dk.mustache.beaconbacon.datamodels.BBPoiMenuItem;
-import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 import dk.mustache.beaconbacon.api.ApiManager;
-import dk.mustache.beaconbacon.data.DataManager;
 import dk.mustache.beaconbacon.api.GetAllPlacesAsync;
+import dk.mustache.beaconbacon.data.DataManager;
 import dk.mustache.beaconbacon.datamodels.AllPlaces;
+import dk.mustache.beaconbacon.datamodels.BBPlace;
+import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 
 public class BBApplication extends Application implements AllPlacesAsyncResponse {
     public static final String TAG = "BeaconBacon";
     public static final String PLACE_ID = "place_id";
+    public static final String FAUST_ID = "faust_id";
 
     GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
 

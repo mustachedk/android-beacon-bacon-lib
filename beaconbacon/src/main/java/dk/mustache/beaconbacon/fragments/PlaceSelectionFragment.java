@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.adapters.PlaceSelectionAdapter;
-import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.data.DataManager;
 import dk.mustache.beaconbacon.datamodels.BBFloor;
 
@@ -62,7 +61,8 @@ public class PlaceSelectionFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
-            ((MapActivity) getActivity()).floatingActionButton.show();
+            ((MapActivity) getActivity()).fabPoi.show();
+            ((MapActivity) getActivity()).fabFindTheBook.show();
             getActivity().getSupportFragmentManager().popBackStack();
             return true;
         }
