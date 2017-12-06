@@ -141,6 +141,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 //We have a place id
                 findSpecificPlace(place_id, false);
             }
+
         } else {
             //Open place selection
             openPlaceSelectionFragment();
@@ -149,7 +150,6 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         return true;
@@ -157,13 +157,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_close) {
+        if (item.getItemId() == R.id.action_close) {
             if(getSupportFragmentManager().getBackStackEntryCount() != 0) {
                 //Let the fragment consume the event
                 return false;
@@ -300,15 +294,49 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
 
 
-    //region Async Tasks Finished
-    @Override
-    public void specificPlaceAsyncFinished(JsonObject output) {
-        //Get the Place from JsonObject output
-        JsonElement mJson = new JsonParser().parse(output.toString());
-        BBPlace place = new Gson().fromJson(mJson, BBPlace.class);
+    //region Update Content
+    private void updateMapView(boolean updateFloor, boolean updatePois, List<CustomPoiView> pois) {
+        customMapView
+                .animate()
+                .alpha(0)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Handler handler = new Handler();
+                        final Runnable runnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                if(!isFindingFloorImage && !isFindingPoiIcons) {
+                                    progressBar.setVisibility(View.GONE);
 
-        updatePlace(place);
-        updateMenuOverview(place);
+                                    customMapView.invalidate();
+                                    customMapView.clearAnimation();
+                                    customMapView
+                                            .animate()
+                                            .alpha(1)
+                                            .setDuration(300)
+                                            .start();
+                                } else {
+                                    handler.postDelayed(this, 100);
+                                }
+
+                            }
+                        };
+                        handler.postDelayed(runnable,100);
+                    }
+                })
+                .setDuration(300)
+                .start();
+
+        if(updateFloor)
+            customMapView.setImageBitmap(null);
+        if(updatePois)
+            customMapView.setPois(null);
+
+        if(!isFindingFloorImage)
+            customMapView.setImageBitmap(currentFloorImage);
+        if(!isFindingPoiIcons)
+            customMapView.setPois(pois);
     }
 
     private void updateMenuOverview(BBPlace place) {
@@ -359,6 +387,120 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         }
     }
 
+    private void updateArrows(int direction) {
+        if(DataManager.getInstance().getCurrentPlace().getFloors() != null && DataManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
+
+            int floorListSize = DataManager.getInstance().getCurrentPlace().getFloors().size();
+            int currentFloor = DataManager.getInstance().getCurrentFloor();
+
+            //Change the floor
+            if (direction == 1 && currentFloor != floorListSize - 1) {
+                //Update text
+                toolbarSubtitle.setText(DataManager.getInstance().getCurrentPlace().getName());
+                toolbarTitle.setText(DataManager.getInstance().getCurrentPlace().getFloors().get(currentFloor + direction).getName());
+
+                updateCurrentFloor(currentFloor + direction);
+            } else if (direction == -1 && currentFloor != 0) {
+                //Update text
+                toolbarSubtitle.setText(DataManager.getInstance().getCurrentPlace().getName());
+                toolbarTitle.setText(DataManager.getInstance().getCurrentPlace().getFloors().get(currentFloor + direction).getName());
+
+                updateCurrentFloor(currentFloor + direction);
+            }
+
+            //Update arrows
+            if (currentFloor + direction == 0) {
+                arrowLeft.setClickable(false);
+                arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left_light));
+            } else {
+                arrowLeft.setClickable(true);
+                arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left));
+            }
+
+            if (currentFloor + direction == floorListSize - 1) {
+                arrowRight.setClickable(false);
+                arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right_light));
+            } else {
+                arrowRight.setClickable(true);
+                arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right));
+            }
+        } else {
+            toolbarTitle.setText("-");
+            arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left_light));
+            arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right_light));
+        }
+    }
+
+    private void updateCurrentFloor(int newCurrentFloor) {
+        progressBar.setVisibility(View.VISIBLE);
+
+        DataManager.getInstance().setCurrentFloor(newCurrentFloor);
+        BBPlace currentPlace = DataManager.getInstance().getCurrentPlace();
+
+        if (currentPlace.getFloors() != null &&
+                currentPlace.getFloors().size() > 0 &&
+                !Objects.equals(currentPlace.getFloors().get(newCurrentFloor).getImage(), "")) {
+
+            GetFloorImageAsync getFloorImageAsync = new GetFloorImageAsync();
+            getFloorImageAsync.delegate = this;
+            ApiManager.getInstance().getFloorImage(getFloorImageAsync);
+
+            isFindingPoiIcons = true;
+
+            GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
+            getIconImageAsync.delegate = this;
+            ApiManager.getInstance().getIconImage(getIconImageAsync, selectedPois);
+        } else {
+            customMapView.setPois(null);
+            customMapView.setFindTheBook(null, null);
+            customMapView.setImageBitmap(null);
+        }
+    }
+
+    private void updateCurrentPlace(BBPlace newCurrentPlace) {
+        progressBar.setVisibility(View.VISIBLE);
+        DataManager.getInstance().setCurrentPlace(newCurrentPlace);
+    }
+    //endregion
+
+
+
+    //region Updates from Fragments
+    public void setSelectedPois(List<BBPoi> selectedPois) {
+        this.selectedPois = selectedPois;
+
+        isFindingPoiIcons = true;
+
+        GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
+        getIconImageAsync.delegate = this;
+        ApiManager.getInstance().getIconImage(getIconImageAsync, selectedPois);
+    }
+
+    public void setNewCurrentPlace(BBPlace newCurrentPlace) {
+        toolbarSubtitle.setText(newCurrentPlace.getName());
+        if(newCurrentPlace.getFloors() != null && newCurrentPlace.getFloors().size() != 0) {
+            toolbarTitle.setText(newCurrentPlace.getFloors().get(0).getName());
+        } else {
+            toolbarTitle.setText("-");
+        }
+
+        updateArrows(0);
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        getSupportFragmentManager().popBackStack();
+
+        //Initiate Fetch Specific Place
+        GetSpecificPlaceAsync getSpecificPlaceAsync = new GetSpecificPlaceAsync();
+        getSpecificPlaceAsync.delegate = this;
+        ApiManager.getInstance().fetchSpecificPlaceAsync(getSpecificPlaceAsync, String.valueOf(newCurrentPlace.getId()));
+    }
+    //endregion
+
+
+
+    //region Async Tasks Finished
+    //---Images
     @Override
     public void floorImageAsyncFinished(Bitmap bitmap) {
         isFindingFloorImage = false;
@@ -368,40 +510,48 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         updateMapView(true, false, null);
     }
 
-    private void updateMapView(boolean updateFloor, boolean updatePois, List<CustomPoiView> pois) {
-        customMapView
-                .animate()
-                .alpha(0)
-                .setDuration(300)
-                .start();
+    @Override
+    public void iconImageAsyncFinished(List<CustomPoiView> customPoiViews) {
+        isFindingPoiIcons = false;
+        updateMapView(false, true, customPoiViews);
+    }
+    //---
 
-        if(updateFloor)
-            customMapView.setImageBitmap(null);
-        if(updatePois)
-            customMapView.setPois(null);
+    @Override
+    public void specificPlaceAsyncFinished(JsonObject output) {
+        //Get the Place from JsonObject output
+        JsonElement mJson = new JsonParser().parse(output.toString());
+        BBPlace place = new Gson().fromJson(mJson, BBPlace.class);
 
-        if(!isFindingFloorImage)
-            customMapView.setImageBitmap(currentFloorImage);
-        if(!isFindingPoiIcons)
-            customMapView.setPois(pois);
-
-        if(!isFindingFloorImage && !isFindingPoiIcons) {
-            progressBar.setVisibility(View.GONE);
-
-            customMapView.clearAnimation();
-            customMapView.animate().alpha(1).setDuration(300).start();
-            customMapView.invalidate();
-        }
+        updatePlace(place);
+        updateMenuOverview(place);
     }
 
-    public void setSelectedPois(List<BBPoi> selectedPois) {
-        this.selectedPois = selectedPois;
+    @Override
+    public void menuOverviewAsyncFinished(Bundle output) {
+        int placeId = Integer.valueOf(output.getString("place_id"));
 
-        isFindingPoiIcons = true;
+        Gson gson = new Gson();
+        String jsonOutput = output.getString("json");
+        Type listType = new TypeToken<List<BBPoiMenuItem>>(){}.getType();
+        List<BBPoiMenuItem> menuItems = gson.fromJson(jsonOutput, listType);
 
-        GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
-        getIconImageAsync.delegate = this;
-        ApiManager.getInstance().getIconImage(getIconImageAsync, selectedPois);
+        //Sort the Place's floors by Order
+        if(menuItems != null) {
+            Collections.sort(menuItems, new Comparator<BBPoiMenuItem>() {
+                @Override
+                public int compare(BBPoiMenuItem order1, BBPoiMenuItem order2) {
+                    return order1.getOrder() - order2.getOrder();
+                }
+            });
+        }
+
+        //Find the place and update the POI Menu items
+        for(int i=0; i<DataManager.getInstance().getAllPlaces().getData().size(); i++) {
+            if(placeId == DataManager.getInstance().getAllPlaces().getData().get(i).getId()) {
+                DataManager.getInstance().getAllPlaces().getData().get(i).setPoiMenuItem(menuItems);
+            }
+        }
     }
 
     @Override
@@ -517,138 +667,6 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         */
 
         customMapView.setFindTheBook(DataManager.getInstance().getRequestObject().getImage(), responseObject);
-    }
-
-    @Override
-    public void iconImageAsyncFinished(List<CustomPoiView> customPoiViews) {
-        isFindingPoiIcons = false;
-        updateMapView(false, true, customPoiViews);
-    }
-
-    @Override
-    public void menuOverviewAsyncFinished(Bundle output) {
-        int placeId = Integer.valueOf(output.getString("place_id"));
-
-        Gson gson = new Gson();
-        String jsonOutput = output.getString("json");
-        Type listType = new TypeToken<List<BBPoiMenuItem>>(){}.getType();
-        List<BBPoiMenuItem> menuItems = gson.fromJson(jsonOutput, listType);
-
-        //Sort the Place's floors by Order
-        if(menuItems != null) {
-            Collections.sort(menuItems, new Comparator<BBPoiMenuItem>() {
-                @Override
-                public int compare(BBPoiMenuItem order1, BBPoiMenuItem order2) {
-                    return order1.getOrder() - order2.getOrder();
-                }
-            });
-        }
-
-        //Find the place and update the POI Menu items
-        for(int i=0; i<DataManager.getInstance().getAllPlaces().getData().size(); i++) {
-            if(placeId == DataManager.getInstance().getAllPlaces().getData().get(i).getId()) {
-                DataManager.getInstance().getAllPlaces().getData().get(i).setPoiMenuItem(menuItems);
-            }
-        }
-    }
-    //endregion
-
-
-
-    //region Update Content
-    public void setNewCurrentPlace(BBPlace newCurrentPlace) {
-        toolbarSubtitle.setText(newCurrentPlace.getName());
-        if(newCurrentPlace.getFloors() != null && newCurrentPlace.getFloors().size() != 0) {
-            toolbarTitle.setText(newCurrentPlace.getFloors().get(0).getName());
-        } else {
-            toolbarTitle.setText("-");
-        }
-
-        updateArrows(0);
-
-        progressBar.setVisibility(View.VISIBLE);
-
-        getSupportFragmentManager().popBackStack();
-
-        //Initiate Fetch Specific Place
-        GetSpecificPlaceAsync getSpecificPlaceAsync = new GetSpecificPlaceAsync();
-        getSpecificPlaceAsync.delegate = this;
-        ApiManager.getInstance().fetchSpecificPlaceAsync(getSpecificPlaceAsync, String.valueOf(newCurrentPlace.getId()));
-    }
-
-    private void updateArrows(int direction) {
-        if(DataManager.getInstance().getCurrentPlace().getFloors() != null && DataManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
-
-            int floorListSize = DataManager.getInstance().getCurrentPlace().getFloors().size();
-            int currentFloor = DataManager.getInstance().getCurrentFloor();
-
-            //Change the floor
-            if (direction == 1 && currentFloor != floorListSize - 1) {
-                //Update text
-                toolbarSubtitle.setText(DataManager.getInstance().getCurrentPlace().getName());
-                toolbarTitle.setText(DataManager.getInstance().getCurrentPlace().getFloors().get(currentFloor + direction).getName());
-
-                updateCurrentFloor(currentFloor + direction);
-            } else if (direction == -1 && currentFloor != 0) {
-                //Update text
-                toolbarSubtitle.setText(DataManager.getInstance().getCurrentPlace().getName());
-                toolbarTitle.setText(DataManager.getInstance().getCurrentPlace().getFloors().get(currentFloor + direction).getName());
-
-                updateCurrentFloor(currentFloor + direction);
-            }
-
-            //Update arrows
-            if (currentFloor + direction == 0) {
-                arrowLeft.setClickable(false);
-                arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left_light));
-            } else {
-                arrowLeft.setClickable(true);
-                arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left));
-            }
-
-            if (currentFloor + direction == floorListSize - 1) {
-                arrowRight.setClickable(false);
-                arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right_light));
-            } else {
-                arrowRight.setClickable(true);
-                arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right));
-            }
-        } else {
-            toolbarTitle.setText("-");
-            arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left_light));
-            arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right_light));
-        }
-    }
-
-    private void updateCurrentFloor(int newCurrentFloor) {
-        progressBar.setVisibility(View.VISIBLE);
-
-        DataManager.getInstance().setCurrentFloor(newCurrentFloor);
-        BBPlace currentPlace = DataManager.getInstance().getCurrentPlace();
-
-        if (currentPlace.getFloors() != null &&
-                currentPlace.getFloors().size() > 0 &&
-                !Objects.equals(currentPlace.getFloors().get(newCurrentFloor).getImage(), "")) {
-
-            GetFloorImageAsync getFloorImageAsync = new GetFloorImageAsync();
-            getFloorImageAsync.delegate = this;
-            ApiManager.getInstance().getFloorImage(getFloorImageAsync);
-
-            isFindingPoiIcons = true;
-
-            GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
-            getIconImageAsync.delegate = this;
-            ApiManager.getInstance().getIconImage(getIconImageAsync, selectedPois);
-        } else {
-            customMapView.setPois(null);
-            customMapView.setFindTheBook(null, null);
-            customMapView.setImageBitmap(null);
-        }
-    }
-
-    private void updateCurrentPlace(BBPlace newCurrentPlace) {
-        progressBar.setVisibility(View.VISIBLE);
-        DataManager.getInstance().setCurrentPlace(newCurrentPlace);
     }
     //endregion
 
