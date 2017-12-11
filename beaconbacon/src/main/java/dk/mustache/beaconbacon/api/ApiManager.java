@@ -9,6 +9,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.List;
 
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBPoi;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -46,6 +47,7 @@ public class ApiManager {
 
     //Test Environment
     private static final String BASE_URL = "https://app.beaconbacon.io/api/v2/";
+//    private static final String BASE_URL = "https://wayfindingkkb.dk/api/v2/";
     private static final String API_KEY = "Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm";
     private static final String AUTHORIZATION = "Authorization";
 
@@ -148,7 +150,8 @@ public class ApiManager {
         getFloorImageAsync.execute(null, null, null);
     }
 
-    public void getIconImage(GetIconImageAsync getIconImageAsync, List<BBPoi> selectedPois) {
+    public void getIconImage(Context context, GetIconImageAsync getIconImageAsync, List<BBPoi> selectedPois) {
+        BeaconBaconManager.getInstance().setContext(context);
         getIconImageAsync.execute(selectedPois, null, null);
     }
     //endregion

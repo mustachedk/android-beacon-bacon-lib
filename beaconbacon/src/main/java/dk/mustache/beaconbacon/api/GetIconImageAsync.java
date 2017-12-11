@@ -29,21 +29,22 @@ import android.os.AsyncTask;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import dk.mustache.beaconbacon.customviews.CustomPoiView;
-import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBLocation;
 import dk.mustache.beaconbacon.datamodels.BBPoi;
 import dk.mustache.beaconbacon.interfaces.IconImageAsyncResponse;
 
-import static dk.mustache.beaconbacon.utils.Converter.pxToDp;
+import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 
 public class GetIconImageAsync extends AsyncTask<List<BBPoi>, Void, List<CustomPoiView>> {
     public IconImageAsyncResponse delegate = null;
 
     @Override
     protected List<CustomPoiView> doInBackground(List<BBPoi>[] selectedPois) {
-        List<BBLocation> locations = DataManager.getInstance().getCurrentPlace().getFloors().get(DataManager.getInstance().getCurrentFloor()).getLocations();
+        List<BBLocation> locations = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getLocations();
         List<CustomPoiView> customPoiViewList = new ArrayList<>();
 
         if(locations != null) {
@@ -51,11 +52,16 @@ public class GetIconImageAsync extends AsyncTask<List<BBPoi>, Void, List<CustomP
                 if (locations.get(i).getPoi() != null && selectedPois[0] != null) {
                     for(int j=0; j< selectedPois[0].size(); j++) {
                         if(locations.get(i).getPoi().getId() == selectedPois[0].get(j).getId()) {
-                            try {
-                                Bitmap bitmap = ApiManager.getInstance().getPicasso().load(locations.get(i).getPoi().getIcon()).resize((int) pxToDp(500), (int) pxToDp(500)).centerCrop().get();
-                                customPoiViewList.add(new CustomPoiView(bitmap, locations.get(i).getPosX(), locations.get(i).getPosY(), (int) pxToDp(250), locations.get(i).getPoi().getName()));
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                            if(Objects.equals(locations.get(i).getPoi().getType(), "icon")) {
+                                try {
+                                    Bitmap bitmap = Bitmap.createScaledBitmap(ApiManager.getInstance().getPicasso().load(locations.get(i).getPoi().getIcon()).get(), (int) dpToPx(30), (int) dpToPx(30), false);
+                                    customPoiViewList.add(new CustomPoiView(BeaconBaconManager.getInstance().getContext(), bitmap, locations.get(i).getPosX(), locations.get(i).getPosY(), (int) dpToPx(15), locations.get(i).getPoi().getName(), false));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            } else if (Objects.equals(locations.get(i).getPoi().getType(), "area")) {
+                                if(!Objects.equals(locations.get(i).getArea(), ""))
+                                    customPoiViewList.add(new CustomPoiView(BeaconBaconManager.getInstance().getContext(), locations.get(i).getArea(), locations.get(i).getPoi().getColor(), locations.get(i).getPoi().getName()));
                             }
                         }
                     }
@@ -69,6 +75,9 @@ public class GetIconImageAsync extends AsyncTask<List<BBPoi>, Void, List<CustomP
     @Override
     protected void onPostExecute(List<CustomPoiView> result) {
         super.onPostExecute(result);
+
+        //TODO For testing Area drawing
+//        result.add(new CustomPoiView("536,4053,535,3290,1771,3298,2013,3062,2415,3060,2413,3367,2076,3380,2030,3375,2034,4045", "#FF0000", "NAME OF AREA"));
 
         delegate.iconImageAsyncFinished(result);
     }

@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/root_view">
 
     <!--Dummy View for elevation-->
     <LinearLayout
@@ -41,6 +42,7 @@
             android:layout_marginEnd="@dimen/general_horizontal_margin"
             android:clickable="true"
             android:focusable="true"
+            android:visibility="gone"
             app:backgroundTint="@android:color/white"
             app:srcCompat="@drawable/ic_location" />
 
@@ -56,7 +58,7 @@
             android:focusable="true"
             android:visibility="gone"
             app:backgroundTint="@android:color/white"
-            app:srcCompat="@drawable/ic_book" />
+            app:srcCompat="@drawable/ic_no_padding_test" />
 
     </RelativeLayout>
 

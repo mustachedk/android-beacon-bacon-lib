@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/find_the_book_frame"
+    android:layout_width="wrap_content"
+    android:layout_height="40dp">
+
+    <TextView
+        android:id="@+id/info_window_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:background="@drawable/white_box_shadowed"
+        android:paddingEnd="@dimen/general_horizontal_margin"
+        android:paddingStart="@dimen/general_horizontal_margin"
+        android:singleLine="true"
+        android:text="TextView"
+        android:textSize="20sp" />
+</FrameLayout>

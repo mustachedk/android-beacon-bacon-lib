@@ -42,22 +42,27 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.customviews.AreaView;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBPoi;
 import dk.mustache.beaconbacon.datamodels.BBPoiMenuItem;
+import dk.mustache.beaconbacon.utils.CheckboxColorUtil;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeadersAdapter {
     private LayoutInflater inflater;
     private List<BBPoiMenuItem> poiMenuItems = new ArrayList<>();
+    private List<BBPoi> selectedPois;
     private Context context;
     private addSelectedPoisInterface addSelectedPoisInterface;
 
     public interface addSelectedPoisInterface {
-        void addSelectedPoi(BBPoi pois);
+        void addSelectedPoi(BBPoi poi);
+        void removeSelectedPoi(BBPoi poi);
     }
 
-    public PoiSelectionAdapter(Context context, List<BBPoiMenuItem> poiMenuItems, addSelectedPoisInterface addSelectedPoisInterface) {
+    public PoiSelectionAdapter(Context context, List<BBPoiMenuItem> poiMenuItems, List<BBPoi> selectedPois, addSelectedPoisInterface addSelectedPoisInterface) {
         this.addSelectedPoisInterface = addSelectedPoisInterface;
+        this.selectedPois = selectedPois;
         inflater = LayoutInflater.from(context);
         this.poiMenuItems = poiMenuItems;
         this.context = context;
@@ -92,8 +97,15 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
 
                 holder.layout = convertView.findViewById(R.id.poi_selection_item_layout);
                 holder.image = convertView.findViewById(R.id.poi_selection_item_image);
+
                 holder.checkBox = convertView.findViewById(R.id.poi_selection_item_checkbox);
+                if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTintColor() != -1)
+                    CheckboxColorUtil.setAppCompatCheckBoxColors(holder.checkBox, Color.TRANSPARENT, context.getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
+
                 holder.text = convertView.findViewById(R.id.poi_selection_item_text);
+                if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+                    holder.text.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+
                 holder.areaView = convertView.findViewById(R.id.poi_selection_item_image_area);
 
 //                convertView.setTag(holder);
@@ -110,14 +122,28 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                 @Override
                 public void onClick(View view) {
                     holder.checkBox.setChecked(!holder.checkBox.isChecked());
-                    addSelectedPoisInterface.addSelectedPoi(poiMenuItems.get(position).getPoi());
-
-                    //TODO Add the Filter category to a list, from which we'll add POIs to the Map when clsoing the Fragment
+                    if(holder.checkBox.isChecked()) {
+                        addSelectedPoisInterface.addSelectedPoi(poiMenuItems.get(position).getPoi());
+                    } else {
+                        addSelectedPoisInterface.removeSelectedPoi(poiMenuItems.get(position).getPoi());
+                    }
                 }
             });
 
             holder.text.setText(poiMenuItems.get(position).getPoi().getName());
-            holder.checkBox.setChecked(false); //TODO Get state from active library
+
+            if(selectedPois != null) {
+                for(BBPoi poi : selectedPois) {
+                    if(poi.getId() == poiMenuItems.get(position).getPoi().getId()) {
+                        holder.checkBox.setChecked(true);
+                        break;
+                    } else {
+                        holder.checkBox.setChecked(false);
+                    }
+                }
+            } else {
+                holder.checkBox.setChecked(false);
+            }
 
             if(!Objects.equals(poiMenuItems.get(position).getPoi().getIcon(), "")) {
                 ApiManager.getInstance().getPicasso().load(poiMenuItems.get(position).getPoi().getIcon())
@@ -150,16 +176,18 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
         if(poiMenuItems.get(position).getPoi() == null) {
             HeaderViewHolder holder;
 
-            if (convertView == null) {
+//            if (convertView == null) {
                 holder = new HeaderViewHolder();
                 convertView = inflater.inflate(R.layout.layout_poi_selection_header_item, parent, false);
                 holder.header = convertView.findViewById(R.id.header_item_text);
                 convertView.setTag(holder);
-            } else {
-                holder = (HeaderViewHolder) convertView.getTag();
-            }
+//            } else {
+//                holder = (HeaderViewHolder) convertView.getTag();
+//            }
 
             holder.header.setText(poiMenuItems.get(position).getTitle());
+            if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+                holder.header.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
             return convertView;
         } else {

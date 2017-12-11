@@ -5,12 +5,14 @@
     <color name="colorAccent">#999999</color>
 
     <color name="colorToolbarShadow">#80999999</color>
+    <color name="colorInfoBoxShadowEnd">#33999999</color>
+    <color name="colorInfoBoxShadowBegin">#11999999</color>
     <color name="colorOverScroll">#80999999</color>
     <color name="colorListItem">#80DDDDDD</color>
     <color name="colorArrows">#80CCCCCC</color>
     <color name="colorArrowsEnd">#80EEEEEE</color>
     <color name="colorListHeader">#999999</color>
-    <color name="mapBackground">#80999999</color>
+    <color name="mapBackground">#CED3D5</color>
 
     <color name="black">#4D000000</color>
 </resources>

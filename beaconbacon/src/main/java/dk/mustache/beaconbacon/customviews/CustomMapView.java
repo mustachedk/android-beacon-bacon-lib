@@ -42,7 +42,7 @@ import android.view.WindowManager;
 import java.util.List;
 
 import dk.mustache.beaconbacon.R;
-import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 
 public class CustomMapView extends AppCompatImageView {
@@ -103,13 +103,14 @@ public class CustomMapView extends AppCompatImageView {
 //        invalidate();
     }
 
-    public void setPois(List<CustomPoiView> customPoiViews) {
+    public void setPois(List<CustomPoiView> customPoiViews, boolean invalidate) {
         //Create custom poi views base don list
         if(customPoiViews != null) {
             pois = new CustomPoiView[customPoiViews.size()];
             customPoiViews.toArray(pois);
 
             WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
 
             float scaleX = 1.0f;
 
@@ -124,13 +125,15 @@ public class CustomMapView extends AppCompatImageView {
                 scaleX = scaleY = Math.min(scaleX, scaleY);
             }
 
-            //Change radius of pois based on scale
+            //Change radius of poiArray based on scale
             for (CustomPoiView poi : pois) {
                 poi.radius = poi.radius / scaleFactor * scaleX;
+                poi.infoScale = poi.infoScale / scaleFactor * scaleX;
             }
 
             //Update view
-//            invalidate();
+            if(invalidate)
+                invalidate();
         }
     }
 
@@ -141,7 +144,6 @@ public class CustomMapView extends AppCompatImageView {
         Display display = w.getDefaultDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
-        Log.d("DensityDpi", metrics.density + "");
 
         int desiredWidth = metrics.widthPixels;
         int desiredHeight = metrics.heightPixels;
@@ -190,8 +192,8 @@ public class CustomMapView extends AppCompatImageView {
 //        display.getMetrics(metrics);
 //        Log.d("DensityDpi", metrics.density + "");
 //
-//        if(this.bitmap != null) {
-//            setMeasuredDimension(bitmap.getWidth(), bitmap.getHeight());
+//        if(this.mapBitmap != null) {
+//            setMeasuredDimension(mapBitmap.getWidth(), mapBitmap.getHeight());
 //        } else {
 //            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 //        }
@@ -200,17 +202,25 @@ public class CustomMapView extends AppCompatImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.concat(matrix);
-        if(bitmap != null) {
-            //Padding has already been applied
-            canvas.drawBitmap(bitmap, 0, 0, null);
 
-            if(pois != null) {
+        if(bitmap != null) {
+            canvas.drawBitmap(bitmap, 0, 0, null); //Padding has already been applied
+
+            /*
+            List<CustomPoiView> list = new ArrayList<>();
+            for (int i=0; i<poiArray.length; i++) {
+                list.add(poiArray[i]);
+            }
+            setMapPois(list, true);
+            */
+
+            if (pois != null) {
                 for (CustomPoiView poi : pois) {
                     poi.draw(canvas);
                 }
             }
 
-            if(findTheBookObject != null)
+            if (findTheBookObject != null)
                 findTheBookObject.draw(canvas);
         }
     }
@@ -252,6 +262,14 @@ public class CustomMapView extends AppCompatImageView {
             if(findTheBookObject != null) {
                 if (findTheBookObject.contains(pts[0], pts[1])) {
                     name = findTheBookObject.toString();
+                    if(findTheBookObject.infoWindowText.getVisibility() == GONE)
+                        findTheBookObject.infoWindowText.setVisibility(VISIBLE);
+                    else
+                        findTheBookObject.infoWindowText.setVisibility(GONE);
+
+                    findTheBookObject.infoWindowText.setText(name);
+
+                    invalidate();
                 }
             }
 
@@ -259,6 +277,14 @@ public class CustomMapView extends AppCompatImageView {
                 for (CustomPoiView poi : pois) {
                     if (poi.contains(pts[0], pts[1])) {
                         name = poi.toString();
+                        if(poi.infoWindowText.getVisibility() == GONE)
+                            poi.infoWindowText.setVisibility(VISIBLE);
+                        else
+                            poi.infoWindowText.setVisibility(GONE);
+
+                        poi.infoWindowText.setText(name);
+
+                        invalidate();
                         break;
                     }
                 }
@@ -282,18 +308,21 @@ public class CustomMapView extends AppCompatImageView {
             if(scaleFactor >= MIN_ZOOM && scaleFactor <= MAX_ZOOM) {
                 float scale = detector.getScaleFactor();
 
-                //Scale the bitmap
+                //Scale the mapBitmap
                 matrix.postScale(scale, scale, detector.getFocusX(), detector.getFocusY());
 
-                //Change radius of pois based on scale
+                //Change radius of poiArray based on scale
                 if(pois != null) {
                     for (CustomPoiView poi : pois) {
                         poi.radius = poi.radius / scale;
+                        poi.infoScale = poi.infoScale / scale;
                     }
                 }
 
-                if(findTheBookObject != null)
+                if(findTheBookObject != null) {
                     findTheBookObject.radius = findTheBookObject.radius / scale;
+                    findTheBookObject.infoScale = findTheBookObject.infoScale / scale;
+                }
 
                 //Update view
                 invalidate();
@@ -304,6 +333,33 @@ public class CustomMapView extends AppCompatImageView {
             return true;
         }
     };
+
+    public void moveViewToBook() {
+        //Capture current X/Y values
+        float[] values = new float[9];
+        matrix.getValues(values);
+        float currentX = values[Matrix.MTRANS_X];
+        float currentY = values[Matrix.MTRANS_Y];
+
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+        if (windowManager != null) {
+            //Get screen dimensions
+            Display display = windowManager.getDefaultDisplay();
+            DisplayMetrics metrics = new DisplayMetrics();
+            display.getMetrics(metrics);
+
+            //Translate the map
+            //TODO Finalize the calulation to center the book on screen
+
+
+
+            matrix.postTranslate(metrics.widthPixels/2 - findTheBookObject.cx, metrics.heightPixels/2 - findTheBookObject.cy);
+
+            //Update view
+            invalidate();
+        }
+    }
 
     private void fitImageToView() {
         if(bitmap != null) {
@@ -327,7 +383,6 @@ public class CustomMapView extends AppCompatImageView {
                 //Set scale and translate image to center
                 matrix.setScale(scaleX, scaleY);
                 matrix.postTranslate(redundantXSpace / 2, redundantYSpace / 2);
-
                 //Update view
 //                invalidate();
             }
@@ -345,11 +400,12 @@ public class CustomMapView extends AppCompatImageView {
             if(bitmap == null)
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_book);
 
-            findTheBookObject = new CustomPoiView(bitmap,
+            findTheBookObject = new CustomPoiView(context, bitmap,
                     responseObject.getData().get(0).getLocation().getPosX(),
                     responseObject.getData().get(0).getLocation().getPosY(),
                     responseObject.getRadius(),
-                    DataManager.getInstance().getRequestObject().getTitle());
+                    BeaconBaconManager.getInstance().getRequestObject().getTitle(),
+                    true);
 
             WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
@@ -366,14 +422,17 @@ public class CustomMapView extends AppCompatImageView {
                 scaleX = scaleY = Math.min(scaleX, scaleY);
             }
 
-            //Change radius of pois based on scale
+            //Change radius of poiArray based on scale
 //            int radius = findTheBookObject.radius != 0 ? (int) findTheBookObject.radius : 10;
-            int radius = 10;
+            int radius = 6;
 
             findTheBookObject.radius = radius / scaleFactor * scaleX;
 
             //Update view
 //            invalidate();
+        } else {
+            //Refresh view to show no FindTheBook Object because it does not exist
+            invalidate();
         }
     }
 }

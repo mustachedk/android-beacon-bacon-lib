@@ -24,6 +24,7 @@ THE SOFTWARE.
 */
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -36,7 +37,7 @@ import java.util.Comparator;
 
 import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.api.GetAllPlacesAsync;
-import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.AllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
 import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
@@ -46,19 +47,26 @@ public class BBApplication extends Application implements AllPlacesAsyncResponse
     public static final String PLACE_ID = "place_id";
     public static final String FAUST_ID = "faust_id";
 
+    private static Context context;
+
     GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
 
     @Override
     public void onCreate() {
         super.onCreate();
+        context = this;
 
         //Instantiate our ApiManager
         ApiManager.createInstance(this);
-        DataManager.createInstance(this);
+        BeaconBaconManager.createInstance(this);
 
         //Get the basics of All Places right away
         getAllPlacesAsync.delegate = this;
         ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
+    }
+
+    public static Context getContext(){
+        return context;
     }
 
     @Override
@@ -79,7 +87,7 @@ public class BBApplication extends Application implements AllPlacesAsyncResponse
             });
         }
 
-        //Set all places in our DataManager
-        DataManager.getInstance().setAllPlaces(allPlaces);
+        //Set all places in our BeaconBaconManager
+        BeaconBaconManager.getInstance().setAllPlaces(allPlaces);
     }
 }

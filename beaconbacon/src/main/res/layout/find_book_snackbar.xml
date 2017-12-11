@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:gravity="start">
+
+    <ImageView
+        android:id="@+id/snack_image"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/general_vertical_margin"
+        android:layout_marginTop="@dimen/general_vertical_margin"
+        android:adjustViewBounds="true"
+        android:fitsSystemWindows="false"
+        app:srcCompat="@drawable/ic_no_padding_test" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/general_horizontal_margin"
+        android:layout_marginStart="@dimen/general_horizontal_margin"
+        android:layout_toEndOf="@id/snack_image"
+        android:layout_toStartOf="@id/snack_action"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/snack_text_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="TextView"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/snack_text_subheader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="TextView"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/snack_action"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/general_vertical_margin"
+        android:layout_marginTop="@dimen/general_vertical_margin"
+        android:background="@android:color/black"
+        android:text="Afslut"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="12sp" />
+</RelativeLayout>

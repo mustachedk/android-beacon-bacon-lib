@@ -34,10 +34,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.R;
-import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.activities.MapActivity;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
+import dk.mustache.beaconbacon.utils.CheckboxColorUtil;
 
 public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAdapter.ViewHolder> {
     private Context context;
@@ -77,13 +78,25 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
             public void onClick(View view) {
                 holder.checkBox.setChecked(!holder.checkBox.isChecked());
                 currentPlace = places.get(position);
-                DataManager.getInstance().setCurrentPlace(places.get(position));
-                DataManager.getInstance().setCurrentFloor(0);
+                BeaconBaconManager.getInstance().setCurrentPlace(places.get(position));
+                BeaconBaconManager.getInstance().setCurrentFloorIndex(0);
+                BeaconBaconManager.getInstance().setCurrentFloorId(-1);
                 notifyDataSetChanged();
 
                 ((MapActivity) context).setNewCurrentPlace(places.get(position));
                 ((MapActivity) context).fabPoi.show();
                 ((MapActivity) context).fabFindTheBook.show();
+
+                if(BeaconBaconManager.getInstance().getRequestObject() != null)
+                    ((MapActivity) context).findABook(String.valueOf(places.get(position).getId()));
+
+                if(((MapActivity) context).snackbar != null) {
+                    ((MapActivity) context).snackbar.getView().setVisibility(View.VISIBLE);
+                    ((MapActivity) context).snackbar.getView().animate()
+                            .alpha(1)
+                            .setDuration(300)
+                            .start();
+                }
             }
         });
     }
@@ -100,7 +113,12 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
         private ViewHolder(View itemView, int viewType) {
             super(itemView);
             placeText = itemView.findViewById(R.id.place_selection_item_text);
+            if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+                placeText.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+
             checkBox = itemView.findViewById(R.id.place_selection_item_checkbox);
+            if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTintColor() != -1)
+                CheckboxColorUtil.setAppCompatCheckBoxColors(checkBox, Color.TRANSPARENT, context.getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
         }
     }
 }

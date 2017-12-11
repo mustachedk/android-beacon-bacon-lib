@@ -23,31 +23,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import android.content.res.Resources;
-import android.util.DisplayMetrics;
+import android.content.res.ColorStateList;
+import android.support.v4.widget.CompoundButtonCompat;
+import android.support.v7.widget.AppCompatCheckBox;
 
-public class Converter {
-    /**
-     * This method converts dp unit to equivalent pixels, depending on device density.
-     *
-     * @param dp A value in dp (density independent pixels) unit. Which we need to convert into pixels
-     * @return A float value to represent px equivalent to dp depending on device density
-     */
-    public static float dpToPx(float dp) {
-        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return px;
-    }
-
-    /**
-     * This method converts device specific pixels to density independent pixels.
-     *
-     * @param px A value in px (pixels) unit. Which we need to convert into db
-     * @return A float value to represent dp equivalent to px value
-     */
-    public static float pxToDp(float px) {
-        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-        float dp = px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return dp;
+public class CheckboxColorUtil {
+    public static void setAppCompatCheckBoxColors(final AppCompatCheckBox _checkbox, final int _uncheckedColor, final int _checkedColor) {
+        int[][] states = new int[][]{new int[]{-android.R.attr.state_checked}, new int[]{android.R.attr.state_checked}};
+        int[] colors = new int[]{_uncheckedColor, _checkedColor};
+        CompoundButtonCompat.setButtonTintList(_checkbox, new ColorStateList(states, colors));
     }
 }

@@ -24,12 +24,23 @@ THE SOFTWARE.
 */
 
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.Locale;
+
 import dk.mustache.beaconbacon.R;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
+import dk.mustache.beaconbacon.datamodels.BBConfigurationObject;
+import dk.mustache.beaconbacon.datamodels.BBRequestObject;
+
+import static dk.mustache.beaconbacon.BBApplication.FAUST_ID;
+import static dk.mustache.beaconbacon.BBApplication.PLACE_ID;
 
 public class DemoActivity extends AppCompatActivity implements View.OnClickListener {
     private Button configNoStyle;
@@ -37,8 +48,11 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
     private Button configStyle2;
 
     private Button placeKbhBib;
-    private Button placeMustache;
+    private Button placeValbyBib;
     private Button placeUnsupported;
+
+    private String placeId = null;
+    private String faustId = "29715394";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +66,7 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
         configStyle2 = findViewById(R.id.config_style_2);
 
         placeKbhBib = findViewById(R.id.place_kbh_bib);
-        placeMustache = findViewById(R.id.place_mustache);
+        placeValbyBib = findViewById(R.id.place_valby);
         placeUnsupported = findViewById(R.id.place_unsupported);
 
         Button mapNoWayfinding = findViewById(R.id.map_no_wayfinding);
@@ -63,7 +77,7 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
         configStyle2.setOnClickListener(this);
 
         placeKbhBib.setOnClickListener(this);
-        placeMustache.setOnClickListener(this);
+        placeValbyBib.setOnClickListener(this);
         placeUnsupported.setOnClickListener(this);
 
         mapNoWayfinding.setOnClickListener(this);
@@ -75,37 +89,38 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.config_no_style:
                 setConfigBtnColor(configNoStyle);
-                applyConfiguration();
                 break;
             case R.id.config_style_1:
                 setConfigBtnColor(configStyle1);
-                applyConfiguration();
+                applyConfiguration("Arial.ttf", android.R.color.holo_red_dark);
                 break;
             case R.id.config_style_2:
                 setConfigBtnColor(configStyle2);
-                applyConfiguration();
+                applyConfiguration("Courier New.ttf", android.R.color.holo_green_dark);
                 break;
             case R.id.place_kbh_bib:
                 setPlaceBtnColor(placeKbhBib);
-                applyPlace();
+                applyPlace("1");
                 break;
-            case R.id.place_mustache:
-                setPlaceBtnColor(placeMustache);
-                applyPlace();
+            case R.id.place_valby:
+                setPlaceBtnColor(placeValbyBib);
+                applyPlace("2");
                 break;
             case R.id.place_unsupported:
                 setPlaceBtnColor(placeUnsupported);
-                applyPlace();
+                applyPlace("-1");
                 break;
             case R.id.map_no_wayfinding:
                 Intent intentNoWayfinding = new Intent(DemoActivity.this, MapActivity.class);
-                //TODO Add variables (), (place_id), (place_id, faust_id)
+                intentNoWayfinding.putExtra(PLACE_ID, placeId);
                 startActivity(intentNoWayfinding);
                 overridePendingTransition(R.anim.slide_in_bottom, R.anim.hold_anim);
                 break;
             case R.id.map_wayfinding:
+                BeaconBaconManager.getInstance().setRequestObject(new BBRequestObject("IMS", faustId, "Title", "Subtitle", BitmapFactory.decodeResource(getResources(), R.drawable.ic_no_padding_test)));
                 Intent intentWayfinding = new Intent(DemoActivity.this, MapActivity.class);
-                //TODO Add variables (), (place_id), (place_id, faust_id)
+                intentWayfinding.putExtra(PLACE_ID, placeId);
+                intentWayfinding.putExtra(FAUST_ID, faustId);
                 startActivity(intentWayfinding);
                 overridePendingTransition(R.anim.slide_in_bottom, R.anim.hold_anim);
                 break;
@@ -120,19 +135,23 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
         button.setBackgroundColor(getResources().getColor(R.color.mapBackground));
     }
 
-    private void applyConfiguration() {
-        //TODO
+    private void applyConfiguration(String fontName, int color) {
+        AssetManager assetManager = getApplicationContext().getAssets();
+        Typeface typeface = Typeface.createFromAsset(assetManager, String.format(Locale.getDefault(), "fonts/%s", fontName));
+
+        //Apply to a new Configuration Object
+        BeaconBaconManager.getInstance().setConfigurationObject(new BBConfigurationObject(typeface, color));
     }
 
     private void setPlaceBtnColor(Button button) {
         placeKbhBib.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-        placeMustache.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        placeValbyBib.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         placeUnsupported.setBackgroundColor(getResources().getColor(android.R.color.transparent));
 
         button.setBackgroundColor(getResources().getColor(R.color.mapBackground));
     }
 
-    private void applyPlace() {
-        //TODO
+    private void applyPlace(String placeId) {
+        this.placeId = placeId;
     }
 }

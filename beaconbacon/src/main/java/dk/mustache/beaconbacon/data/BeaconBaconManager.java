@@ -26,35 +26,40 @@ THE SOFTWARE.
 import android.content.Context;
 
 import dk.mustache.beaconbacon.datamodels.AllPlaces;
+import dk.mustache.beaconbacon.datamodels.BBConfigurationObject;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
 import dk.mustache.beaconbacon.datamodels.BBRequestObject;
+import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 
-public class DataManager {
-    private static DataManager instance;
+public class BeaconBaconManager {
+    private static BeaconBaconManager instance;
     private Context context;
 
     private AllPlaces allPlaces;
     private BBPlace currentPlace;
-    private Integer currentFloor;
+    private Integer currentFloorIndex;
+    private Integer currentFloorId;
 
     private BBRequestObject requestObject;
+    private BBResponseObject responseObject;
+    private BBConfigurationObject configurationObject;
 
 
 
-    //region DataManager Setup
-    private DataManager(Context context) {
+    //region BeaconBaconManager Setup
+    private BeaconBaconManager(Context context) {
         this.context = context;
     }
 
-    public static DataManager createInstance(Context context) {
+    public static BeaconBaconManager createInstance(Context context) {
         if (instance == null) {
-            instance = new DataManager(context);
+            instance = new BeaconBaconManager(context);
         }
 
         return instance;
     }
 
-    public static DataManager getInstance() {
+    public static BeaconBaconManager getInstance() {
         return instance;
     }
     //endregion
@@ -78,20 +83,52 @@ public class DataManager {
         this.currentPlace = currentPlace;
     }
 
-    public Integer getCurrentFloor() {
-        return currentFloor;
-    }
-
-    public void setCurrentFloor(Integer currentFloor) {
-        this.currentFloor = currentFloor;
-    }
-
     public BBRequestObject getRequestObject() {
         return requestObject;
     }
 
     public void setRequestObject(BBRequestObject requestObject) {
         this.requestObject = requestObject;
+    }
+
+    public BBConfigurationObject getConfigurationObject() {
+        return configurationObject;
+    }
+
+    public void setConfigurationObject(BBConfigurationObject configurationObject) {
+        this.configurationObject = configurationObject;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public BBResponseObject getResponseObject() {
+        return responseObject;
+    }
+
+    public void setResponseObject(BBResponseObject responseObject) {
+        this.responseObject = responseObject;
+    }
+
+    public Integer getCurrentFloorIndex() {
+        return currentFloorIndex;
+    }
+
+    public void setCurrentFloorIndex(Integer currentFloorIndex) {
+        this.currentFloorIndex = currentFloorIndex;
+    }
+
+    public Integer getCurrentFloorId() {
+        return currentFloorId;
+    }
+
+    public void setCurrentFloorId(Integer currentFloorId) {
+        this.currentFloorId = currentFloorId;
     }
     //endregion
 }

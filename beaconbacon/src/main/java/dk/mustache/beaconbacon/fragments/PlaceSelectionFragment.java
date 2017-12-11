@@ -11,11 +11,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.adapters.PlaceSelectionAdapter;
-import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBFloor;
 
 public class PlaceSelectionFragment extends Fragment {
@@ -35,6 +36,11 @@ public class PlaceSelectionFragment extends Fragment {
 
         //Toolbar Setup
         Toolbar toolbar = view.findViewById(R.id.fragment_place_toolbar);
+        TextView toolbarTitle = view.findViewById(R.id.fragment_place_toolbar_title);
+
+        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+            toolbarTitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null)
@@ -44,7 +50,7 @@ public class PlaceSelectionFragment extends Fragment {
 
         //RecyclerView Setup
         recyclerView = view.findViewById(R.id.place_list);
-        adapter = new PlaceSelectionAdapter(getActivity(), DataManager.getInstance().getAllPlaces().getData(), DataManager.getInstance().getCurrentPlace());
+        adapter = new PlaceSelectionAdapter(getActivity(), BeaconBaconManager.getInstance().getAllPlaces().getData(), BeaconBaconManager.getInstance().getCurrentPlace());
         recyclerView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -63,7 +69,21 @@ public class PlaceSelectionFragment extends Fragment {
         if (id == R.id.action_close) {
             ((MapActivity) getActivity()).fabPoi.show();
             ((MapActivity) getActivity()).fabFindTheBook.show();
-            getActivity().getSupportFragmentManager().popBackStack();
+
+            if(((MapActivity) getActivity()).snackbar != null) {
+                ((MapActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
+                ((MapActivity) getActivity()).snackbar.getView().animate()
+                        .alpha(1)
+                        .setDuration(300)
+                        .start();
+            }
+
+            //If we have no place, just finish
+            if(BeaconBaconManager.getInstance().getCurrentPlace() == null)
+                getActivity().finish();
+            else
+                getActivity().getSupportFragmentManager().popBackStack();
+
             return true;
         }
 

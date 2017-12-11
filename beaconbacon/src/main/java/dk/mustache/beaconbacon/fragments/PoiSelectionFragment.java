@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.MapActivity;
 import dk.mustache.beaconbacon.adapters.PoiSelectionAdapter;
-import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBPoi;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -25,7 +26,7 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
     //RecyclerView Setup
     private StickyListHeadersListView stickyListHeadersListView;
     private StickyListHeadersAdapter stickyListHeadersAdapter;
-    public List<BBPoi> selectedPois = new ArrayList<>();
+    public List<BBPoi> selectedPois;
 
     public PoiSelectionFragment() {
     }
@@ -35,6 +36,11 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
         View view = inflater.inflate(R.layout.fragment_poi_selection, container, false);
 
         Toolbar toolbar = view.findViewById(R.id.fragment_poi_toolbar);
+        TextView toolbarTitle = view.findViewById(R.id.fragment_poi_toolbar_title);
+
+        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+            toolbarTitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         if(((AppCompatActivity) getActivity()).getSupportActionBar() != null)
@@ -45,7 +51,7 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
 
         //RecyclerView Setup
         stickyListHeadersListView = view.findViewById(R.id.poi_list);
-        stickyListHeadersAdapter = new PoiSelectionAdapter(getActivity(), DataManager.getInstance().getCurrentPlace().getPoiMenuItem(), this);
+        stickyListHeadersAdapter = new PoiSelectionAdapter(getActivity(), BeaconBaconManager.getInstance().getCurrentPlace().getPoiMenuItem(), selectedPois, this);
         stickyListHeadersListView.setAdapter(stickyListHeadersAdapter);
 
         return view;
@@ -62,7 +68,17 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
         if (id == R.id.action_close) {
             ((MapActivity) getActivity()).setSelectedPois(selectedPois);
             ((MapActivity) getActivity()).fabPoi.show();
-            ((MapActivity) getActivity()).fabFindTheBook.show();
+
+            if(BeaconBaconManager.getInstance().getRequestObject() != null)
+                ((MapActivity) getActivity()).fabFindTheBook.show();
+
+            if(((MapActivity) getActivity()).snackbar != null) {
+                ((MapActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
+                ((MapActivity) getActivity()).snackbar.getView().animate()
+                        .alpha(1)
+                        .setDuration(300)
+                        .start();
+            }
             getActivity().getSupportFragmentManager().popBackStack();
             return true;
         }
@@ -72,6 +88,14 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
 
     @Override
     public void addSelectedPoi(BBPoi poi) {
+        if(selectedPois == null)
+            selectedPois = new ArrayList<>();
+
         selectedPois.add(poi);
+    }
+
+    @Override
+    public void removeSelectedPoi(BBPoi poi) {
+        selectedPois.remove(poi);
     }
 }

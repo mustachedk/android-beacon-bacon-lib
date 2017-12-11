@@ -30,7 +30,7 @@ import com.google.gson.JsonObject;
 
 import java.io.IOException;
 
-import dk.mustache.beaconbacon.data.DataManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.interfaces.FindTheBookAsyncResponse;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -42,11 +42,11 @@ public class FindTheBookAsync extends AsyncTask<String, Void, JsonObject> {
     @Override
     protected JsonObject doInBackground(String... strings) {
 
-        //Generate the body for the API service with the request object from DataManager
+        //Generate the body for the API service with the request object from BeaconBaconManager
         JsonObject jsonObject = new JsonObject();
         JsonObject data = new JsonObject();
-        jsonObject.addProperty("find_identifier", DataManager.getInstance().getRequestObject().getFind_identifier());
-        data.addProperty("Faust", DataManager.getInstance().getRequestObject().getFaust_id());
+        jsonObject.addProperty("find_identifier", BeaconBaconManager.getInstance().getRequestObject().getFind_identifier());
+        data.addProperty("Faust", BeaconBaconManager.getInstance().getRequestObject().getFaust_id());
         jsonObject.add("data", data);
 
         Call<JsonObject> call = ApiManager.getInstance().getApiService().findTheBook(strings[0], jsonObject);

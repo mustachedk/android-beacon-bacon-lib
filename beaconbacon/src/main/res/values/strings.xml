@@ -8,8 +8,10 @@
     <string name="toolbar_place_selection">Select Library</string>
 
     <!--Alerts-->
-    <string name="alert_title">Something went wrong</string>
+    <string name="alert_title_general">Something went wrong</string>
+    <string name="alert_title_find_book">Location was not found</string>
     <string name="alert_message_library">We could not find any map for your current library</string>
+    <string name="alert_message_find_book">\'%s\' was not found at %s. If you cannot find the location, remember you can always reserve directly in the app.</string>
 
     <string name="general_ok">OK</string>
 </resources>
