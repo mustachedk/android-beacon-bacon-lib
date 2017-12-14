@@ -52,7 +52,7 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
     private Button placeUnsupported;
 
     private String placeId = null;
-    private String faustId = "29715394";
+    private String faustId = "24120236";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,35 +90,42 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.config_no_style:
                 setConfigBtnColor(configNoStyle);
                 break;
+
             case R.id.config_style_1:
                 setConfigBtnColor(configStyle1);
                 applyConfiguration("Arial.ttf", android.R.color.holo_red_dark);
                 break;
+
             case R.id.config_style_2:
                 setConfigBtnColor(configStyle2);
                 applyConfiguration("Courier New.ttf", android.R.color.holo_green_dark);
                 break;
+
             case R.id.place_kbh_bib:
                 setPlaceBtnColor(placeKbhBib);
                 applyPlace("1");
                 break;
+
             case R.id.place_valby:
                 setPlaceBtnColor(placeValbyBib);
                 applyPlace("2");
                 break;
+
             case R.id.place_unsupported:
                 setPlaceBtnColor(placeUnsupported);
                 applyPlace("-1");
                 break;
+
             case R.id.map_no_wayfinding:
-                Intent intentNoWayfinding = new Intent(DemoActivity.this, MapActivity.class);
+                Intent intentNoWayfinding = new Intent(DemoActivity.this, BeaconBaconActivity.class);
                 intentNoWayfinding.putExtra(PLACE_ID, placeId);
                 startActivity(intentNoWayfinding);
                 overridePendingTransition(R.anim.slide_in_bottom, R.anim.hold_anim);
                 break;
+
             case R.id.map_wayfinding:
                 BeaconBaconManager.getInstance().setRequestObject(new BBRequestObject("IMS", faustId, "Title", "Subtitle", BitmapFactory.decodeResource(getResources(), R.drawable.ic_no_padding_test)));
-                Intent intentWayfinding = new Intent(DemoActivity.this, MapActivity.class);
+                Intent intentWayfinding = new Intent(DemoActivity.this, BeaconBaconActivity.class);
                 intentWayfinding.putExtra(PLACE_ID, placeId);
                 intentWayfinding.putExtra(FAUST_ID, faustId);
                 startActivity(intentWayfinding);

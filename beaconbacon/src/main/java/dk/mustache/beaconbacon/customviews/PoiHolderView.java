@@ -29,6 +29,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,8 @@ import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 public class PoiHolderView extends AppCompatImageView {
     private Context context;
 
+    private DisplayMetrics metrics;
+
     List<CustomPoiView> poiList = new ArrayList<>();
     public CustomPoiView findTheBookObject;
     private float currentScale = 1.0f;
@@ -48,6 +53,7 @@ public class PoiHolderView extends AppCompatImageView {
     private float yTranslation;
     private Bitmap findTheBookOriginalIcon;
     private BBResponseObject findTheBookResponseObject;
+    private List<CustomAreaInfoView> areaPOIInfoWindows;
 
 
     //Constructors & Initialization
@@ -68,6 +74,13 @@ public class PoiHolderView extends AppCompatImageView {
 
     private void init(Context context) {
         this.context = context;
+
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if(windowManager != null) {
+            Display display = windowManager.getDefaultDisplay();
+            metrics = new DisplayMetrics();
+            display.getMetrics(metrics);
+        }
     }
 
 
@@ -89,6 +102,10 @@ public class PoiHolderView extends AppCompatImageView {
                     break;
                 }
             }
+        }
+
+        for(CustomAreaInfoView areaInfoView : areaPOIInfoWindows) {
+            areaInfoView.draw(canvas);
         }
     }
 
@@ -216,5 +233,9 @@ public class PoiHolderView extends AppCompatImageView {
 
     public void mapWasRedrawn() {
         invalidate();
+    }
+
+    public void drawAreaInfoWindows(List<CustomAreaInfoView> areaPOIInfoWindows) {
+        this.areaPOIInfoWindows = areaPOIInfoWindows;
     }
 }

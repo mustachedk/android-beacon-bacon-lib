@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import dk.mustache.beaconbacon.R;
-import dk.mustache.beaconbacon.activities.MapActivity;
+import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
 import dk.mustache.beaconbacon.adapters.PlaceSelectionAdapter;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBFloor;
@@ -67,12 +67,14 @@ public class PlaceSelectionFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
-            ((MapActivity) getActivity()).fabPoi.show();
-            ((MapActivity) getActivity()).fabFindTheBook.show();
+            ((BeaconBaconActivity) getActivity()).fabPoi.show();
 
-            if(((MapActivity) getActivity()).snackbar != null) {
-                ((MapActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
-                ((MapActivity) getActivity()).snackbar.getView().animate()
+            if(BeaconBaconManager.getInstance().getRequestObject() != null)
+                ((BeaconBaconActivity) getActivity()).fabFindTheBook.show();
+
+            if(((BeaconBaconActivity) getActivity()).snackbar != null) {
+                ((BeaconBaconActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
+                ((BeaconBaconActivity) getActivity()).snackbar.getView().animate()
                         .alpha(1)
                         .setDuration(300)
                         .start();

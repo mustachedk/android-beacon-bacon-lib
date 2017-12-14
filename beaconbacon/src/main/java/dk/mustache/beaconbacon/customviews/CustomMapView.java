@@ -128,7 +128,7 @@ public class CustomMapView extends AppCompatImageView {
             //Change radius of poiArray based on scale
             for (CustomPoiView poi : pois) {
                 poi.radius = poi.radius / scaleFactor * scaleX;
-                poi.infoScale = poi.infoScale / scaleFactor * scaleX;
+                poi.scaleFactor = poi.scaleFactor / scaleFactor * scaleX;
             }
 
             //Update view
@@ -315,13 +315,13 @@ public class CustomMapView extends AppCompatImageView {
                 if(pois != null) {
                     for (CustomPoiView poi : pois) {
                         poi.radius = poi.radius / scale;
-                        poi.infoScale = poi.infoScale / scale;
+                        poi.scaleFactor = poi.scaleFactor / scale;
                     }
                 }
 
                 if(findTheBookObject != null) {
                     findTheBookObject.radius = findTheBookObject.radius / scale;
-                    findTheBookObject.infoScale = findTheBookObject.infoScale / scale;
+                    findTheBookObject.scaleFactor = findTheBookObject.scaleFactor / scale;
                 }
 
                 //Update view
@@ -423,7 +423,7 @@ public class CustomMapView extends AppCompatImageView {
             }
 
             //Change radius of poiArray based on scale
-//            int radius = findTheBookObject.radius != 0 ? (int) findTheBookObject.radius : 10;
+//            int radius = findTheBookAreaObject.radius != 0 ? (int) findTheBookAreaObject.radius : 10;
             int radius = 6;
 
             findTheBookObject.radius = radius / scaleFactor * scaleX;

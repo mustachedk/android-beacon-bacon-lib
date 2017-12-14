@@ -24,6 +24,7 @@ THE SOFTWARE.
 */
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class GetIconImageAsync extends AsyncTask<List<BBPoi>, Void, List<CustomP
                                 }
                             } else if (Objects.equals(locations.get(i).getPoi().getType(), "area")) {
                                 if(!Objects.equals(locations.get(i).getArea(), ""))
-                                    customPoiViewList.add(new CustomPoiView(BeaconBaconManager.getInstance().getContext(), locations.get(i).getArea(), locations.get(i).getPoi().getColor(), locations.get(i).getPoi().getName()));
+                                    customPoiViewList.add(new CustomPoiView(BeaconBaconManager.getInstance().getContext(), BeaconBaconManager.getInstance().getScaleInit(), locations.get(i).getArea(), Color.parseColor(locations.get(i).getPoi().getColor()), locations.get(i).getPoi().getName()));
                             }
                         }
                     }

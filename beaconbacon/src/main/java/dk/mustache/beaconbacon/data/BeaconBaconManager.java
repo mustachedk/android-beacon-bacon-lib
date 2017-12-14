@@ -43,7 +43,7 @@ public class BeaconBaconManager {
     private BBRequestObject requestObject;
     private BBResponseObject responseObject;
     private BBConfigurationObject configurationObject;
-
+    private float scaleInit;
 
 
     //region BeaconBaconManager Setup
@@ -129,6 +129,14 @@ public class BeaconBaconManager {
 
     public void setCurrentFloorId(Integer currentFloorId) {
         this.currentFloorId = currentFloorId;
+    }
+
+    public float getScaleInit() {
+        return scaleInit;
+    }
+
+    public void setScaleInit(float scaleInit) {
+        this.scaleInit = scaleInit;
     }
     //endregion
 }

@@ -27,6 +27,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
@@ -39,15 +40,20 @@ import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
+import dk.mustache.beaconbacon.enums.PoiType;
+
+import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 
 public class MapHolderView extends AppCompatImageView {
     private Context context;
 
-    private final float MIN_ZOOM = 0.5f;
-    private final float MAX_ZOOM = 10.0f;
+    private int MAX_DRAG = 1000;
+    private final float MIN_ZOOM = 1.0f;
+    private final float MAX_ZOOM = 5.0f;
     private float scaleFactor = 1.0f;
 
     public PoiHolderView poiHolderView;
@@ -64,8 +70,14 @@ public class MapHolderView extends AppCompatImageView {
     Matrix matrix = new Matrix();
     Matrix inverse = new Matrix();
     List<CustomPoiView> areaCustomPoiViews = new ArrayList<>();
+    List<CustomAreaInfoView> areaPOIInfoWindows = new ArrayList<>();
+    public CustomPoiView findTheBookAreaObject;
+    private BBResponseObject findTheBookResponseObject;
+    private float xTranslation;
+    private float yTranslation;
 
     Bitmap mapBitmap;
+
 
 
     //Constructors & Initialization
@@ -98,6 +110,8 @@ public class MapHolderView extends AppCompatImageView {
             metrics = new DisplayMetrics();
             display.getMetrics(metrics);
         }
+
+        areaPOIInfoWindows = new ArrayList<>();
     }
 
 
@@ -113,11 +127,31 @@ public class MapHolderView extends AppCompatImageView {
             poiHolderView.mapWasRedrawn();
         }
 
+        areaPOIInfoWindows.clear();
+
+        int areaInfoY = (int) dpToPx(0);
+
+        if(findTheBookAreaObject != null) {
+            for(int i=0; i<BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
+                if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentFloorId()) {
+                    areaInfoY = (int) dpToPx(70);
+                    areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
+                    areaInfoY += (int) dpToPx(40);
+                    findTheBookAreaObject.draw(canvas);
+                    break;
+                }
+            }
+        }
+
         if (areaCustomPoiViews != null) {
             for (CustomPoiView poi : areaCustomPoiViews) {
+                areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, poi.title, Color.RED)); //TODO Get poi color from menu
+                areaInfoY += (int) dpToPx(40);
                 poi.draw(canvas);
             }
         }
+
+        poiHolderView.drawAreaInfoWindows(areaPOIInfoWindows);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -129,17 +163,70 @@ public class MapHolderView extends AppCompatImageView {
     }
 
 
-    private int translateX = 0;
-    private int translateY = 0;
+    private int currentTranslationX = 0;
+    private int currentTranslationY = 0;
     //Gesture and Scale Detectors
     private GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            currentTranslationX += distanceX;
+            currentTranslationY += distanceY;
+
+            if(currentTranslationX <= MAX_DRAG && currentTranslationX >= -MAX_DRAG) {
+                matrix.postTranslate(-distanceX, 0);
+                poiHolderView.mapWasTranslated(-distanceX, 0);
+
+                if(areaCustomPoiViews != null) {
+                    for (CustomPoiView poi : areaCustomPoiViews) {
+                        poi.currentX -= distanceX;
+                    }
+                }
+
+                if(findTheBookAreaObject != null) {
+                    findTheBookAreaObject.currentX -= distanceX;
+                }
+            }
+
+            currentTranslationX = Math.max(-MAX_DRAG, Math.min(currentTranslationX, MAX_DRAG));
+
+            if(currentTranslationY <= MAX_DRAG && currentTranslationY >= -MAX_DRAG) {
+                matrix.postTranslate(0, -distanceY);
+                poiHolderView.mapWasTranslated(0, -distanceY);
+
+                if(areaCustomPoiViews != null) {
+                    for (CustomPoiView poi : areaCustomPoiViews) {
+                        poi.currentY -= distanceY;
+                    }
+                }
+
+                if(findTheBookAreaObject != null) {
+                    findTheBookAreaObject.currentY -= distanceY;
+                }
+            }
+
+            currentTranslationY = Math.max(-MAX_DRAG, Math.min(currentTranslationY, MAX_DRAG));
+
+            invalidate();
+
+/*
             //TODO Limit how far we can drag the view
             matrix.postTranslate(-distanceX, -distanceY);
             poiHolderView.mapWasTranslated(-distanceX, -distanceY);
-            invalidate();
 
+            if(areaCustomPoiViews != null) {
+                for (CustomPoiView poi : areaCustomPoiViews) {
+                    poi.currentX -= distanceX;
+                    poi.currentY -= distanceY;
+                }
+            }
+
+            if(findTheBookAreaObject != null) {
+                findTheBookAreaObject.currentX -= distanceX;
+                findTheBookAreaObject.currentY -= distanceY;
+            }
+
+            invalidate();
+*/
             return true;
         }
 
@@ -158,6 +245,7 @@ public class MapHolderView extends AppCompatImageView {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
+            MAX_DRAG *= detector.getScaleFactor();
             if(scaleFactor >= MIN_ZOOM && scaleFactor <= MAX_ZOOM) {
                 float scale = detector.getScaleFactor();
 
@@ -171,6 +259,20 @@ public class MapHolderView extends AppCompatImageView {
 
                 //Notify POIs map was scaled
                 poiHolderView.mapWasScaled(scale, translationX, translationY);
+                if(areaCustomPoiViews != null) {
+                    for (CustomPoiView poi : areaCustomPoiViews) {
+                        poi.currentX /= scale;
+                        poi.currentX -= translationX;
+                        poi.currentY /= scale;
+                        poi.currentY -= translationY;
+                    }
+                }
+
+                if(findTheBookAreaObject != null) {
+                    findTheBookAreaObject.currentX *= scale;
+                    findTheBookAreaObject.currentY *= scale;
+                    findTheBookAreaObject.scaleFactor *= scale;
+                }
 
                 invalidate();
             }
@@ -187,8 +289,11 @@ public class MapHolderView extends AppCompatImageView {
     public void setImageBitmap(Bitmap bitmap) {
         this.mapBitmap = bitmap;
 
-        //Reset the scale factor when we load a new place/floor
+        //Reset the scale factor and drag factors when we load a new place/floor
         scaleFactor = 1.0f;
+        currentTranslationX = 0;
+        currentTranslationY = 0;
+        MAX_DRAG = 1000;
 
         //Fit image to view
         if(this.mapBitmap != null)
@@ -200,6 +305,7 @@ public class MapHolderView extends AppCompatImageView {
         float scaleX = (float) metrics.widthPixels / mapBitmap.getWidth();
         float scaleY = (float) metrics.heightPixels / mapBitmap.getHeight();
         scaleInit = scaleX = scaleY = Math.min(scaleX, scaleY);
+        BeaconBaconManager.getInstance().setScaleInit(scaleInit);
 
         //Evaluate remaining redundant space
         float redundantXSpace = this.getWidth() - (scaleX * mapBitmap.getWidth());
@@ -219,6 +325,7 @@ public class MapHolderView extends AppCompatImageView {
     public void setMapPois(List<CustomPoiView> customPoiViews) {
         if(customPoiViews != null) {
             List<CustomPoiView> poiOnlyViews = new ArrayList<>();
+            areaCustomPoiViews.clear();
 
             for (CustomPoiView poi : customPoiViews) {
                 if (poi.iconBitmap != null)
@@ -236,7 +343,10 @@ public class MapHolderView extends AppCompatImageView {
     //Find the Book
     public void setFindTheBook(Bitmap icon, BBResponseObject responseObject) {
         if (responseObject != null) {
-            poiHolderView.setupFindTheBook(icon, responseObject, scaleInit, xTranslationInit, yTranslationInit);
+            if(Objects.equals(BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getLocation().getType(), PoiType.POI.getStringValue()))
+                poiHolderView.setupFindTheBook(icon, responseObject, scaleInit, xTranslationInit, yTranslationInit);
+            else
+                this.setupFindTheBook(responseObject, scaleInit, xTranslationInit, yTranslationInit);
 
             if (poiHolderView.findTheBookObject != null) {
                 for(int i = 0; i< BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
@@ -250,10 +360,31 @@ public class MapHolderView extends AppCompatImageView {
         }
     }
 
+    private void setupFindTheBook(BBResponseObject responseObject, float scaleInit, float xTranslation, float yTranslation) {
+        findTheBookAreaObject = null;
+        this.findTheBookResponseObject = responseObject;
+        this.xTranslation = xTranslation;
+        this.yTranslation = yTranslation;
+
+        if(responseObject != null) {
+            findTheBookAreaObject = new CustomPoiView(context, scaleInit,
+                    findTheBookResponseObject.getData().get(0).getLocation().getArea(),
+                    BeaconBaconManager.getInstance().getConfigurationObject().getTintColor(),
+                    BeaconBaconManager.getInstance().getRequestObject().getTitle());
+        } else {
+            invalidate();
+        }
+    }
+
     public void scrollToBook() {
         //Translate the map
-        matrix.postTranslate(metrics.widthPixels/2 - poiHolderView.findTheBookObject.cx, metrics.heightPixels/2 - poiHolderView.findTheBookObject.cy);
-        poiHolderView.mapWasTranslated(metrics.widthPixels/2 - poiHolderView.findTheBookObject.cx, metrics.heightPixels/2 - poiHolderView.findTheBookObject.cy);
+        if(findTheBookAreaObject != null) {
+            matrix.postTranslate(metrics.widthPixels / 2 - findTheBookAreaObject.centerY * scaleInit, metrics.heightPixels / 2 - findTheBookAreaObject.centerX * scaleInit);
+            poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - findTheBookAreaObject.centerY * scaleInit, metrics.heightPixels / 2 - findTheBookAreaObject.centerX * scaleInit);
+        } else {
+            matrix.postTranslate(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy);
+            poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy);
+        }
 
         //Update view
         invalidate();

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.mustache.beaconbacon.R;
-import dk.mustache.beaconbacon.activities.MapActivity;
+import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
 import dk.mustache.beaconbacon.adapters.PoiSelectionAdapter;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBPoi;
@@ -66,15 +66,15 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
-            ((MapActivity) getActivity()).setSelectedPois(selectedPois);
-            ((MapActivity) getActivity()).fabPoi.show();
+            ((BeaconBaconActivity) getActivity()).setSelectedPois(selectedPois);
+            ((BeaconBaconActivity) getActivity()).fabPoi.show();
 
             if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                ((MapActivity) getActivity()).fabFindTheBook.show();
+                ((BeaconBaconActivity) getActivity()).fabFindTheBook.show();
 
-            if(((MapActivity) getActivity()).snackbar != null) {
-                ((MapActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
-                ((MapActivity) getActivity()).snackbar.getView().animate()
+            if(((BeaconBaconActivity) getActivity()).snackbar != null) {
+                ((BeaconBaconActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
+                ((BeaconBaconActivity) getActivity()).snackbar.getView().animate()
                         .alpha(1)
                         .setDuration(300)
                         .start();

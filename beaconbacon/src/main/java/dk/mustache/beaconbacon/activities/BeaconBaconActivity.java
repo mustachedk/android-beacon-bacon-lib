@@ -1,5 +1,28 @@
 package dk.mustache.beaconbacon.activities;
 
+/* CLASS NAME GOES HERE
+
+Copyright (c) 2017 Mustache ApS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -65,42 +88,51 @@ import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
 import static android.graphics.Typeface.BOLD;
 import static dk.mustache.beaconbacon.BBApplication.FAUST_ID;
 import static dk.mustache.beaconbacon.BBApplication.PLACE_ID;
+import static dk.mustache.beaconbacon.BBApplication.PLACE_SELECTION_FRAGMENT;
+import static dk.mustache.beaconbacon.BBApplication.POI_SELECTION_FRAGMENT;
 
-public class MapActivity extends AppCompatActivity implements View.OnClickListener, SpecificPlaceAsyncResponse, MenuOverviewAsyncResponse, FindTheBookAsyncResponse, FloorImageAsyncResponse, IconImageAsyncResponse {
-    public static final String TAG = "BeaconBacon";
-    public static final String PLACE_SELECTION_FRAGMENT = "place_selection_fragment";
-    public static final String POI_SELECTION_FRAGMENT = "poi_selection_fragment";
-
+public class BeaconBaconActivity extends AppCompatActivity implements View.OnClickListener, SpecificPlaceAsyncResponse, MenuOverviewAsyncResponse, FindTheBookAsyncResponse, FloorImageAsyncResponse, IconImageAsyncResponse {
+    //RootView is Used to show the Snackbar
     private FrameLayout rootView;
-    private Toolbar toolbar;
+    public CustomSnackbar snackbar;
+
+    //ProgressBar indicating new loading of map
     private ProgressBar progressBar;
+
+    //Toolbar elements
+    private Toolbar toolbar;
     private TextView toolbarTitle;
     private TextView toolbarSubtitle;
     private ImageView arrowLeft;
     private ImageView arrowRight;
 
+    //FABs
     public FloatingActionButton fabPoi;
     public FloatingActionButton fabFindTheBook;
-    public CustomSnackbar snackbar;
 
+    //Fragments
     private PoiSelectionFragment poiSelectionFragment;
     private PlaceSelectionFragment placeSelectionFragment;
 
+    //Views
+    private Bitmap currentFloorImage;
     private FrameLayout mapView;
     private MapHolderView mapHolderView;
     private PoiHolderView poiHolderView;
+
+    //List of selected POIs for use in the POI Selection Fragment
     private List<BBPoi> selectedPois;
 
+    //Booleans for AsyncTasks to update map synchronously
     private boolean isFindingBook;
     private boolean isFindingSpecificPlace;
     private boolean isFindingMenuForPlace;
     private boolean isFindingFloorImage;
     private boolean isFindingPoiIcons;
-
-    private Bitmap currentFloorImage;
     private boolean bookWasFound;
     private boolean updateFindTheBook = true;
     private boolean isLocatingFindTheBookFloor;
+
 
 
     //region Android Lifecycle
@@ -108,71 +140,19 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Set Layout
+        //Set Layout and Root views
         setContentView(R.layout.activity_map);
         rootView = findViewById(R.id.root_view);
         mapView = findViewById(R.id.map_view_container);
 
-        //Map View
-        mapHolderView = new MapHolderView(this);
-//        mapHolderView.setAdjustViewBounds(true);
-//        mapHolderView.setFitsSystemWindows(true);
-        mapView.addView(mapHolderView);
-
-        poiHolderView = new PoiHolderView(this);
-//        poiHolderView.setAdjustViewBounds(true);
-//        poiHolderView.setFitsSystemWindows(true);
-        mapView.addView(poiHolderView);
-
-        mapHolderView.poiHolderView = poiHolderView;
-
-        progressBar = findViewById(R.id.map_progress_bar);
+        setupProgressBar();
         progressBar.setVisibility(View.VISIBLE);
 
+        setupCustomViews();
         setupToolbar();
+        setupFloatingActionButtons();
 
-        //FABs
-        fabPoi = findViewById(R.id.map_poi_fab);
-        fabPoi.setOnClickListener(this);
-        fabFindTheBook = findViewById(R.id.map_ftb_fab);
-        fabFindTheBook.setOnClickListener(this);
-
-
-        //How was the MapActivity opened? (), (place_id) or (place_id, faust_id)
-        String place_id = getIntent().getStringExtra(PLACE_ID);
-        String faust_id = getIntent().getStringExtra(FAUST_ID);
-
-        if(place_id != null) {
-            progressBar.setVisibility(View.VISIBLE);
-
-            //Loop all places to find this one and set toolbar titles
-            for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
-                if(Objects.equals(String.valueOf(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId()), place_id)) {
-                    //TODO We can't set floor name because we don't know it until we've found a Specific Place
-//                    toolbarTitle.setText(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getFloors().get(0).getName());
-                    toolbarSubtitle.setText(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getName());
-                    break;
-                }
-            }
-
-            if(faust_id != null) {
-                //We have place_id and a faust_id
-                    if(BeaconBaconManager.getInstance().getRequestObject() != null) {
-                    findABook(place_id);
-                } else {
-                    Log.e("MapActivity", "Faust id provided, but no Request Object was set. Make a new BBRequestObject and set it to the BeaconBaconManager.");
-                }
-
-                findSpecificPlace(place_id, true);
-            } else {
-                //We have a place id
-                findSpecificPlace(place_id, false);
-            }
-
-        } else {
-            //Open place selection
-            openPlaceSelectionFragment();
-        }
+        init();
     }
 
     @Override
@@ -183,37 +163,106 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         BeaconBaconManager.getInstance().setCurrentFloorIndex(-1);
         BeaconBaconManager.getInstance().setCurrentFloorId(-1);
     }
+    //endregion
 
-    @SuppressLint("Range")
-    private void showFindTheBookSnackbar() {
-        snackbar = CustomSnackbar.make(rootView, CustomSnackbar.LENGTH_INDEFINITE);
 
-        final Snackbar.SnackbarLayout snackbarView = (Snackbar.SnackbarLayout) snackbar.getView();
-        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTintColor() != -1)
-            snackbarView.setBackgroundColor(getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
 
-        //Modify LayoutParams for Top-snackbar
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)snackbarView.getLayoutParams();
-        params.gravity = Gravity.TOP;
+    private void init() {
+        //Get place_id and faust_id if any
+        String place_id = getIntent().getStringExtra(PLACE_ID);
+        String faust_id = getIntent().getStringExtra(FAUST_ID);
 
-        //Calculate Toolbar height
-        TypedValue tv = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
-            params.topMargin = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-
-        snackbarView.setLayoutParams(params);
-        snackbar.setAction("Afslut", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                BeaconBaconManager.getInstance().setRequestObject(null);
-                mapHolderView.poiHolderView.findTheBookObject = null;
-                updatePlace(BeaconBaconManager.getInstance().getCurrentPlace());
-                hideFindTheBookElements();
+        if(place_id != null) {
+            //Loop all places to find this one and set toolbar titles
+            for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
+                if(Objects.equals(String.valueOf(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId()), place_id)) {
+                    //We don't know the floor name until we've fetched a Specific Place, so we set the place name only initially
+                    toolbarSubtitle.setText(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getName());
+                    break;
+                }
             }
-        });
-        snackbar.show();
+
+            if(faust_id != null) {
+                //We have place_id and a faust_id
+                if(BeaconBaconManager.getInstance().getRequestObject() != null) {
+                    Log.e("BeaconBaconActivity", "Faust id provided, finding the book for the user.");
+                    findABook(place_id);
+                } else {
+                    Log.e("BeaconBaconActivity", "Faust id provided, but no Request Object was set. Create a new BBRequestObject and set it to the BeaconBaconManager before opening the BeaconBaconActivity.");
+                }
+
+                Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
+                findSpecificPlace(place_id, true);
+            } else {
+                Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
+
+                //We have a place id only
+                findSpecificPlace(place_id, false);
+            }
+
+        } else {
+            Log.i("BeaconBaconActivity", "No place id was provided, sending user to place selection.");
+
+            progressBar.setVisibility(View.GONE);
+
+            //We have no place id, send user to place selection
+            openPlaceSelectionFragment();
+        }
     }
 
+
+
+    //region Setup
+    private void setupProgressBar() {
+        //Setup Progress bar
+        progressBar = findViewById(R.id.map_progress_bar);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void setupCustomViews() {
+        //Initialize custom views to Hold the Map and POIs
+        mapHolderView = new MapHolderView(this);
+        poiHolderView = new PoiHolderView(this);
+        mapView.addView(mapHolderView);
+        mapView.addView(poiHolderView);
+        mapHolderView.poiHolderView = poiHolderView;
+    }
+
+    private void setupToolbar() {
+        toolbar = findViewById(R.id.bb_toolbar_regular);
+        setSupportActionBar(toolbar);
+
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        LinearLayout toolbarTitleLayout = findViewById(R.id.bb_toolbar_title_layout);
+        toolbarTitleLayout.setOnClickListener(this);
+
+        toolbarTitle = findViewById(R.id.bb_toolbar_title);
+        toolbarSubtitle = findViewById(R.id.bb_toolbar_subtitle);
+        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null) {
+            toolbarTitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface(), BOLD);
+            toolbarSubtitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+        }
+
+        arrowLeft = findViewById(R.id.bb_toolbar_arrow_left);
+        arrowRight = findViewById(R.id.bb_toolbar_arrow_right);
+        arrowLeft.setOnClickListener(this);
+        arrowRight.setOnClickListener(this);
+    }
+
+    private void setupFloatingActionButtons() {
+        //FABs
+        fabPoi = findViewById(R.id.map_poi_fab);
+        fabPoi.setOnClickListener(this);
+        fabFindTheBook = findViewById(R.id.map_ftb_fab);
+        fabFindTheBook.setOnClickListener(this);
+    }
+    //endregion
+
+
+
+    //region Menus & Clicks
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -263,10 +312,12 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                     .commit();
 
         } else if (i == R.id.map_ftb_fab) {
-            mapHolderView.scrollToBook();
             for (int j = 0; j < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); j++) {
-                if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(j).getId())
+                if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(j).getId()) {
                     updateCurrentFloor(j, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
+                    mapHolderView.scrollToBook();
+                    break;
+                }
             }
 
         } else if (i == R.id.bb_toolbar_arrow_left) {
@@ -274,35 +325,41 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
         } else if (i == R.id.bb_toolbar_arrow_right) {
             updateArrows(1);
-
         }
     }
     //endregion
 
 
+    
+    @SuppressLint("Range")
+    private void showFindTheBookSnackbar() {
+        snackbar = CustomSnackbar.make(rootView, CustomSnackbar.LENGTH_INDEFINITE);
 
-    //region Setup
-    private void setupToolbar() {
-        toolbar = findViewById(R.id.bb_toolbar_regular);
-        setSupportActionBar(toolbar);
+        final Snackbar.SnackbarLayout snackbarView = (Snackbar.SnackbarLayout) snackbar.getView();
+        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTintColor() != -1)
+            snackbarView.setBackgroundColor(getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
 
-        if(getSupportActionBar() != null)
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        //Modify LayoutParams for Top-snackbar
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)snackbarView.getLayoutParams();
+        params.gravity = Gravity.TOP;
 
-        LinearLayout toolbarTitleLayout = findViewById(R.id.bb_toolbar_title_layout);
-        toolbarTitleLayout.setOnClickListener(this);
+        //Calculate Toolbar height
+        TypedValue tv = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
+            params.topMargin = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
 
-        toolbarTitle = findViewById(R.id.bb_toolbar_title);
-        toolbarSubtitle = findViewById(R.id.bb_toolbar_subtitle);
-        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null) {
-            toolbarTitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface(), BOLD);
-            toolbarSubtitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
-        }
-
-        arrowLeft = findViewById(R.id.bb_toolbar_arrow_left);
-        arrowRight = findViewById(R.id.bb_toolbar_arrow_right);
-        arrowLeft.setOnClickListener(this);
-        arrowRight.setOnClickListener(this);
+        snackbarView.setLayoutParams(params);
+        snackbar.setAction("Afslut", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BeaconBaconManager.getInstance().setRequestObject(null);
+                mapHolderView.poiHolderView.findTheBookObject = null;
+                mapHolderView.findTheBookAreaObject = null;
+                updatePlace(BeaconBaconManager.getInstance().getCurrentPlace());
+                hideFindTheBookElements();
+            }
+        });
+        snackbar.show();
     }
 
     private void updateToolbar() {
@@ -688,7 +745,10 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             snackbar.getView().setVisibility(View.GONE);
             snackbar.dismiss();
         }
+
+        BeaconBaconManager.getInstance().setRequestObject(null);
         mapHolderView.setFindTheBook(null, null);
+        mapHolderView.findTheBookAreaObject = null;
     }
 
     @Override

@@ -23,14 +23,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-public enum DisplayType {
-    NONE ("none"),
-    SINGLE ("single"),
-    CLUSTER ("cluster");
+public enum PoiType {
+    AREA ("area"),
+    POI ("poi"),
+    BEACON ("beacon");
 
     private String displayTypeValue;
 
-    DisplayType(String displayTypeValue) {
+    PoiType(String displayTypeValue) {
         this.displayTypeValue = displayTypeValue;
+    }
+
+    public String getStringValue() {
+        return displayTypeValue;
     }
 }

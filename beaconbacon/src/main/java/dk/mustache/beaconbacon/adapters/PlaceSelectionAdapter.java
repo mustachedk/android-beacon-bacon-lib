@@ -35,7 +35,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import dk.mustache.beaconbacon.R;
-import dk.mustache.beaconbacon.activities.MapActivity;
+import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
 import dk.mustache.beaconbacon.utils.CheckboxColorUtil;
@@ -83,16 +83,18 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
                 BeaconBaconManager.getInstance().setCurrentFloorId(-1);
                 notifyDataSetChanged();
 
-                ((MapActivity) context).setNewCurrentPlace(places.get(position));
-                ((MapActivity) context).fabPoi.show();
-                ((MapActivity) context).fabFindTheBook.show();
+                ((BeaconBaconActivity) context).setNewCurrentPlace(places.get(position));
+                ((BeaconBaconActivity) context).fabPoi.show();
 
                 if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                    ((MapActivity) context).findABook(String.valueOf(places.get(position).getId()));
+                    ((BeaconBaconActivity) context).fabFindTheBook.show();
 
-                if(((MapActivity) context).snackbar != null) {
-                    ((MapActivity) context).snackbar.getView().setVisibility(View.VISIBLE);
-                    ((MapActivity) context).snackbar.getView().animate()
+                if(BeaconBaconManager.getInstance().getRequestObject() != null)
+                    ((BeaconBaconActivity) context).findABook(String.valueOf(places.get(position).getId()));
+
+                if(((BeaconBaconActivity) context).snackbar != null) {
+                    ((BeaconBaconActivity) context).snackbar.getView().setVisibility(View.VISIBLE);
+                    ((BeaconBaconActivity) context).snackbar.getView().animate()
                             .alpha(1)
                             .setDuration(300)
                             .start();

@@ -44,10 +44,15 @@ import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 
 public class BBApplication extends Application implements AllPlacesAsyncResponse {
     public static final String TAG = "BeaconBacon";
+    public static final String PLACE_SELECTION_FRAGMENT = "place_selection_fragment";
+    public static final String POI_SELECTION_FRAGMENT = "poi_selection_fragment";
     public static final String PLACE_ID = "place_id";
     public static final String FAUST_ID = "faust_id";
 
     private static Context context;
+    public static Context getContext(){
+        return context;
+    }
 
     GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
 
@@ -63,10 +68,6 @@ public class BBApplication extends Application implements AllPlacesAsyncResponse
         //Get the basics of All Places right away
         getAllPlacesAsync.delegate = this;
         ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
-    }
-
-    public static Context getContext(){
-        return context;
     }
 
     @Override
