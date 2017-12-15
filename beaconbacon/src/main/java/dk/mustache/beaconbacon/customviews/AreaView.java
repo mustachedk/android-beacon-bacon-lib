@@ -24,7 +24,7 @@ THE SOFTWARE.
 */
 
 import android.content.Context;
-import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -53,8 +53,18 @@ public class AreaView extends FrameLayout {
     public void setCircleColor(int color) {
         View view = inflate(getContext(), R.layout.layout_area_icon, null);
         ImageView circle = view.findViewById(R.id.area_circle);
-        circle.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+
+        setColorToCirlce(circle, color);
 
         addView(view);
+    }
+
+    private void setColorToCirlce(ImageView circle, int color) {
+        GradientDrawable circleImageDrawable = new GradientDrawable();
+        circleImageDrawable.setShape(GradientDrawable.OVAL);
+        circleImageDrawable.setColor(color);
+        circleImageDrawable.setAlpha(75);
+
+        circle.setImageDrawable(circleImageDrawable);
     }
 }

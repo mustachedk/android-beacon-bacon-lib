@@ -289,6 +289,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View view) {
+        //Cannot build library with switch statements, converted to if-else instead
         int i = view.getId();
         if (i == R.id.bb_toolbar_title_layout) {
             hideGuiElements();
@@ -330,7 +331,27 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     //endregion
 
 
-    
+
+    //region Find the Book
+    private void checkIfBookWasFound() {
+        if (!bookWasFound) {
+            showAlert(getString(R.string.alert_title_find_book), String.format(getString(R.string.alert_message_find_book), BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getCurrentPlace().getName()));
+            hideFindTheBookElements();
+        }
+    }
+
+    private void hideFindTheBookElements() {
+        fabFindTheBook.setVisibility(View.GONE);
+        if(snackbar != null) {
+            snackbar.getView().setVisibility(View.GONE);
+            snackbar.dismiss();
+        }
+
+        BeaconBaconManager.getInstance().setRequestObject(null);
+        mapHolderView.setFindTheBook(null, null);
+        mapHolderView.findTheBookAreaObject = null;
+    }
+
     @SuppressLint("Range")
     private void showFindTheBookSnackbar() {
         snackbar = CustomSnackbar.make(rootView, CustomSnackbar.LENGTH_INDEFINITE);
@@ -349,7 +370,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             params.topMargin = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
 
         snackbarView.setLayoutParams(params);
-        snackbar.setAction("Afslut", new View.OnClickListener() {
+        snackbar.setAction(getResources().getString(R.string.general_finish), new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 BeaconBaconManager.getInstance().setRequestObject(null);
@@ -361,14 +382,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         });
         snackbar.show();
     }
-
-    private void updateToolbar() {
-        toolbarSubtitle.setText(BeaconBaconManager.getInstance().getCurrentPlace().getName());
-        if(BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size() > 0)
-            toolbarTitle.setText(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(0).getName());
-
-        updateArrows(0);
-    }
     //endregion
 
 
@@ -379,7 +392,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                //TODO Should remove this handler, AllPlaces must have been fetched before opening the library
                 if(BeaconBaconManager.getInstance().getAllPlaces() != null && BeaconBaconManager.getInstance().getAllPlaces().getData() != null) {
                     //We haven't gotten a place, let's prompt the user to select one
                     hideGuiElements();
@@ -393,12 +405,13 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                             .addToBackStack(null)
                             .commit();
                 } else {
-                    handler.postDelayed(this, 100);
+                    Log.i("BeaconBaconActivity", "GetAllPlaces has not been set yet, or contains no data, retrying in 10ms");
+                    handler.postDelayed(this, 10);
                 }
 
             }
         };
-        handler.postDelayed(runnable,100);
+        handler.postDelayed(runnable,10);
     }
 
     private void hideGuiElements() {
@@ -442,76 +455,97 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
 
     //region Update Content
+    private void updateToolbar() {
+        toolbarSubtitle.setText(BeaconBaconManager.getInstance().getCurrentPlace().getName());
+        if(BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size() > 0)
+            toolbarTitle.setText(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(0).getName());
+
+        updateArrows(0);
+    }
+
     private void updateMapView(boolean updateFloor, boolean updatePois, List<CustomPoiView> pois) {
-        mapHolderView
-                .animate()
-                .alpha(0)
-                .withEndAction(new Runnable() {
+        try {
+            mapHolderView
+                    .animate()
+                    .alpha(0)
+                    .withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Handler handler = new Handler();
+                            final Runnable runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    Log.i("BeaconBaconActivity", "Updating map layout.");
+                                    if (!isFindingFloorImage && !isFindingPoiIcons) {
+                                        progressBar.setVisibility(View.GONE);
+                                        fabPoi.setVisibility(View.VISIBLE);
+                                        if (BeaconBaconManager.getInstance().getRequestObject() != null && bookWasFound)
+                                            fabFindTheBook.setVisibility(View.VISIBLE);
+
+                                        mapHolderView.invalidate();
+                                        mapHolderView.clearAnimation();
+                                        mapHolderView
+                                                .animate()
+                                                .alpha(1)
+                                                .setDuration(300)
+                                                .start();
+                                    } else {
+                                        Log.i("BeaconBaconActivity", "We're still finding a map image for this floor or setting up POI icons, retrying in 10ms");
+                                        handler.postDelayed(this, 10);
+                                    }
+                                }
+                            };
+                            handler.postDelayed(runnable, 10);
+                        }
+                    })
+                    .setDuration(300)
+                    .start();
+
+            if (updateFloor) {
+                if (mapHolderView.poiHolderView != null)
+                    mapHolderView.poiHolderView.floorWasSwitched();
+
+                mapHolderView.setImageBitmap(null);
+            }
+
+            if (updatePois)
+                mapHolderView.setMapPois(null);
+
+            if (!isFindingFloorImage)
+                mapHolderView.setImageBitmap(currentFloorImage);
+
+            if (!isFindingPoiIcons)
+                mapHolderView.setMapPois(pois);
+
+            if (!isFindingBook && BeaconBaconManager.getInstance().getRequestObject() != null && !isFindingFloorImage) {
+                final Handler handler = new Handler();
+                final Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        final Handler handler = new Handler();
-                        final Runnable runnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                if(!isFindingFloorImage && !isFindingPoiIcons) {
-                                    progressBar.setVisibility(View.GONE);
-                                    fabPoi.setVisibility(View.VISIBLE);
-                                    if(BeaconBaconManager.getInstance().getRequestObject() != null && bookWasFound)
-                                        fabFindTheBook.setVisibility(View.VISIBLE);
+                        if (updateFindTheBook) {
+                            updateFindTheBook = false;
+                            isLocatingFindTheBookFloor = true;
 
-                                    mapHolderView.invalidate();
-                                    mapHolderView.clearAnimation();
-                                    mapHolderView
-                                            .animate()
-                                            .alpha(1)
-                                            .setDuration(300)
-                                            .start();
-                                } else {
-                                    handler.postDelayed(this, 100);
-                                }
+                            for (int i = 0; i < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
+                                if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(i).getId())
+                                    updateCurrentFloor(i, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
                             }
-                        };
-                        handler.postDelayed(runnable,100);
-                    }
-                })
-                .setDuration(300)
-                .start();
-
-        if(updateFloor) {
-            if(mapHolderView.poiHolderView != null)
-                mapHolderView.poiHolderView.floorWasSwitched();
-
-            mapHolderView.setImageBitmap(null);
-        }
-        if(updatePois)
-            mapHolderView.setMapPois(null);
-
-        if(!isFindingFloorImage)
-            mapHolderView.setImageBitmap(currentFloorImage);
-        if(!isFindingPoiIcons)
-            mapHolderView.setMapPois(pois);
-        if(!isFindingBook && BeaconBaconManager.getInstance().getRequestObject() != null && !isFindingFloorImage) {
-            final Handler handler = new Handler();
-            final Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    if(updateFindTheBook) {
-                        updateFindTheBook = false;
-                        isLocatingFindTheBookFloor = true;
-
-                        for (int i = 0; i < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
-                            if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(i).getId())
-                                updateCurrentFloor(i, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
                         }
                     }
-                }
-            };
-            handler.postDelayed(runnable,100);
-        }
-        if(!isLocatingFindTheBookFloor) {
-            if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                mapHolderView.setFindTheBook(BeaconBaconManager.getInstance().getRequestObject().getImage(), BeaconBaconManager.getInstance().getResponseObject());
-            updateToolbarTitle(BeaconBaconManager.getInstance().getCurrentPlace());
+                };
+                //TODO What is this delay good for?
+                handler.postDelayed(runnable, 10);
+            }
+
+            if (!isLocatingFindTheBookFloor) {
+                if (BeaconBaconManager.getInstance().getRequestObject() != null)
+                    mapHolderView.setFindTheBook(BeaconBaconManager.getInstance().getRequestObject().getImage(), BeaconBaconManager.getInstance().getResponseObject());
+
+                updateToolbarTitle(BeaconBaconManager.getInstance().getCurrentPlace());
+            }
+
+        } catch (Exception e) {
+            Log.e("BeaconBaconActivity", "Something went wrong when updating the map view.");
         }
     }
 
@@ -521,7 +555,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         //Get the menu overview right away
         GetMenuOverviewAsync getMenuOverviewAsync = new GetMenuOverviewAsync();
         getMenuOverviewAsync.delegate = this;
-        ApiManager.createInstance(this).fetchMenuOverviewAsync(getMenuOverviewAsync, String.valueOf(place.getId()));
+        ApiManager.getInstance().fetchMenuOverviewAsync(getMenuOverviewAsync, String.valueOf(place.getId()));
     }
 
     private void updatePlace(BBPlace place) {
@@ -564,7 +598,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void updateArrows(int direction) {
-        if(BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
+        if(BeaconBaconManager.getInstance().getCurrentPlace() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
 
             int floorListSize = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size();
             int currentFloor = BeaconBaconManager.getInstance().getCurrentFloorIndex();
@@ -703,6 +737,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void specificPlaceAsyncFinished(final JsonObject output) {
+        Log.i("BeaconBaconActivity", "Place found, updating layout.");
         isFindingSpecificPlace = false;
 
         if(output != null) {
@@ -721,34 +756,16 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                         if(BeaconBaconManager.getInstance().getRequestObject() != null)
                             checkIfBookWasFound();
                     } else {
-                        handler.postDelayed(this, 100);
+                        handler.postDelayed(this, 10);
                     }
                 }
             };
-            handler.postDelayed(runnable, 100);
+            Log.i("BeaconBaconActivity", "We're locating an item for this place, retrying in 10ms");
+            handler.postDelayed(runnable, 10);
         } else {
             //No such place found, open place selection
             openPlaceSelectionFragment();
         }
-    }
-
-    private void checkIfBookWasFound() {
-        if (!bookWasFound) {
-            showAlert(getString(R.string.alert_title_find_book), String.format(getString(R.string.alert_message_find_book), BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getCurrentPlace().getName()));
-            hideFindTheBookElements();
-        }
-    }
-
-    private void hideFindTheBookElements() {
-        fabFindTheBook.setVisibility(View.GONE);
-        if(snackbar != null) {
-            snackbar.getView().setVisibility(View.GONE);
-            snackbar.dismiss();
-        }
-
-        BeaconBaconManager.getInstance().setRequestObject(null);
-        mapHolderView.setFindTheBook(null, null);
-        mapHolderView.findTheBookAreaObject = null;
     }
 
     @Override
@@ -788,83 +805,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                 if(responseObject != null && responseObject.getStatus().equals("Found")) {
                     bookWasFound = true;
 
-
                     int maxDistLocations = 200;
-                    //TODO Temp data
-//                    List<BBFaustDataObject> list = new ArrayList<>();
-//
-//                    BBFaustDataObject tempDataObject = new BBFaustDataObject();
-//
-//                    BBFaustDataLocation tempDataLocation = new BBFaustDataLocation();
-//                    tempDataLocation.setId(1620);
-//                    tempDataLocation.setArea("");
-//                    tempDataLocation.setType("point");
-//                    tempDataLocation.setPosX(1132);
-//                    tempDataLocation.setPosY(1258);
-//
-//                    BBFaustDataFloor tempDataFloor = new BBFaustDataFloor();
-//                    tempDataFloor.setId(3);
-//                    tempDataFloor.setMap_pixel_to_centimeter_ratio("0.4");
-//
-//                    tempDataObject.setFloor(tempDataFloor);
-//                    tempDataObject.setLocation(tempDataLocation);
-//
-//
-//                    BBFaustDataObject tempDataObject2 = new BBFaustDataObject();
-//
-//                    BBFaustDataLocation tempDataLocation2 = new BBFaustDataLocation();
-//                    tempDataLocation2.setId(1620);
-//                    tempDataLocation2.setArea("");
-//                    tempDataLocation2.setType("point");
-//                    tempDataLocation2.setPosX(1132);
-//                    tempDataLocation2.setPosY(1258);
-//
-//                    BBFaustDataFloor tempDataFloor2 = new BBFaustDataFloor();
-//                    tempDataFloor2.setId(3);
-//                    tempDataFloor2.setMap_pixel_to_centimeter_ratio("0.4");
-//
-//                    tempDataObject2.setFloor(tempDataFloor2);
-//                    tempDataObject2.setLocation(tempDataLocation2);
-//
-//
-//                    list.add(tempDataObject);
-//                    list.add(tempDataObject2);
-//
-//                    BBResponseObject bbResponseObject = responseObject;
-//                    bbResponseObject.setData(list);
-//                    //TODO end temp data
-//
-//                    int maxDistLocations = 200;
-//
-//                    if (bbResponseObject.getData() == null || bbResponseObject.getData().size() == 0) {
-//                        bbResponseObject.setDisplayType(DisplayType.NONE);
-//                    } else if (bbResponseObject.getData().size() == 1) {
-//                        bbResponseObject.setDisplayType(DisplayType.SINGLE);
-//                    } else {
-//                        BBFaustDataObject dataObject1 = bbResponseObject.getData().get(0);
-//                        BBFaustDataObject dataObject2 = bbResponseObject.getData().get(1);
-//
-//                        if (dataObject1.getFloor().getId() != dataObject2.getFloor().getId()) {
-//                            bbResponseObject.setDisplayType(DisplayType.SINGLE);
-//                            BeaconBaconManager.getInstance().setResponseObject(bbResponseObject);
-//                            return;
-//                        } else {
-//                            Point point1 = new Point(dataObject1.getLocation().getPosX(), dataObject1.getLocation().getPosY());
-//                            Point point2 = new Point(dataObject2.getLocation().getPosX(), dataObject2.getLocation().getPosY());
-//
-//                            double distance = Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)) * Double.valueOf(bbResponseObject.getData().get(0).getFloor().getMap_pixel_to_centimeter_ratio());
-//
-//                            if (distance > 400) {
-//                                bbResponseObject.setDisplayType(DisplayType.SINGLE);
-//                                BeaconBaconManager.getInstance().setResponseObject(bbResponseObject);
-//                                return;
-//                            } else {
-//                                bbResponseObject.setDisplayType(DisplayType.CLUSTER);
-//                                bbResponseObject.setRadius((int) Math.max(maxDistLocations, distance) + 100);
-//                            }
-//                        }
-//                    }
-
 
                     if(responseObject.getData() == null || responseObject.getData().size() == 0) {
                         responseObject.setDisplayType(DisplayType.NONE);
@@ -902,12 +843,15 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                     bookWasFound = false;
                     hideFindTheBookElements();
                 }
+
             } catch (Exception e) {
                 bookWasFound = false;
             }
+
         } else {
             bookWasFound = false;
         }
+
         isFindingBook = false;
     }
     //endregion

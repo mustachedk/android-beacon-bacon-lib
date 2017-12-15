@@ -47,7 +47,9 @@ public class ApiManager {
 
     //Test Environment
     private static final String BASE_URL = "https://app.beaconbacon.io/api/v2/";
+    //Production Environment
 //    private static final String BASE_URL = "https://wayfindingkkb.dk/api/v2/";
+
     private static final String API_KEY = "Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm";
     private static final String AUTHORIZATION = "Authorization";
 

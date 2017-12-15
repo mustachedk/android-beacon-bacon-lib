@@ -35,13 +35,11 @@ import dk.mustache.beaconbacon.data.BeaconBaconManager;
 
 public class CustomAreaInfoView {
     private Bitmap infoBoxArea;
-    private Context context;
     public float cx = -1;
     public float cy = -1;
 
+    //Constructor
     public CustomAreaInfoView(Context context, float x, float y, String title, int color) {
-        this.context = context;
-
         cx = x;
         cy = y;
 
@@ -68,6 +66,11 @@ public class CustomAreaInfoView {
         view.setDrawingCacheEnabled(false);
     }
 
+    /**
+     * This method draws the updated CustomAreaInfoView on the Canvas provided.
+     *
+     * @param canvas to draw on
+     */
     public void draw(Canvas canvas) {
         canvas.drawBitmap(infoBoxArea, cx, cy, null);
     }

@@ -41,40 +41,32 @@ public class GetFloorImageAsync extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Void... voids) {
-        WindowManager windowManager = (WindowManager) BBApplication.getContext().getSystemService(Context.WINDOW_SERVICE);
+        if(BeaconBaconManager.getInstance().getCurrentPlace() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null && BeaconBaconManager.getInstance().getCurrentFloorIndex() != null) {
+            WindowManager windowManager = (WindowManager) BBApplication.getContext().getSystemService(Context.WINDOW_SERVICE);
 
-        if (windowManager != null) {
-            //Get screen dimensions
-            Display display = windowManager.getDefaultDisplay();
-            DisplayMetrics metrics = new DisplayMetrics();
-            display.getMetrics(metrics);
+            if (windowManager != null) {
+                //Get screen dimensions
+                Display display = windowManager.getDefaultDisplay();
+                DisplayMetrics metrics = new DisplayMetrics();
+                display.getMetrics(metrics);
 
-            try {
-//            final int width = (int) pxToDp(Integer.valueOf(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getMap_width_in_pixels()));
-//            final int height = (int) pxToDp(Integer.valueOf(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getMap_height_in_pixels()));
+                try {
+//                    final int width = (int) pxToDp(Integer.valueOf(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getMap_width_in_pixels()));
+//                    final int height = (int) pxToDp(Integer.valueOf(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getMap_height_in_pixels()));
+//
+//                    return ApiManager.getInstance().getPicasso().load(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getImage()).resize(width, height).centerCrop().get();
 
-//            return ApiManager.getInstance().getPicasso().load(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getImage()).resize(width, height).centerCrop().get();
-
-
-                //TODO Creates great quality on map, but causes lag
+                    //TODO This one
                 return ApiManager.getInstance().getPicasso().load(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getImage()).get();
 
-
-                //TODO Reduces quality, but still lacks and long loading time
-//                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//                ApiManager.getInstance().getPicasso().load(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getImage()).get().compress(Bitmap.CompressFormat.JPEG, 10, bos);
-//                byte[] bitmapdata = bos.toByteArray();
-//
-//                return BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
-
-
-                //Compromise - Causes POIs and Areas to be pushed as well
+                    //Compromise - Causes POIs and Areas to be pushed as well - would need a fix for that
 //                final int width = (int) pxToDp(metrics.widthPixels * 5);
 //                final int height = (int) pxToDp(metrics.heightPixels * 5);
 //
 //                return ApiManager.getInstance().getPicasso().load(BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getImage()).resize(width, height).centerCrop().get();
-            } catch (IOException e) {
-                e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 

@@ -1,5 +1,28 @@
 package dk.mustache.beaconbacon.fragments;
 
+/* CLASS NAME GOES HERE
+
+Copyright (c) 2017 Mustache ApS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -41,7 +64,8 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
         if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
             toolbarTitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        if(getActivity() != null)
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         if(((AppCompatActivity) getActivity()).getSupportActionBar() != null)
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -66,20 +90,23 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
-            ((BeaconBaconActivity) getActivity()).setSelectedPois(selectedPois);
-            ((BeaconBaconActivity) getActivity()).fabPoi.show();
+            if(getActivity() != null) {
+                ((BeaconBaconActivity) getActivity()).setSelectedPois(selectedPois);
+                ((BeaconBaconActivity) getActivity()).fabPoi.show();
 
-            if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                ((BeaconBaconActivity) getActivity()).fabFindTheBook.show();
+                if(BeaconBaconManager.getInstance().getRequestObject() != null)
+                    ((BeaconBaconActivity) getActivity()).fabFindTheBook.show();
 
-            if(((BeaconBaconActivity) getActivity()).snackbar != null) {
-                ((BeaconBaconActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
-                ((BeaconBaconActivity) getActivity()).snackbar.getView().animate()
-                        .alpha(1)
-                        .setDuration(300)
-                        .start();
+                if(((BeaconBaconActivity) getActivity()).snackbar != null) {
+                    ((BeaconBaconActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
+                    ((BeaconBaconActivity) getActivity()).snackbar.getView().animate()
+                            .alpha(1)
+                            .setDuration(300)
+                            .start();
+                }
+                getActivity().getSupportFragmentManager().popBackStack();
             }
-            getActivity().getSupportFragmentManager().popBackStack();
+
             return true;
         }
 

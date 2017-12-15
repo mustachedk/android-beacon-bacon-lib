@@ -1,17 +1,18 @@
 <resources>
     <string name="app_name">Beacon Bacon</string>
-    <string name="action_close">Close</string>
-    <string name="toolbar_chevron_left">Navigate left in places</string>
-    <string name="toolbar_chevron_right">Navigate right in places</string>
-    <string name="toolbar_place_title">Name of place</string>
-    <string name="toolbar_poi_selection">Points of Interest</string>
-    <string name="toolbar_place_selection">Select Library</string>
+    <string name="action_close">Luk</string>
+    <string name="toolbar_chevron_left">Naviger til venstre i steder</string>
+    <string name="toolbar_chevron_right">Naviger til højre i steder</string>
+    <string name="toolbar_place_title">Navn på sted</string>
+    <string name="toolbar_poi_selection">Interessepunkter</string>
+    <string name="toolbar_place_selection">Vælg bibliotek</string>
 
     <!--Alerts-->
-    <string name="alert_title_general">Something went wrong</string>
-    <string name="alert_title_find_book">Location was not found</string>
-    <string name="alert_message_library">We could not find any map for your current library</string>
-    <string name="alert_message_find_book">\'%s\' was not found at %s. If you cannot find the location, remember you can always reserve directly in the app.</string>
+    <string name="alert_title_general">Noget gik galt</string>
+    <string name="alert_title_find_book">Lokation blev ikke fundet</string>
+    <string name="alert_message_library">Vi kunne ikke finde noget kort til dette bibliotek.</string>
+    <string name="alert_message_find_book">\'%s\' blev ikke fundet på %s. Hvis du ikke kan finde lokationen, så husk du altid kan reservere direkte i app'en.</string>
 
     <string name="general_ok">OK</string>
+    <string name="general_finish">Afslut</string>
 </resources>

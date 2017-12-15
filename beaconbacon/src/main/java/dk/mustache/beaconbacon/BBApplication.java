@@ -49,6 +49,8 @@ public class BBApplication extends Application implements AllPlacesAsyncResponse
     public static final String PLACE_ID = "place_id";
     public static final String FAUST_ID = "faust_id";
 
+    public static final Integer MAP_REDUCTION_VALUE = 2;
+
     private static Context context;
     public static Context getContext(){
         return context;

@@ -1,5 +1,28 @@
 package dk.mustache.beaconbacon.fragments;
 
+/* CLASS NAME GOES HERE
+
+Copyright (c) 2017 Mustache ApS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -17,14 +40,11 @@ import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
 import dk.mustache.beaconbacon.adapters.PlaceSelectionAdapter;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
-import dk.mustache.beaconbacon.datamodels.BBFloor;
 
 public class PlaceSelectionFragment extends Fragment {
-    private BBFloor currentFloor;
-
     //RecyclerView Setup
     private RecyclerView recyclerView;
-    public RecyclerView.Adapter adapter;
+    private RecyclerView.Adapter adapter;
     private LinearLayoutManager layoutManager;
 
     public PlaceSelectionFragment() {
@@ -41,7 +61,8 @@ public class PlaceSelectionFragment extends Fragment {
         if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
             toolbarTitle.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        if(getActivity() != null)
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         if (((AppCompatActivity) getActivity()).getSupportActionBar() != null)
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -67,9 +88,10 @@ public class PlaceSelectionFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
-            ((BeaconBaconActivity) getActivity()).fabPoi.show();
+            if(getActivity() != null)
+                ((BeaconBaconActivity) getActivity()).fabPoi.show();
 
-            if(BeaconBaconManager.getInstance().getRequestObject() != null)
+            if(getActivity() != null && BeaconBaconManager.getInstance().getRequestObject() != null)
                 ((BeaconBaconActivity) getActivity()).fabFindTheBook.show();
 
             if(((BeaconBaconActivity) getActivity()).snackbar != null) {

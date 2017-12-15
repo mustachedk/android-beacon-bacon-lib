@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 public enum PoiType {
     AREA ("area"),
-    POI ("poi"),
+    POI ("point"),
     BEACON ("beacon");
 
     private String displayTypeValue;

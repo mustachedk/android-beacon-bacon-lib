@@ -26,7 +26,6 @@ THE SOFTWARE.
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.AppCompatCheckBox;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +46,8 @@ import dk.mustache.beaconbacon.datamodels.BBPoi;
 import dk.mustache.beaconbacon.datamodels.BBPoiMenuItem;
 import dk.mustache.beaconbacon.utils.CheckboxColorUtil;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+
+import static android.graphics.Color.parseColor;
 
 public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeadersAdapter {
     private LayoutInflater inflater;
@@ -91,27 +92,21 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
         if(poiMenuItems.get(position).getPoi() != null) {
             final ViewHolder holder;
 
-//            if (convertView == null) {
-                holder = new ViewHolder();
-                convertView = inflater.inflate(R.layout.layout_poi_selection_item, parent, false);
+            holder = new ViewHolder();
+            convertView = inflater.inflate(R.layout.layout_poi_selection_item, parent, false);
 
-                holder.layout = convertView.findViewById(R.id.poi_selection_item_layout);
-                holder.image = convertView.findViewById(R.id.poi_selection_item_image);
+            holder.layout = convertView.findViewById(R.id.poi_selection_item_layout);
+            holder.image = convertView.findViewById(R.id.poi_selection_item_image);
 
-                holder.checkBox = convertView.findViewById(R.id.poi_selection_item_checkbox);
-                if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTintColor() != -1)
-                    CheckboxColorUtil.setAppCompatCheckBoxColors(holder.checkBox, Color.TRANSPARENT, context.getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
+            holder.checkBox = convertView.findViewById(R.id.poi_selection_item_checkbox);
+            if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTintColor() != -1)
+                CheckboxColorUtil.setAppCompatCheckBoxColors(holder.checkBox, Color.TRANSPARENT, context.getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
 
-                holder.text = convertView.findViewById(R.id.poi_selection_item_text);
-                if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
-                    holder.text.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+            holder.text = convertView.findViewById(R.id.poi_selection_item_text);
+            if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+                holder.text.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
-                holder.areaView = convertView.findViewById(R.id.poi_selection_item_image_area);
-
-//                convertView.setTag(holder);
-//            } else {
-//                holder = (ViewHolder) convertView.getTag();
-//            }
+            holder.areaView = convertView.findViewById(R.id.poi_selection_item_image_area);
 
             if (position % 2 == 0)
                 holder.layout.setBackgroundColor(context.getResources().getColor(R.color.colorListItem));
@@ -147,22 +142,11 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
 
             if(!Objects.equals(poiMenuItems.get(position).getPoi().getIcon(), "")) {
                 ApiManager.getInstance().getPicasso().load(poiMenuItems.get(position).getPoi().getIcon())
-                        .resize(200,//Integer.valueOf(place.getFloors().get(0).getMap_width_in_pixels() != null ? place.getFloors().get(0).getMap_width_in_pixels() : "0"),
-                                200)//Integer.valueOf(place.getFloors().get(0).getMap_height_in_pixels() != null ? place.getFloors().get(0).getMap_height_in_pixels() : "0"))
+                        .resize(200,200)
                         .centerCrop()
-                        .into(holder.image, new com.squareup.picasso.Callback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d("Picasso", "success");
-                            }
-
-                            @Override
-                            public void onError() {
-                                Log.d("Picasso", "error");
-                            }
-                        });
+                        .into(holder.image);
             } else if(Objects.equals(poiMenuItems.get(position).getPoi().getType(), "area")) {
-                holder.areaView.setCircleColor(Color.parseColor(poiMenuItems.get(position).getPoi().getColor()));
+                holder.areaView.setCircleColor(parseColor(poiMenuItems.get(position).getPoi().getColor()));
             }
 
             return convertView;
@@ -176,14 +160,10 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
         if(poiMenuItems.get(position).getPoi() == null) {
             HeaderViewHolder holder;
 
-//            if (convertView == null) {
-                holder = new HeaderViewHolder();
-                convertView = inflater.inflate(R.layout.layout_poi_selection_header_item, parent, false);
-                holder.header = convertView.findViewById(R.id.header_item_text);
-                convertView.setTag(holder);
-//            } else {
-//                holder = (HeaderViewHolder) convertView.getTag();
-//            }
+            holder = new HeaderViewHolder();
+            convertView = inflater.inflate(R.layout.layout_poi_selection_header_item, parent, false);
+            holder.header = convertView.findViewById(R.id.header_item_text);
+            convertView.setTag(holder);
 
             holder.header.setText(poiMenuItems.get(position).getTitle());
             if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)

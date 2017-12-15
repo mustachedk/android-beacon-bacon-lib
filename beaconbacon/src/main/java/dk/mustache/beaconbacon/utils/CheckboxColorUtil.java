@@ -28,9 +28,16 @@ import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 
 public class CheckboxColorUtil {
-    public static void setAppCompatCheckBoxColors(final AppCompatCheckBox _checkbox, final int _uncheckedColor, final int _checkedColor) {
+    /**
+     * This method sets the correct colors for the provided checkbox.
+     *
+     * @param checkBox The checkbox to color.
+     * @param uncheckedColor Color for the unchecked state.
+     * @param checkedColor Color for the checked state.
+     */
+    public static void setAppCompatCheckBoxColors(final AppCompatCheckBox checkBox, final int uncheckedColor, final int checkedColor) {
         int[][] states = new int[][]{new int[]{-android.R.attr.state_checked}, new int[]{android.R.attr.state_checked}};
-        int[] colors = new int[]{_uncheckedColor, _checkedColor};
-        CompoundButtonCompat.setButtonTintList(_checkbox, new ColorStateList(states, colors));
+        int[] colors = new int[]{uncheckedColor, checkedColor};
+        CompoundButtonCompat.setButtonTintList(checkBox, new ColorStateList(states, colors));
     }
 }

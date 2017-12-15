@@ -26,7 +26,6 @@ THE SOFTWARE.
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -35,8 +34,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.snatik.polygon.Polygon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,14 +45,12 @@ import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 
 public class CustomPoiView {
-    private float scaleInit;
     private Context context;
 
     public Bitmap iconBitmap;
 
     private Bitmap infoBoxText;
     private Bitmap infoBoxArrow;
-    private Bitmap infoBoxArea;
     public TextView infoWindowText;
 
     public String title;
@@ -69,7 +64,6 @@ public class CustomPoiView {
     public float centerY;
 
     private Path path = new Path();
-    private Polygon polygon;
     private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private List<String> area;
@@ -77,39 +71,110 @@ public class CustomPoiView {
 
     private Region region;
     private RectF rectF;
-//    private Paint paintTest;
-//    private Path pathTest = new Path();
 
     public float currentX;
     public float currentY;
     public float scaleFactor = 1.0f;
 
 
-    //Constructors
-    public CustomPoiView(Context context, Bitmap iconBitmap, float x, float y, float radius, String title, boolean isFindTheBook) {
-        cx = x;
-        cy = y;
 
+    //region Constructors
+    public CustomPoiView(Context context, Bitmap iconBitmap, float x, float y, float radius, String title, boolean isFindTheBook) {
         this.context = context;
-        this.radius = radius;
-        this.title = title;
 
         if(isFindTheBook)
             this.iconBitmap = createFindTheBookBitmap(iconBitmap);
         else
             this.iconBitmap = iconBitmap;
 
-        createInfoWindow();
+        this.cx = x;
+        this.cy = y;
+
+        this.radius = radius;
+        this.title = title;
+
+        generateInfoWindow();
     }
 
-    public CustomPoiView(Context context, float scaleInit, String area, int color, String name) {
+    public CustomPoiView(Context context, String area, int color, String title) {
         this.context = context;
-        this.scaleInit = scaleInit;
+        this.title = title;
 
+        generateFloatValuesForArea(area);
+        generatePathAndPaintForArea(color);
+    }
+    //endregion
+
+
+
+    //region Draw, Contains and Title
+    /**
+     * This method draws the updated CustomPoiView on the Canvas provided.
+     *
+     * @param canvas to draw on
+     */
+    public void draw(Canvas canvas) {
+        if(iconBitmap != null) { //Draw icon
+            canvas.drawBitmap(iconBitmap,  cx - radius, cy - radius, null);
+
+        } else { //Draw area
+            path.reset();
+            path.moveTo(areaFloats.get(0) + cx, areaFloats.get(1) + cy);
+            for(int i=2; i<areaFloats.size(); i++) {
+                path.lineTo(areaFloats.get(i) + cx, areaFloats.get(i+1) + cy);
+                i++; //Jump double for x/y values
+            }
+            path.close();
+
+            canvas.drawPath(path, paint);
+        }
+
+        //Draw the info window if visible
+        if(iconBitmap != null && infoWindowText != null && infoWindowText.getVisibility() == View.VISIBLE) {
+            int x = (int) ((cx) - infoWindowText.getWidth() / 2);
+            int y = (int) ((cy) - infoWindowText.getHeight() - radius);
+            int x2 = (int) ((cx) - infoBoxArrow.getWidth() / 2);
+            int y2 = (int) ((cy) - infoBoxArrow.getHeight() / 2 - radius);
+
+            canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxText, infoBoxText.getWidth(), infoBoxText.getHeight(), false), x, y-infoBoxArrow.getHeight()/3+2, null);
+            canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxArrow, infoBoxArrow.getWidth(), infoBoxArrow.getHeight(), false), x2, y2, null);
+        }
+    }
+
+    /**
+     * This method calculates whether the given x,y value resides within this CustomPoiView.
+     *
+     * @param x the clicked x value
+     * @param y the clicked y value
+     * @return True if this CustomPoiView contains the Point, false otherwise
+     */
+    public boolean contains(float x, float y) {
+        return Math.hypot(cx - x, cy - y) < radius;
+    }
+
+    @Override
+    public String toString() {
+        return title;
+    }
+    //endregion
+
+
+
+    //region Area
+    private void generatePathAndPaintForArea(int color) {
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setAntiAlias(false);
+        paint.setColor(context.getResources().getColor(color));
+        paint.setAlpha(75);
+
+        path = new Path();
+        path.setFillType(Path.FillType.EVEN_ODD);
+    }
+
+    private void generateFloatValuesForArea(String area) {
         if(area != null)
             this.area = Arrays.asList(area.split(","));
-
-        this.title = name;
 
         for(String element : this.area) {
             areaFloats.add(Float.valueOf(element));
@@ -137,87 +202,45 @@ public class CustomPoiView {
             //Jump double for x/y values
             i++;
         }
-
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setAntiAlias(false);
-        paint.setColor(context.getResources().getColor(color));
-        paint.setAlpha(75);
-
-        path = new Path();
-        path.setFillType(Path.FillType.EVEN_ODD);
-
-        /* TEST
-        paintTest = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paintTest.setStyle(Paint.Style.FILL);
-        paintTest.setAntiAlias(false);
-        paintTest.setColor(Color.RED);
-        paintTest.setAlpha(75);
-
-        pathTest = new Path();
-        pathTest.setFillType(Path.FillType.EVEN_ODD);
-        */
-
-        createInfoWindow();
     }
+    //endregion
 
-    private void createInfoWindow() {
+
+
+    //region POI
+    private void generateInfoWindow() {
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        if(iconBitmap != null) { //POI
-            View view = inflater.inflate(R.layout.layout_info_window, null);
-            View viewArrow = inflater.inflate(R.layout.layout_info_arrow, null);
+        View view = inflater.inflate(R.layout.layout_info_window, null);
+        View viewArrow = inflater.inflate(R.layout.layout_info_arrow, null);
 
-            infoWindowText = view.findViewById(R.id.info_window_text);
-            infoWindowText.setText(title);
-            if(BeaconBaconManager.getInstance().getConfigurationObject() != null)
-                infoWindowText.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+        infoWindowText = view.findViewById(R.id.info_window_text);
+        infoWindowText.setText(title);
+        if (BeaconBaconManager.getInstance().getConfigurationObject() != null)
+            infoWindowText.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
-            ImageView infoArrow = viewArrow.findViewById(R.id.info_window_arrow);
-            infoArrow.setVisibility(View.VISIBLE);
+        ImageView infoArrow = viewArrow.findViewById(R.id.info_window_arrow);
+        infoArrow.setVisibility(View.VISIBLE);
 
-            view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-            view.setDrawingCacheEnabled(true);
-            view.buildDrawingCache();
+        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
 
-            viewArrow.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            viewArrow.layout(0, 0, viewArrow.getMeasuredWidth(), viewArrow.getMeasuredHeight());
-            viewArrow.setDrawingCacheEnabled(true);
-            viewArrow.buildDrawingCache();
+        viewArrow.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        viewArrow.layout(0, 0, viewArrow.getMeasuredWidth(), viewArrow.getMeasuredHeight());
+        viewArrow.setDrawingCacheEnabled(true);
+        viewArrow.buildDrawingCache();
 
-            infoBoxText = Bitmap.createBitmap(view.getDrawingCache());
-            infoBoxArrow = Bitmap.createBitmap(viewArrow.getDrawingCache());
+        infoBoxText = Bitmap.createBitmap(view.getDrawingCache());
+        infoBoxArrow = Bitmap.createBitmap(viewArrow.getDrawingCache());
 
-            view.setDrawingCacheEnabled(false);
-            viewArrow.setDrawingCacheEnabled(false);
+        view.setDrawingCacheEnabled(false);
+        viewArrow.setDrawingCacheEnabled(false);
 
-            infoWindowText.setVisibility(View.GONE);
-
-        } else { //Area
-            View view = inflater.inflate(R.layout.layout_area_info, null);
-
-            AreaView areaView = view.findViewById(R.id.area_info_cirlce);
-            areaView.setCircleColor(Color.RED);
-
-            TextView areaText = view.findViewById(R.id.area_info_text);
-            areaText.setText(title);
-
-            if(BeaconBaconManager.getInstance().getConfigurationObject() != null)
-                areaText.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
-
-            view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-            view.setDrawingCacheEnabled(true);
-            view.buildDrawingCache();
-
-            infoBoxArea = Bitmap.createBitmap(view.getDrawingCache());
-
-            view.setDrawingCacheEnabled(false);
-        }
+        infoWindowText.setVisibility(View.GONE);
     }
 
     private Bitmap createFindTheBookBitmap(Bitmap bitmap) {
@@ -244,57 +267,9 @@ public class CustomPoiView {
 
         return b;
     }
+    //endregion
 
-    public void draw(Canvas canvas) {
-
-        if(iconBitmap != null) { //Draw icon
-            canvas.drawBitmap(iconBitmap,  cx - radius, cy - radius, null);
-
-        } else { //Draw area
-
-            //User visible
-            path.reset();
-            path.moveTo(areaFloats.get(0) + cx, areaFloats.get(1) + cy);
-
-            for(int i=2; i<areaFloats.size(); i++) {
-                path.lineTo(areaFloats.get(i) + cx, areaFloats.get(i+1) + cy);
-
-                //Jump double for x/y values
-                i++;
-            }
-
-            path.close();
-
-            canvas.drawPath(path, paint);
-            //Test point
-            //canvas.drawPath(pathTest, paintTest);
-        }
-
-        //Draw the info window if visible
-        if(infoWindowText != null && infoWindowText.getVisibility() == View.VISIBLE) {
-//                int x = (int) ((areaFloats.get(0)) - infoWindowText.getWidth() / 2);
-//                int y = (int) ((areaFloats.get(1)) - infoWindowText.getHeight() - radius);
-//                int x2 = (int) ((areaFloats.get(0)) - infoBoxArrow.getWidth() / 2);
-//                int y2 = (int) ((areaFloats.get(1)) - infoBoxArrow.getHeight() / 2 - radius);
-//
-//                canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxText, (int) (infoBoxText.getWidth() / scaleFactor), (int) (infoBoxText.getHeight() / scaleFactor), false), x, y-infoBoxArrow.getHeight()/3+2, null);
-//                canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxArrow, (int) (infoBoxArrow.getWidth() / scaleFactor), (int) (infoBoxArrow.getHeight() * scaleFactor), false), x2, y2, null);
-            if(cx != -1 && cy != -1) {
-                int x = (int) ((cx) - infoWindowText.getWidth() / 2);
-                int y = (int) ((cy) - infoWindowText.getHeight() - radius);
-                int x2 = (int) ((cx) - infoBoxArrow.getWidth() / 2);
-                int y2 = (int) ((cy) - infoBoxArrow.getHeight() / 2 - radius);
-
-                canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxText, infoBoxText.getWidth(), infoBoxText.getHeight(), false), x, y-infoBoxArrow.getHeight()/3+2, null);
-                canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxArrow, infoBoxArrow.getWidth(), infoBoxArrow.getHeight(), false), x2, y2, null);
-            }
-        }
-    }
-
-    public boolean contains(float x, float y) {
-            return Math.hypot(cx - x, cy - y) < radius;
-    }
-
+    //region Failed attempt to use region.contains for clicking in areas
     public boolean contains(float x, float y, float scale) {
         //TODO Good when clicking in center of screen, but not so good when deviating from center, it deviates further than expected, works at all scales though
         int pointX = (int) ((x - currentX/scaleFactor) * (1/scale));
@@ -325,9 +300,5 @@ public class CustomPoiView {
 
         return region.contains(pointX, pointY);
     }
-
-    @Override
-    public String toString() {
-        return title;
-    }
+    //endregion
 }

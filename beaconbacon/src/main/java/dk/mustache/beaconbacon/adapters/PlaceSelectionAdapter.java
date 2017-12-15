@@ -54,13 +54,12 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_place_selection_item, parent, false);
-        PlaceSelectionAdapter.ViewHolder viewHolder = new PlaceSelectionAdapter.ViewHolder(view, viewType);
 
-        return viewHolder;
+        return new PlaceSelectionAdapter.ViewHolder(view, viewType);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.placeText.setText(places.get(position).getName());
 
         if(currentPlace != null && places.get(position).getId() == currentPlace.getId())
@@ -77,20 +76,22 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
             @Override
             public void onClick(View view) {
                 holder.checkBox.setChecked(!holder.checkBox.isChecked());
-                currentPlace = places.get(position);
-                BeaconBaconManager.getInstance().setCurrentPlace(places.get(position));
+                currentPlace = places.get(holder.getAdapterPosition());
+                BeaconBaconManager.getInstance().setCurrentPlace(places.get(holder.getAdapterPosition()));
                 BeaconBaconManager.getInstance().setCurrentFloorIndex(0);
                 BeaconBaconManager.getInstance().setCurrentFloorId(-1);
                 notifyDataSetChanged();
 
-                ((BeaconBaconActivity) context).setNewCurrentPlace(places.get(position));
-                ((BeaconBaconActivity) context).fabPoi.show();
+                if(places != null) {
+                    ((BeaconBaconActivity) context).setNewCurrentPlace(places.get(holder.getAdapterPosition()));
+                    ((BeaconBaconActivity) context).fabPoi.show();
+                }
 
                 if(BeaconBaconManager.getInstance().getRequestObject() != null)
                     ((BeaconBaconActivity) context).fabFindTheBook.show();
 
                 if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                    ((BeaconBaconActivity) context).findABook(String.valueOf(places.get(position).getId()));
+                    ((BeaconBaconActivity) context).findABook(String.valueOf(places.get(holder.getAdapterPosition()).getId()));
 
                 if(((BeaconBaconActivity) context).snackbar != null) {
                     ((BeaconBaconActivity) context).snackbar.getView().setVisibility(View.VISIBLE);
