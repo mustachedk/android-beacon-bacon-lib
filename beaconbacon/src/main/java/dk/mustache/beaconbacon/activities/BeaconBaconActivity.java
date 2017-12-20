@@ -186,17 +186,17 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                 //We have place_id and a faust_id
                 if(BeaconBaconManager.getInstance().getRequestObject() != null) {
                     Log.e("BeaconBaconActivity", "Faust id provided, finding the book for the user.");
-                    findABook(place_id);
-                } else {
-                    Log.e("BeaconBaconActivity", "Faust id provided, but no Request Object was set. Create a new BBRequestObject and set it to the BeaconBaconManager before opening the BeaconBaconActivity.");
-                }
-
-                Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
-                findSpecificPlace(place_id, true);
+                findABook(place_id);
             } else {
-                Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
+                Log.e("BeaconBaconActivity", "Faust id provided, but no Request Object was set. Create a new BBRequestObject and set it to the BeaconBaconManager before opening the BeaconBaconActivity.");
+            }
 
-                //We have a place id only
+            Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
+            findSpecificPlace(place_id, true);
+        } else {
+            Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
+
+            //We have a place id only
                 findSpecificPlace(place_id, false);
             }
 

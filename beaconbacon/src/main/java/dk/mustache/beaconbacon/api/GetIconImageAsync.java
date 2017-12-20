@@ -57,7 +57,7 @@ public class GetIconImageAsync extends AsyncTask<List<BBPoi>, Void, List<CustomP
                                 if (Objects.equals(locations.get(i).getPoi().getType(), "icon")) {
                                     try {
                                         Bitmap bitmap = Bitmap.createScaledBitmap(ApiManager.getInstance().getPicasso().load(locations.get(i).getPoi().getIcon()).get(), (int) dpToPx(30), (int) dpToPx(30), false);
-                                        customPoiViewList.add(new CustomPoiView(BeaconBaconManager.getInstance().getContext(), bitmap, dpToPx(locations.get(i).getPosX()), dpToPx(locations.get(i).getPosY()), (int) dpToPx(15), locations.get(i).getPoi().getName(), false));
+                                        customPoiViewList.add(new CustomPoiView(BeaconBaconManager.getInstance().getContext(), bitmap, locations.get(i).getPosX(), locations.get(i).getPosY(), (int) dpToPx(15), locations.get(i).getPoi().getName(), false));
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }

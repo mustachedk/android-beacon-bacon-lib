@@ -32,6 +32,7 @@ import android.graphics.Matrix;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -51,7 +52,7 @@ import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 public class MapHolderView extends AppCompatImageView {
     private Context context;
 
-    private int MAX_DRAG = 1000;
+    private final float MAX_DRAG = 300.f;
     private final float MIN_ZOOM = 0.5f;
     private final float MAX_ZOOM = 5.0f;
     private float scaleFactor = 1.0f;
@@ -151,17 +152,17 @@ public class MapHolderView extends AppCompatImageView {
     }
 
 
-    private int currentTranslationX = 0;
-    private int currentTranslationY = 0;
     //Gesture and Scale Detectors
     private GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             //Attempt to limit Scroll
-            /*
-            currentTranslationX += distanceX;
-            currentTranslationY += distanceY;
 
+//            Log.d("distanceX | distanceY", distanceX + " | " + distanceY);
+//            Log.d("currentTranslationX | currentTranslationY", currentTranslationX + " | " + currentTranslationY);
+
+
+            /*
             if(currentTranslationX <= MAX_DRAG && currentTranslationX >= -MAX_DRAG) {
                 matrix.postTranslate(-distanceX, 0);
                 poiHolderView.mapWasTranslated(-distanceX, 0);
@@ -201,6 +202,32 @@ public class MapHolderView extends AppCompatImageView {
 
             //TODO Limit how far we can drag the view
             matrix.postTranslate(-distanceX, -distanceY);
+
+            boolean limitDrag = false;
+
+            // Limit Left and Top drag.
+            if (mapCurrentX() > MAX_DRAG) {
+                // Revert translate.
+                float diffX = mapCurrentX() - MAX_DRAG;
+                matrix.postTranslate(-diffX, 0);
+                limitDrag = true;
+            }
+
+            // Limit Left and Top drag.
+            if (mapCurrentY() > MAX_DRAG) {
+                // Revert translate.
+                float diffY = mapCurrentY() - MAX_DRAG;
+                matrix.postTranslate(0, -diffY);
+                limitDrag = true;
+            }
+
+            // Limit Right and Bottom Drag
+
+            if (limitDrag == true) {
+                invalidate();
+                return true;
+            }
+
             poiHolderView.mapWasTranslated(-distanceX, -distanceY);
 
             if(areaCustomPoiViews != null) {
@@ -216,6 +243,9 @@ public class MapHolderView extends AppCompatImageView {
             }
 
             invalidate();
+
+            printMatrixDEBUG();
+
             return true;
         }
 
@@ -227,6 +257,25 @@ public class MapHolderView extends AppCompatImageView {
         }
     };
 
+    private void printMatrixDEBUG() {
+        float x = mapCurrentX();
+        float y = mapCurrentY();
+        Log.d("Rect: ", x +" | " + y);
+    }
+
+    private float mapCurrentX() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[Matrix.MTRANS_X];
+    }
+
+    private float mapCurrentY() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[Matrix.MTRANS_Y];
+    }
+
+    
     private float translationX;
     private float translationY;
     private ScaleGestureDetector.SimpleOnScaleGestureListener simpleOnScaleGestureListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -234,7 +283,7 @@ public class MapHolderView extends AppCompatImageView {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
-            MAX_DRAG *= detector.getScaleFactor();
+//            MAX_DRAG *= detector.getScaleFactor();
             if(scaleFactor >= MIN_ZOOM && scaleFactor <= MAX_ZOOM) {
                 float scale = detector.getScaleFactor();
 
@@ -244,7 +293,10 @@ public class MapHolderView extends AppCompatImageView {
                 //Generate translations for the scaling
                 translationX = ((metrics.widthPixels * scale - metrics.widthPixels) / 2);
                 translationY = ((metrics.heightPixels * scale - metrics.heightPixels) / 2);
+
                 matrix.postTranslate(-translationX, -translationY);
+
+//                Log.d("currentTranslationX | currentTranslationY", currentTranslationX + " | " + currentTranslationY);
 
                 //Notify POIs map was scaled
                 poiHolderView.mapWasScaled(scale, translationX, translationY);
@@ -265,7 +317,7 @@ public class MapHolderView extends AppCompatImageView {
 
                 invalidate();
             }
-
+            printMatrixDEBUG();
             scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
 
             return true;
@@ -281,9 +333,7 @@ public class MapHolderView extends AppCompatImageView {
 
         //Reset the scale factor and drag factors when we load a new place/floor
         scaleFactor = 1.0f;
-        currentTranslationX = 0;
-        currentTranslationY = 0;
-        MAX_DRAG = 1500;
+//        MAX_DRAG = 1500;
 
         //Fit image to view
         if(this.mapBitmap != null)
