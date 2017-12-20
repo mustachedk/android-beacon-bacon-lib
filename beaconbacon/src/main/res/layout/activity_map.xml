@@ -24,9 +24,9 @@
         android:id="@+id/map_view_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/ic_close"
+        android:layout_marginTop="?attr/actionBarSize"
         android:background="@color/mapBackground"
-        android:layout_marginTop="?attr/actionBarSize" />
+        android:src="@drawable/ic_close"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -505,7 +505,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                 if (mapHolderView.poiHolderView != null)
                     mapHolderView.poiHolderView.floorWasSwitched();
 
-                mapHolderView.setImageBitmap(null);
+                mapHolderView.setImageBitmap(currentFloorImage); // param was null - forces Null Pointer Exception
             }
 
             if (updatePois)
@@ -545,7 +545,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             }
 
         } catch (Exception e) {
-            Log.e("BeaconBaconActivity", "Something went wrong when updating the map view.");
+            Log.e("BBActivity - ErrorMap", e.getLocalizedMessage());
         }
     }
 

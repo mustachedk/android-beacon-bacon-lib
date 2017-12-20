@@ -83,7 +83,7 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
                 notifyDataSetChanged();
 
                 if(places != null) {
-                    ((BeaconBaconActivity) context).setNewCurrentPlace(places.get(holder.getAdapterPosition()));
+                    ((BeaconBaconActivity) context).setNewCurrentPlace(currentPlace);
                     ((BeaconBaconActivity) context).fabPoi.show();
                 }
 
@@ -91,7 +91,7 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
                     ((BeaconBaconActivity) context).fabFindTheBook.show();
 
                 if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                    ((BeaconBaconActivity) context).findABook(String.valueOf(places.get(holder.getAdapterPosition()).getId()));
+                    ((BeaconBaconActivity) context).findABook(String.valueOf(currentPlace.getId()));
 
                 if(((BeaconBaconActivity) context).snackbar != null) {
                     ((BeaconBaconActivity) context).snackbar.getView().setVisibility(View.VISIBLE);
