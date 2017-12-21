@@ -355,7 +355,7 @@ public class MapHolderView extends AppCompatImageView {
 
         float currentScale = mapCurrentScaleX();
 
-        MAX_ZOOM = Math.min(MIN_ZOOM, MIN_ZOOM / scaleInit);
+        MAX_ZOOM = Math.max(MIN_ZOOM, MIN_ZOOM / scaleInit);
 
     }
     //endregion
