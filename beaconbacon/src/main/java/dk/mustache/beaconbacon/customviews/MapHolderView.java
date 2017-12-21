@@ -53,10 +53,10 @@ import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 public class MapHolderView extends AppCompatImageView {
     private Context context;
 
-    private final float MAX_DRAG = 300.f;
-    private final float MAX_DRAG_BOTTOM = 500.f;
-    private final float MIN_ZOOM = 0.5f;
-    private final float MAX_ZOOM = 5.0f;
+    private float MAX_DRAG = 300.f;
+    private float MAX_DRAG_BOTTOM = 500.f;
+    private final float MIN_ZOOM = 1.0f;
+    private float MAX_ZOOM = 1.0f;
     private float scaleFactor = 1.0f;
 
     private DisplayMetrics metrics;
@@ -109,6 +109,8 @@ public class MapHolderView extends AppCompatImageView {
             Display display = windowManager.getDefaultDisplay();
             metrics = new DisplayMetrics();
             display.getMetrics(metrics);
+            MAX_DRAG = (float)(metrics.widthPixels * 0.15);
+            MAX_DRAG_BOTTOM = (float)(metrics.heightPixels * 0.25);
         }
 
         areaPOIInfoWindows = new ArrayList<>();
@@ -329,7 +331,6 @@ public class MapHolderView extends AppCompatImageView {
 
         //Reset the scale factor and drag factors when we load a new place/floor
         scaleFactor = 1.0f;
-//        MAX_DRAG = 1500;
 
         //Fit image to view
         if(this.mapBitmap != null)
@@ -348,10 +349,14 @@ public class MapHolderView extends AppCompatImageView {
         xTranslationInit = redundantXSpace/2;
         yTranslationInit = redundantYSpace/2;
 
-
-        //Set scale and translate image to center
+        //Set scale and trnslate image to center
         matrix.setScale(scaleX, scaleY);
         matrix.postTranslate(redundantXSpace / 2, redundantYSpace / 2);
+
+        float currentScale = mapCurrentScaleX();
+
+        MAX_ZOOM = Math.min(MIN_ZOOM, MIN_ZOOM / scaleInit);
+
     }
     //endregion
 

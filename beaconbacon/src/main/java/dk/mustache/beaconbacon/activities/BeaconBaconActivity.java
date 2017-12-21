@@ -26,6 +26,7 @@ THE SOFTWARE.
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -255,7 +256,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         //FABs
         fabPoi = findViewById(R.id.map_poi_fab);
         fabPoi.setOnClickListener(this);
-        fabFindTheBook = findViewById(R.id.map_ftb_fab);
+        fabFindTheBook = findViewById(R.id. map_ftb_fab);
         fabFindTheBook.setOnClickListener(this);
     }
     //endregion
@@ -489,6 +490,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                                 .alpha(1)
                                                 .setDuration(300)
                                                 .start();
+
                                     } else {
                                         Log.i("BeaconBaconActivity", "We're still finding a map image for this floor or setting up POI icons, retrying in 10ms");
                                         handler.postDelayed(this, 10);
@@ -506,6 +508,11 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                     mapHolderView.poiHolderView.floorWasSwitched();
 
                 mapHolderView.setImageBitmap(currentFloorImage); // param was null - forces Null Pointer Exception
+
+                int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
+                BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
+                mapView.setBackgroundColor(Color.parseColor(currentFloor.getMap_background_color()));
+
             }
 
             if (updatePois)
@@ -648,9 +655,8 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         BeaconBaconManager.getInstance().setCurrentFloorId(newCurrentFloorId);
         BBPlace currentPlace = BeaconBaconManager.getInstance().getCurrentPlace();
 
-        if (currentPlace.getFloors() != null &&
-                currentPlace.getFloors().size() > 0 &&
-                !Objects.equals(currentPlace.getFloors().get(newCurrentFloorIndex).getImage(), "")) {
+
+        if (currentPlace.getFloors() != null && currentPlace.getFloors().size() > 0 && !Objects.equals(currentPlace.getFloors().get(newCurrentFloorIndex).getImage(), "")) {
 
             GetFloorImageAsync getFloorImageAsync = new GetFloorImageAsync();
             getFloorImageAsync.delegate = this;
@@ -661,6 +667,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
             getIconImageAsync.delegate = this;
             ApiManager.getInstance().getIconImage(this, getIconImageAsync, selectedPois);
+
         } else {
             mapHolderView.setMapPois(null);
             mapHolderView.setFindTheBook(null, null);
