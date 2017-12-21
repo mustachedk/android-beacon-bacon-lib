@@ -46,6 +46,7 @@ public class PoiHolderView extends AppCompatImageView {
     private DisplayMetrics metrics;
 
     List<CustomPoiView> poiList = new ArrayList<>();
+//    List<CustomPoiView> poiAreaList = new ArrayList<>();
     public CustomPoiView findTheBookObject;
     private float currentScale = 1.0f;
     private float scaleInit;
@@ -53,7 +54,7 @@ public class PoiHolderView extends AppCompatImageView {
     private float yTranslation;
     private Bitmap findTheBookOriginalIcon;
     private BBResponseObject findTheBookResponseObject;
-    private List<CustomAreaInfoView> areaPOIInfoWindows;
+    //private List<CustomAreaInfoView> areaPOIInfoWindows;
 
 
     //Constructors & Initialization
@@ -103,15 +104,11 @@ public class PoiHolderView extends AppCompatImageView {
                 }
             }
         }
-
-        for(CustomAreaInfoView areaInfoView : areaPOIInfoWindows) {
-            areaInfoView.draw(canvas);
-        }
     }
 
 
 
-    //Setup POIs
+    //Setup Point POIs
     public void setupPois(List<CustomPoiView> poiList, float scaleInit, float xTranslation, float yTranslation) {
         this.poiList = poiList;
 
@@ -120,6 +117,18 @@ public class PoiHolderView extends AppCompatImageView {
             poi.cy = poi.cy * scaleInit + yTranslation;
         }
     }
+
+//    //Setup Area POIs
+//    public void setupPoiAreas(List<CustomPoiView> poiList, float scaleInit, float xTranslation, float yTranslation) {
+//        this.poiList = poiList;
+//
+//        for(CustomPoiView poi : poiList) {
+//            poi.centerX = poi.centerX * scaleInit;
+//            poi.centerY = poi.centerX * scaleInit;
+//        }
+//    }
+
+
 
     public void setupFindTheBook(Bitmap icon, BBResponseObject responseObject, float scaleInit, float xTranslation, float yTranslation) {
         findTheBookObject = null;
@@ -150,11 +159,11 @@ public class PoiHolderView extends AppCompatImageView {
 
 
     //Handle POI clicks
-    public void poiWasClicked(float p1, float p2) {
+    public void poiWasClicked(float x, float y) {
         String name = "NO POI";
 
         if(findTheBookObject != null) {
-            if (findTheBookObject.contains(p1, p2)) {
+            if (findTheBookObject.contains(x, y)) {
                 name = findTheBookObject.toString();
                 if(findTheBookObject.infoWindowText.getVisibility() == GONE)
                     findTheBookObject.infoWindowText.setVisibility(VISIBLE);
@@ -164,12 +173,13 @@ public class PoiHolderView extends AppCompatImageView {
                 findTheBookObject.infoWindowText.setText(name);
 
                 invalidate();
+                return;
             }
         }
 
         if(poiList != null) {
             for (CustomPoiView poi : poiList) {
-                if (poi.contains(p1, p2)) {
+                if (poi.contains(x, y)) {
                     name = poi.toString();
                     if(poi.infoWindowText.getVisibility() == GONE)
                         poi.infoWindowText.setVisibility(VISIBLE);
@@ -179,7 +189,7 @@ public class PoiHolderView extends AppCompatImageView {
                     poi.infoWindowText.setText(name);
 
                     invalidate();
-                    break;
+                    return;
                 }
             }
         }
@@ -231,11 +241,4 @@ public class PoiHolderView extends AppCompatImageView {
         }
     }
 
-    public void mapWasRedrawn() {
-        invalidate();
-    }
-
-    public void drawAreaInfoWindows(List<CustomAreaInfoView> areaPOIInfoWindows) {
-        this.areaPOIInfoWindows = areaPOIInfoWindows;
-    }
 }

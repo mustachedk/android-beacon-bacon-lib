@@ -68,13 +68,13 @@ public class MapHolderView extends AppCompatImageView {
     private float scaleInit;
     private float xTranslationInit;
     private float yTranslationInit;
-    private int areaInfoY = (int) dpToPx(70);
+//    private int areaInfoY = (int) dpToPx(70);
 
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
 
     private List<CustomPoiView> areaCustomPoiViews = new ArrayList<>();
-    private List<CustomAreaInfoView> areaPOIInfoWindows = new ArrayList<>();
+//    private List<CustomAreaInfoView> areaPOIInfoWindows = new ArrayList<>();
     public CustomPoiView findTheBookAreaObject;
     private BBResponseObject findTheBookResponseObject;
 
@@ -113,7 +113,7 @@ public class MapHolderView extends AppCompatImageView {
             MAX_DRAG_BOTTOM = (float)(metrics.heightPixels * 0.25);
         }
 
-        areaPOIInfoWindows = new ArrayList<>();
+//        areaPOIInfoWindows = new ArrayList<>();
     }
     //endregion
 
@@ -126,7 +126,7 @@ public class MapHolderView extends AppCompatImageView {
 
         if(mapBitmap != null) {
             canvas.drawBitmap(mapBitmap, 0, 0, null);
-            poiHolderView.mapWasRedrawn();
+            poiHolderView.invalidate();
         }
 
         if(findTheBookAreaObject != null) {
@@ -143,8 +143,6 @@ public class MapHolderView extends AppCompatImageView {
                 poi.draw(canvas);
             }
         }
-
-        poiHolderView.drawAreaInfoWindows(areaPOIInfoWindows);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -235,19 +233,34 @@ public class MapHolderView extends AppCompatImageView {
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
             poiHolderView.poiWasClicked(event.getX(), event.getY());
-
+            handleTapForPOIAreas(event);
             return true;
         }
     };
+
+    private void handleTapForPOIAreas(MotionEvent event) {
+        for (CustomPoiView poi : areaCustomPoiViews) {
+
+            // TODO: FIX TOUCH INSIDE POI!!!!!!!!
+//            if (poi.contains(event.getX(), event.getY())) {
+                String name = poi.toString();
+                if(poi.infoWindowText.getVisibility() == GONE)
+                    poi.infoWindowText.setVisibility(VISIBLE);
+                else
+                    poi.infoWindowText.setVisibility(GONE);
+
+                poi.infoWindowText.setText(name);
+
+                invalidate();
+                return;
+//            }
+        }
+    }
 
     private void printMatrixDEBUG() {
         float x = mapCurrentX();
         float y = mapCurrentY();
         Log.d("Rect: ", x +" | " + y);
-    }
-
-    private void limitScroll() {
-
     }
 
     private float mapCurrentX() {
@@ -364,7 +377,7 @@ public class MapHolderView extends AppCompatImageView {
 
     //region Setup POIs
     public void setMapPois(List<CustomPoiView> customPoiViews) {
-        if(customPoiViews != null) {
+        if(customPoiViews != null && !customPoiViews.isEmpty()) {
             List<CustomPoiView> poiOnlyViews = new ArrayList<>();
             areaCustomPoiViews.clear();
 
@@ -373,12 +386,11 @@ public class MapHolderView extends AppCompatImageView {
                     poiOnlyViews.add(poi);
                 } else {
                     areaCustomPoiViews.add(poi);
-                    areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, poi.title, Color.RED)); //TODO Get poi color from menu
-                    areaInfoY += (int) dpToPx(40);
                 }
             }
-
             poiHolderView.setupPois(poiOnlyViews, scaleInit, xTranslationInit, yTranslationInit);
+
+            //poiHolderView.setupPoiAreas(areaCustomPoiViews, scaleInit, 0, 0);
         }
     }
 
@@ -386,15 +398,15 @@ public class MapHolderView extends AppCompatImageView {
 
     //region Find the Book
     public void setFindTheBook(Bitmap icon, BBResponseObject responseObject) {
-        areaPOIInfoWindows.clear();
-        areaInfoY = (int) dpToPx(70);
+//        areaPOIInfoWindows.clear();
+//        areaInfoY = (int) dpToPx(70);
 
         if (responseObject != null) {
             if(Objects.equals(BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getLocation().getType(), PoiType.POI.getStringValue())) {
                 poiHolderView.setupFindTheBook(icon, responseObject, scaleInit, xTranslationInit, yTranslationInit);
             } else {
-                areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
-                areaInfoY += (int) dpToPx(40);
+//                areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
+//                areaInfoY += (int) dpToPx(40);
                 this.setupFindTheBook(responseObject);
             }
 
