@@ -47,12 +47,14 @@ import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 import dk.mustache.beaconbacon.enums.PoiType;
 
+import static android.graphics.Matrix.*;
 import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 
 public class MapHolderView extends AppCompatImageView {
     private Context context;
 
     private final float MAX_DRAG = 300.f;
+    private final float MAX_DRAG_BOTTOM = 500.f;
     private final float MIN_ZOOM = 0.5f;
     private final float MAX_ZOOM = 5.0f;
     private float scaleFactor = 1.0f;
@@ -156,80 +158,58 @@ public class MapHolderView extends AppCompatImageView {
     private GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            //Attempt to limit Scroll
 
-//            Log.d("distanceX | distanceY", distanceX + " | " + distanceY);
-//            Log.d("currentTranslationX | currentTranslationY", currentTranslationX + " | " + currentTranslationY);
+            // TODO:
+            // Instead of making postTranslate and translate back -
+            // make the calculation with matrix values and adjust translate values.
 
-
-            /*
-            if(currentTranslationX <= MAX_DRAG && currentTranslationX >= -MAX_DRAG) {
-                matrix.postTranslate(-distanceX, 0);
-                poiHolderView.mapWasTranslated(-distanceX, 0);
-
-                if(areaCustomPoiViews != null) {
-                    for (CustomPoiView poi : areaCustomPoiViews) {
-                        poi.currentX -= distanceX;
-                    }
-                }
-
-                if(findTheBookAreaObject != null) {
-                    findTheBookAreaObject.currentX -= distanceX;
-                }
-            }
-
-            currentTranslationX = Math.max(-MAX_DRAG, Math.min(currentTranslationX, MAX_DRAG));
-
-            if(currentTranslationY <= MAX_DRAG && currentTranslationY >= -MAX_DRAG) {
-                matrix.postTranslate(0, -distanceY);
-                poiHolderView.mapWasTranslated(0, -distanceY);
-
-                if(areaCustomPoiViews != null) {
-                    for (CustomPoiView poi : areaCustomPoiViews) {
-                        poi.currentY -= distanceY;
-                    }
-                }
-
-                if(findTheBookAreaObject != null) {
-                    findTheBookAreaObject.currentY -= distanceY;
-                }
-            }
-
-            currentTranslationY = Math.max(-MAX_DRAG, Math.min(currentTranslationY, MAX_DRAG));
-
-            invalidate();
-            */
-
-            //TODO Limit how far we can drag the view
             matrix.postTranslate(-distanceX, -distanceY);
+            poiHolderView.mapWasTranslated(-distanceX, -distanceY);
 
             boolean limitDrag = false;
 
-            // Limit Left and Top drag.
+            // Limit Left Drag
             if (mapCurrentX() > MAX_DRAG) {
                 // Revert translate.
-                float diffX = mapCurrentX() - MAX_DRAG;
-                matrix.postTranslate(-diffX, 0);
-                limitDrag = true;
+                distanceX = mapCurrentX() - MAX_DRAG;
+                matrix.postTranslate(-distanceX, 0);
+                poiHolderView.mapWasTranslated(-distanceX, 0);
             }
 
-            // Limit Left and Top drag.
+            // Limit Top Drag
             if (mapCurrentY() > MAX_DRAG) {
                 // Revert translate.
-                float diffY = mapCurrentY() - MAX_DRAG;
-                matrix.postTranslate(0, -diffY);
-                limitDrag = true;
+                distanceY = mapCurrentY() - MAX_DRAG;
+                matrix.postTranslate(0, -distanceY);
+                poiHolderView.mapWasTranslated(0, -distanceY);
             }
 
-            // Limit Right and Bottom Drag
 
-            if (limitDrag == true) {
-                invalidate();
-                return true;
+            // Limit Right Drag
+            float bitmapWidth = mapBitmap.getWidth() * mapCurrentScaleX();
+            float screenWidth = metrics.widthPixels;
+
+            float newX = bitmapWidth + mapCurrentX();
+            float maxX = screenWidth - MAX_DRAG;
+            if (newX < maxX) {
+                distanceX = maxX - newX;
+                matrix.postTranslate(distanceX, 0);
+                poiHolderView.mapWasTranslated(distanceX, 0);
             }
 
-            poiHolderView.mapWasTranslated(-distanceX, -distanceY);
+            // Limit Bottom Drag
+            float bitmapHeight = mapBitmap.getHeight() * mapCurrentScaleY();
+            float screenHeight = metrics.heightPixels;
 
+            float newY = bitmapHeight + mapCurrentY();
+            float maxY = screenHeight - MAX_DRAG_BOTTOM;
+            if (newY < maxY) {
+                distanceY = maxY - newY;
+                matrix.postTranslate(0, distanceY);
+                poiHolderView.mapWasTranslated(0, distanceY);
+            }
+
+            // TODO: Post translate AREA POI
             if(areaCustomPoiViews != null) {
                 for (CustomPoiView poi : areaCustomPoiViews) {
                     poi.currentX -= distanceX;
@@ -237,6 +217,7 @@ public class MapHolderView extends AppCompatImageView {
                 }
             }
 
+            // TODO: Post translate FTB
             if(findTheBookAreaObject != null) {
                 findTheBookAreaObject.currentX -= distanceX;
                 findTheBookAreaObject.currentY -= distanceY;
@@ -244,7 +225,7 @@ public class MapHolderView extends AppCompatImageView {
 
             invalidate();
 
-            printMatrixDEBUG();
+//            printMatrixDEBUG();
 
             return true;
         }
@@ -263,16 +244,32 @@ public class MapHolderView extends AppCompatImageView {
         Log.d("Rect: ", x +" | " + y);
     }
 
+    private void limitScroll() {
+
+    }
+
     private float mapCurrentX() {
         float[] values = new float[9];
         matrix.getValues(values);
-        return values[Matrix.MTRANS_X];
+        return values[MTRANS_X];
     }
 
     private float mapCurrentY() {
         float[] values = new float[9];
         matrix.getValues(values);
-        return values[Matrix.MTRANS_Y];
+        return values[MTRANS_Y];
+    }
+
+    private float mapCurrentScaleX() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[MSCALE_X];
+    }
+
+    private float mapCurrentScaleY() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[MSCALE_Y];
     }
 
     
@@ -317,7 +314,6 @@ public class MapHolderView extends AppCompatImageView {
 
                 invalidate();
             }
-            printMatrixDEBUG();
             scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
 
             return true;
