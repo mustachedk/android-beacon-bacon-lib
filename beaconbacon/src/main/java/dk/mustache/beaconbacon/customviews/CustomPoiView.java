@@ -162,15 +162,15 @@ public class CustomPoiView {
 
     //region Area
     private void generatePathAndPaintForArea(int color) {
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setAntiAlias(false);
-        paint.setColor(context.getResources().getColor(color));
-        paint.setAlpha(75);
+            paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setAntiAlias(false);
+            paint.setColor(color);
+            paint.setAlpha(75);
 
-        path = new Path();
-        path.setFillType(Path.FillType.EVEN_ODD);
-    }
+            path = new Path();
+            path.setFillType(Path.FillType.EVEN_ODD);
+        }
 
     private void generateFloatValuesForArea(String area) {
         if(area != null)
