@@ -32,6 +32,7 @@ import android.graphics.Matrix;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -46,14 +47,16 @@ import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 import dk.mustache.beaconbacon.enums.PoiType;
 
+import static android.graphics.Matrix.*;
 import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 
 public class MapHolderView extends AppCompatImageView {
     private Context context;
 
-    private int MAX_DRAG = 1000;
-    private final float MIN_ZOOM = 0.5f;
-    private final float MAX_ZOOM = 5.0f;
+    private float MAX_DRAG = 300.f;
+    private float MAX_DRAG_BOTTOM = 500.f;
+    private final float MIN_ZOOM = 1.0f;
+    private float MAX_ZOOM = 1.0f;
     private float scaleFactor = 1.0f;
 
     private DisplayMetrics metrics;
@@ -65,13 +68,13 @@ public class MapHolderView extends AppCompatImageView {
     private float scaleInit;
     private float xTranslationInit;
     private float yTranslationInit;
-    private int areaInfoY = (int) dpToPx(70);
+//    private int areaInfoY = (int) dpToPx(70);
 
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
 
     private List<CustomPoiView> areaCustomPoiViews = new ArrayList<>();
-    private List<CustomAreaInfoView> areaPOIInfoWindows = new ArrayList<>();
+//    private List<CustomAreaInfoView> areaPOIInfoWindows = new ArrayList<>();
     public CustomPoiView findTheBookAreaObject;
     private BBResponseObject findTheBookResponseObject;
 
@@ -106,9 +109,11 @@ public class MapHolderView extends AppCompatImageView {
             Display display = windowManager.getDefaultDisplay();
             metrics = new DisplayMetrics();
             display.getMetrics(metrics);
+            MAX_DRAG = (float)(metrics.widthPixels * 0.15);
+            MAX_DRAG_BOTTOM = (float)(metrics.heightPixels * 0.25);
         }
 
-        areaPOIInfoWindows = new ArrayList<>();
+//        areaPOIInfoWindows = new ArrayList<>();
     }
     //endregion
 
@@ -121,7 +126,7 @@ public class MapHolderView extends AppCompatImageView {
 
         if(mapBitmap != null) {
             canvas.drawBitmap(mapBitmap, 0, 0, null);
-            poiHolderView.mapWasRedrawn();
+            poiHolderView.invalidate();
         }
 
         if(findTheBookAreaObject != null) {
@@ -138,8 +143,6 @@ public class MapHolderView extends AppCompatImageView {
                 poi.draw(canvas);
             }
         }
-
-        poiHolderView.drawAreaInfoWindows(areaPOIInfoWindows);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -151,82 +154,151 @@ public class MapHolderView extends AppCompatImageView {
     }
 
 
-    private int currentTranslationX = 0;
-    private int currentTranslationY = 0;
     //Gesture and Scale Detectors
     private GestureDetector.SimpleOnGestureListener simpleOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            //Attempt to limit Scroll
-            /*
-            currentTranslationX += distanceX;
-            currentTranslationY += distanceY;
 
-            if(currentTranslationX <= MAX_DRAG && currentTranslationX >= -MAX_DRAG) {
+            if(mapBitmap == null) { return false; }
+
+
+            // TODO: Instead of making postTranslate and translate back - make the calculation with matrix values and adjust translate values.
+
+            matrix.postTranslate(-distanceX, -distanceY);
+            mapWasTranslated(-distanceX, -distanceY);
+
+            boolean limitDrag = false;
+
+            // Limit Left Drag
+            if (mapCurrentX() > MAX_DRAG) {
+                // Revert translate.
+                distanceX = mapCurrentX() - MAX_DRAG;
                 matrix.postTranslate(-distanceX, 0);
-                poiHolderView.mapWasTranslated(-distanceX, 0);
-
-                if(areaCustomPoiViews != null) {
-                    for (CustomPoiView poi : areaCustomPoiViews) {
-                        poi.currentX -= distanceX;
-                    }
-                }
-
-                if(findTheBookAreaObject != null) {
-                    findTheBookAreaObject.currentX -= distanceX;
-                }
+                mapWasTranslated(-distanceX, 0);
             }
 
-            currentTranslationX = Math.max(-MAX_DRAG, Math.min(currentTranslationX, MAX_DRAG));
-
-            if(currentTranslationY <= MAX_DRAG && currentTranslationY >= -MAX_DRAG) {
+            // Limit Top Drag
+            if (mapCurrentY() > MAX_DRAG) {
+                // Revert translate.
+                distanceY = mapCurrentY() - MAX_DRAG;
                 matrix.postTranslate(0, -distanceY);
-                poiHolderView.mapWasTranslated(0, -distanceY);
-
-                if(areaCustomPoiViews != null) {
-                    for (CustomPoiView poi : areaCustomPoiViews) {
-                        poi.currentY -= distanceY;
-                    }
-                }
-
-                if(findTheBookAreaObject != null) {
-                    findTheBookAreaObject.currentY -= distanceY;
-                }
+                mapWasTranslated(0, -distanceY);
             }
 
-            currentTranslationY = Math.max(-MAX_DRAG, Math.min(currentTranslationY, MAX_DRAG));
+            // Limit Right Drag
+            float bitmapWidth = mapBitmap.getWidth() * mapCurrentScaleX();
+            float screenWidth = metrics.widthPixels;
+
+            float newX = bitmapWidth + mapCurrentX();
+            float maxX = screenWidth - MAX_DRAG;
+            if (newX < maxX) {
+                distanceX = maxX - newX;
+                matrix.postTranslate(distanceX, 0);
+                mapWasTranslated(distanceX, 0);
+
+            }
+
+            // Limit Bottom Drag
+            float bitmapHeight = mapBitmap.getHeight() * mapCurrentScaleY();
+            float screenHeight = metrics.heightPixels;
+
+            float newY = bitmapHeight + mapCurrentY();
+            float maxY = screenHeight - MAX_DRAG_BOTTOM;
+            if (newY < maxY) {
+                distanceY = maxY - newY;
+                matrix.postTranslate(0, distanceY);
+                mapWasTranslated(0, distanceY);
+            }
 
             invalidate();
-            */
 
-            //TODO Limit how far we can drag the view
-            matrix.postTranslate(-distanceX, -distanceY);
-            poiHolderView.mapWasTranslated(-distanceX, -distanceY);
+//            printMatrixDEBUG();
+
+            return true;
+        }
+
+        public void mapWasTranslated(float distanceX, float distanceY) {
+            poiHolderView.mapWasTranslated(distanceX, distanceY);
 
             if(areaCustomPoiViews != null) {
                 for (CustomPoiView poi : areaCustomPoiViews) {
-                    poi.currentX -= distanceX;
-                    poi.currentY -= distanceY;
+                    poi.currentX += distanceX;
+                    poi.currentY += distanceY;
                 }
             }
 
             if(findTheBookAreaObject != null) {
-                findTheBookAreaObject.currentX -= distanceX;
-                findTheBookAreaObject.currentY -= distanceY;
+                findTheBookAreaObject.currentX += distanceX;
+                findTheBookAreaObject.currentY += distanceY;
             }
-
-            invalidate();
-            return true;
         }
 
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
             poiHolderView.poiWasClicked(event.getX(), event.getY());
-
+            handleTapForPOIAreas(event);
             return true;
         }
     };
 
+    private void handleTapForPOIAreas(MotionEvent event) {
+        for (CustomPoiView poi : areaCustomPoiViews) {
+
+            Log.d("1", "EventX: " + event.getX());
+            Log.d("1", "EventY: " + event.getY());
+            Log.d("1", "EventX/mapCurrentScaleX: " + event.getX()/mapCurrentScaleX());
+            Log.d("1", "EventY/mapCurrentScaleY: " + event.getY()/mapCurrentScaleY());
+
+            Log.d("1", "Radius: " + poi.radius);
+            Log.d("1", "Radius/mapCurrentScaleX: " + poi.radius/mapCurrentScaleX());
+
+            // TODO: FIX TOUCH INSIDE POI!!!!!!!!
+            if (poi.areaContains(event.getX(), event.getY(), poi.radius)) {
+                String name = poi.toString();
+                if(poi.infoWindowText.getVisibility() == GONE)
+                    poi.infoWindowText.setVisibility(VISIBLE);
+                else
+                    poi.infoWindowText.setVisibility(GONE);
+
+                poi.infoWindowText.setText(name);
+
+                invalidate();
+                return;
+            }
+        }
+    }
+
+    private void printMatrixDEBUG() {
+        float x = mapCurrentX();
+        float y = mapCurrentY();
+        Log.d("Rect: ", x +" | " + y);
+    }
+
+    private float mapCurrentX() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[MTRANS_X];
+    }
+
+    private float mapCurrentY() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[MTRANS_Y];
+    }
+
+    private float mapCurrentScaleX() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[MSCALE_X];
+    }
+
+    private float mapCurrentScaleY() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        return values[MSCALE_Y];
+    }
+
+    
     private float translationX;
     private float translationY;
     private ScaleGestureDetector.SimpleOnScaleGestureListener simpleOnScaleGestureListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -234,7 +306,7 @@ public class MapHolderView extends AppCompatImageView {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
-            MAX_DRAG *= detector.getScaleFactor();
+//            MAX_DRAG *= detector.getScaleFactor();
             if(scaleFactor >= MIN_ZOOM && scaleFactor <= MAX_ZOOM) {
                 float scale = detector.getScaleFactor();
 
@@ -244,7 +316,10 @@ public class MapHolderView extends AppCompatImageView {
                 //Generate translations for the scaling
                 translationX = ((metrics.widthPixels * scale - metrics.widthPixels) / 2);
                 translationY = ((metrics.heightPixels * scale - metrics.heightPixels) / 2);
+
                 matrix.postTranslate(-translationX, -translationY);
+
+//                Log.d("currentTranslationX | currentTranslationY", currentTranslationX + " | " + currentTranslationY);
 
                 //Notify POIs map was scaled
                 poiHolderView.mapWasScaled(scale, translationX, translationY);
@@ -265,7 +340,6 @@ public class MapHolderView extends AppCompatImageView {
 
                 invalidate();
             }
-
             scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
 
             return true;
@@ -281,9 +355,6 @@ public class MapHolderView extends AppCompatImageView {
 
         //Reset the scale factor and drag factors when we load a new place/floor
         scaleFactor = 1.0f;
-        currentTranslationX = 0;
-        currentTranslationY = 0;
-        MAX_DRAG = 1500;
 
         //Fit image to view
         if(this.mapBitmap != null)
@@ -302,10 +373,14 @@ public class MapHolderView extends AppCompatImageView {
         xTranslationInit = redundantXSpace/2;
         yTranslationInit = redundantYSpace/2;
 
-
-        //Set scale and translate image to center
+        //Set scale and trnslate image to center
         matrix.setScale(scaleX, scaleY);
         matrix.postTranslate(redundantXSpace / 2, redundantYSpace / 2);
+
+        float currentScale = mapCurrentScaleX();
+
+        MAX_ZOOM = Math.max(MIN_ZOOM, MIN_ZOOM / scaleInit);
+
     }
     //endregion
 
@@ -313,7 +388,7 @@ public class MapHolderView extends AppCompatImageView {
 
     //region Setup POIs
     public void setMapPois(List<CustomPoiView> customPoiViews) {
-        if(customPoiViews != null) {
+        if(customPoiViews != null && !customPoiViews.isEmpty()) {
             List<CustomPoiView> poiOnlyViews = new ArrayList<>();
             areaCustomPoiViews.clear();
 
@@ -322,12 +397,11 @@ public class MapHolderView extends AppCompatImageView {
                     poiOnlyViews.add(poi);
                 } else {
                     areaCustomPoiViews.add(poi);
-                    areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, poi.title, Color.RED)); //TODO Get poi color from menu
-                    areaInfoY += (int) dpToPx(40);
                 }
             }
-
             poiHolderView.setupPois(poiOnlyViews, scaleInit, xTranslationInit, yTranslationInit);
+
+            //poiHolderView.setupPoiAreas(areaCustomPoiViews, scaleInit, 0, 0);
         }
     }
 
@@ -335,15 +409,15 @@ public class MapHolderView extends AppCompatImageView {
 
     //region Find the Book
     public void setFindTheBook(Bitmap icon, BBResponseObject responseObject) {
-        areaPOIInfoWindows.clear();
-        areaInfoY = (int) dpToPx(70);
+//        areaPOIInfoWindows.clear();
+//        areaInfoY = (int) dpToPx(70);
 
         if (responseObject != null) {
             if(Objects.equals(BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getLocation().getType(), PoiType.POI.getStringValue())) {
                 poiHolderView.setupFindTheBook(icon, responseObject, scaleInit, xTranslationInit, yTranslationInit);
             } else {
-                areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
-                areaInfoY += (int) dpToPx(40);
+//                areaPOIInfoWindows.add(new CustomAreaInfoView(context, 0, areaInfoY, BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()));
+//                areaInfoY += (int) dpToPx(40);
                 this.setupFindTheBook(responseObject);
             }
 

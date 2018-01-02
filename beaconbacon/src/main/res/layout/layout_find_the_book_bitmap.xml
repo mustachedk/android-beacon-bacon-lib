@@ -6,15 +6,25 @@
     android:layout_height="40dp">
 
     <ImageView
+        android:id="@+id/find_the_book_background"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center"
         app:srcCompat="@drawable/ic_circle_ftb" />
 
     <ImageView
+        android:id="@+id/find_the_book_ring_only"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        app:srcCompat="@drawable/ic_circle_only" />
+
+    <ImageView
         android:id="@+id/find_the_book_icon"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         android:layout_gravity="center"
         android:padding="8dp"
         android:tint="@android:color/white"

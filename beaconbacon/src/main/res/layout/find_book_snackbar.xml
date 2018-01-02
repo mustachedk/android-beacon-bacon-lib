@@ -14,6 +14,9 @@
         android:layout_marginTop="@dimen/general_vertical_margin"
         android:adjustViewBounds="true"
         android:fitsSystemWindows="false"
+        android:scaleType="fitCenter"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         app:srcCompat="@drawable/ic_no_padding_test" />
 
     <LinearLayout
