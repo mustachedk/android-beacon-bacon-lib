@@ -91,7 +91,8 @@ public class CustomPoiView {
         this.cx = x;
         this.cy = y;
 
-        this.radius = radius;
+
+        this.radius = (int) dpToPx(15);
         this.title = title;
 
         generateInfoWindow();

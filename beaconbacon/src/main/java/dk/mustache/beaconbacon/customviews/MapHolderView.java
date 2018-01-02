@@ -33,6 +33,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 import dk.mustache.beaconbacon.enums.PoiType;
@@ -453,8 +455,8 @@ public class MapHolderView extends AppCompatImageView {
             matrix.postTranslate(metrics.widthPixels / 2 - findTheBookAreaObject.centerY * scaleInit, metrics.heightPixels / 2 - findTheBookAreaObject.centerX * scaleInit);
             poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - findTheBookAreaObject.centerY * scaleInit, metrics.heightPixels / 2 - findTheBookAreaObject.centerX * scaleInit);
         } else {
-            matrix.postTranslate(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy);
-            poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy);
+            matrix.postTranslate(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx - poiHolderView.findTheBookObject.radius/2, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy - dpToPx(70) - poiHolderView.findTheBookObject.radius/2);
+            poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx - poiHolderView.findTheBookObject.radius/2, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy - dpToPx(70) - poiHolderView.findTheBookObject.radius/2);
         }
 
         //Update view

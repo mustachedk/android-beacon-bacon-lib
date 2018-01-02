@@ -364,7 +364,8 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
         //Calculate Toolbar height
         TypedValue tv = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) params.topMargin = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
+            params.topMargin = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
 
         snackbarView.setLayoutParams(params);
         snackbar.setAction(getResources().getString(R.string.general_finish), new View.OnClickListener() {
