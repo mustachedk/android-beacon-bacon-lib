@@ -535,6 +535,9 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void updatePlace(BBPlace place) {
+        if(selectedPois != null)
+            selectedPois.clear();
+        
         //Loop all places to find this one
         for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
             if (BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId() == place.getId()) {

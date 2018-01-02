@@ -373,7 +373,7 @@ public class MapHolderView extends AppCompatImageView {
         xTranslationInit = redundantXSpace/2;
         yTranslationInit = redundantYSpace/2;
 
-        //Set scale and trnslate image to center
+        //Set scale and translate image to center
         matrix.setScale(scaleX, scaleY);
         matrix.postTranslate(redundantXSpace / 2, redundantYSpace / 2);
 
