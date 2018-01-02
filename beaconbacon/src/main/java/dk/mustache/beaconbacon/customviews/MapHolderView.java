@@ -159,12 +159,13 @@ public class MapHolderView extends AppCompatImageView {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
-            // TODO:
-            // Instead of making postTranslate and translate back -
-            // make the calculation with matrix values and adjust translate values.
+            if(mapBitmap == null) { return false; }
+
+
+            // TODO: Instead of making postTranslate and translate back - make the calculation with matrix values and adjust translate values.
 
             matrix.postTranslate(-distanceX, -distanceY);
-            poiHolderView.mapWasTranslated(-distanceX, -distanceY);
+            mapWasTranslated(-distanceX, -distanceY);
 
             boolean limitDrag = false;
 
@@ -173,7 +174,7 @@ public class MapHolderView extends AppCompatImageView {
                 // Revert translate.
                 distanceX = mapCurrentX() - MAX_DRAG;
                 matrix.postTranslate(-distanceX, 0);
-                poiHolderView.mapWasTranslated(-distanceX, 0);
+                mapWasTranslated(-distanceX, 0);
             }
 
             // Limit Top Drag
@@ -181,9 +182,8 @@ public class MapHolderView extends AppCompatImageView {
                 // Revert translate.
                 distanceY = mapCurrentY() - MAX_DRAG;
                 matrix.postTranslate(0, -distanceY);
-                poiHolderView.mapWasTranslated(0, -distanceY);
+                mapWasTranslated(0, -distanceY);
             }
-
 
             // Limit Right Drag
             float bitmapWidth = mapBitmap.getWidth() * mapCurrentScaleX();
@@ -194,7 +194,8 @@ public class MapHolderView extends AppCompatImageView {
             if (newX < maxX) {
                 distanceX = maxX - newX;
                 matrix.postTranslate(distanceX, 0);
-                poiHolderView.mapWasTranslated(distanceX, 0);
+                mapWasTranslated(distanceX, 0);
+
             }
 
             // Limit Bottom Drag
@@ -206,21 +207,7 @@ public class MapHolderView extends AppCompatImageView {
             if (newY < maxY) {
                 distanceY = maxY - newY;
                 matrix.postTranslate(0, distanceY);
-                poiHolderView.mapWasTranslated(0, distanceY);
-            }
-
-            // TODO: Post translate AREA POI
-            if(areaCustomPoiViews != null) {
-                for (CustomPoiView poi : areaCustomPoiViews) {
-                    poi.currentX -= distanceX;
-                    poi.currentY -= distanceY;
-                }
-            }
-
-            // TODO: Post translate FTB
-            if(findTheBookAreaObject != null) {
-                findTheBookAreaObject.currentX -= distanceX;
-                findTheBookAreaObject.currentY -= distanceY;
+                mapWasTranslated(0, distanceY);
             }
 
             invalidate();
@@ -228,6 +215,22 @@ public class MapHolderView extends AppCompatImageView {
 //            printMatrixDEBUG();
 
             return true;
+        }
+
+        public void mapWasTranslated(float distanceX, float distanceY) {
+            poiHolderView.mapWasTranslated(distanceX, distanceY);
+
+            if(areaCustomPoiViews != null) {
+                for (CustomPoiView poi : areaCustomPoiViews) {
+                    poi.currentX += distanceX;
+                    poi.currentY += distanceY;
+                }
+            }
+
+            if(findTheBookAreaObject != null) {
+                findTheBookAreaObject.currentX += distanceX;
+                findTheBookAreaObject.currentY += distanceY;
+            }
         }
 
         @Override
@@ -241,8 +244,16 @@ public class MapHolderView extends AppCompatImageView {
     private void handleTapForPOIAreas(MotionEvent event) {
         for (CustomPoiView poi : areaCustomPoiViews) {
 
+            Log.d("1", "EventX: " + event.getX());
+            Log.d("1", "EventY: " + event.getY());
+            Log.d("1", "EventX/mapCurrentScaleX: " + event.getX()/mapCurrentScaleX());
+            Log.d("1", "EventY/mapCurrentScaleY: " + event.getY()/mapCurrentScaleY());
+
+            Log.d("1", "Radius: " + poi.radius);
+            Log.d("1", "Radius/mapCurrentScaleX: " + poi.radius/mapCurrentScaleX());
+
             // TODO: FIX TOUCH INSIDE POI!!!!!!!!
-//            if (poi.contains(event.getX(), event.getY())) {
+            if (poi.areaContains(event.getX(), event.getY(), poi.radius)) {
                 String name = poi.toString();
                 if(poi.infoWindowText.getVisibility() == GONE)
                     poi.infoWindowText.setVisibility(VISIBLE);
@@ -253,7 +264,7 @@ public class MapHolderView extends AppCompatImageView {
 
                 invalidate();
                 return;
-//            }
+            }
         }
     }
 

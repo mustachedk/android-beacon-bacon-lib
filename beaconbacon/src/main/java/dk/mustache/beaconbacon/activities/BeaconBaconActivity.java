@@ -28,6 +28,8 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -253,8 +255,18 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         //FABs
         fabPoi = findViewById(R.id.map_poi_fab);
         fabPoi.setOnClickListener(this);
+        fabPoi.setColorFilter(new PorterDuffColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP));
+
         fabFindTheBook = findViewById(R.id.map_ftb_fab);
         fabFindTheBook.setOnClickListener(this);
+        fabFindTheBook.setColorFilter(new PorterDuffColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP));
+
+
+        if (BeaconBaconManager.getInstance().getRequestObject() != null && BeaconBaconManager.getInstance().getRequestObject().getImage() != null) {
+            Bitmap original = BeaconBaconManager.getInstance().getRequestObject().getImage();
+            // Bitmap resized = Bitmap.createScaledBitmap(original, 100, 100, true);
+            fabFindTheBook.setImageBitmap(original);
+        }
     }
     //endregion
 

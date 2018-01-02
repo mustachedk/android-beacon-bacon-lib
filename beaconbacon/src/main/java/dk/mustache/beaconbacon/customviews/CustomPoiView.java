@@ -26,10 +26,12 @@ THE SOFTWARE.
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -72,6 +74,12 @@ public class CustomPoiView {
     public float currentX;
     public float currentY;
     public float scaleFactor = 1.0f;
+
+    public float areaHeight;
+    public float areaWidth;
+
+    public float areaScaleInit;
+
 
 
     //region Constructors
@@ -167,6 +175,10 @@ public class CustomPoiView {
         return Math.hypot(cx - x, cy - y) < radius;
     }
 
+    public boolean areaContains(float x, float y, float radius) {
+        return Math.hypot(centerX - x, centerY - y) < radius;
+    }
+
     @Override
     public String toString() {
         return title;
@@ -199,22 +211,26 @@ public class CustomPoiView {
         float highY = 0.0f;
 
         for (int i = 0; i < areaFloats.size(); i++) {
-            if (lowX != 0.0f && lowY != 0.0f) {
-                lowX = areaFloats.get(i) < lowX ? areaFloats.get(i) : lowX;
-                lowY = areaFloats.get(i + 1) < lowY ? areaFloats.get(i + 1) : lowY;
-            } else {
+            if (lowX == 0.0f && lowY == 0.0f) {
                 lowX = areaFloats.get(i);
                 lowY = areaFloats.get(i + 1);
+                highX = areaFloats.get(i);
+                highY = areaFloats.get(i + 1);
+            } else {
+                lowX = Math.min(lowX, areaFloats.get(i));
+                lowY = Math.max(lowY, areaFloats.get(i + 1));
+                highX = Math.min(lowX, areaFloats.get(i));
+                highY = Math.max(highY, areaFloats.get(i + 1));
             }
-            highX = areaFloats.get(i) > highX ? areaFloats.get(i) : highX;
-            highY = areaFloats.get(i + 1) > highY ? areaFloats.get(i + 1) : highY;
-
-            centerX = lowX + (highX - lowX) / 2;
-            centerY = lowY + (highY - lowY) / 2;
-
             //Jump double for x/y values
             i++;
         }
+        areaWidth = highX - lowX;
+        areaHeight = highY - lowY;
+
+        centerX = lowX + (areaWidth / 2);
+        centerY = lowY + (areaHeight / 2);
+
     }
     //endregion
 
@@ -260,6 +276,17 @@ public class CustomPoiView {
         ImageView icon = view.findViewById(R.id.find_the_book_icon);
         icon.setImageBitmap(bitmap);
 
+        ImageView background = view.findViewById(R.id.find_the_book_background);
+
+        int tintColor;
+        try {
+            tintColor = context.getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor());
+        } catch (Exception e) {
+            tintColor =  Color.DKGRAY;
+        }
+
+        background.setColorFilter(tintColor);
+
         this.radius = dpToPx(15);
 
         view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -268,7 +295,7 @@ public class CustomPoiView {
         view.buildDrawingCache();
 
         Bitmap b = null;
-        if (view.getDrawingCache() != null) b = Bitmap.createScaledBitmap(view.getDrawingCache(), (int) dpToPx(30), (int) dpToPx(30), false);
+        if (view.getDrawingCache() != null) b = Bitmap.createScaledBitmap(view.getDrawingCache(), view.getWidth(), view.getHeight(), false);
 
         view.setDrawingCacheEnabled(false);
 

@@ -45,6 +45,8 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/map_ftb_fab"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/map_poi_fab"
@@ -55,7 +57,7 @@
             android:focusable="true"
             android:visibility="gone"
             app:backgroundTint="@android:color/white"
-            app:srcCompat="@drawable/ic_no_padding_test" />
+            app:srcCompat="@drawable/ic_no_padding_test"/>
 
     </RelativeLayout>
 
