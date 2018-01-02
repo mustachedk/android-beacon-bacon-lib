@@ -125,4 +125,9 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
     public void removeSelectedPoi(BBPoi poi) {
         selectedPois.remove(poi);
     }
+
+    @Override
+    public void removeAllPois() {
+        selectedPois = null;
+    }
 }

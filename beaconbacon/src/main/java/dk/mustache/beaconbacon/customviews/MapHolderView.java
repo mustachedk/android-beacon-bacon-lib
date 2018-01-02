@@ -388,7 +388,7 @@ public class MapHolderView extends AppCompatImageView {
 
     //region Setup POIs
     public void setMapPois(List<CustomPoiView> customPoiViews) {
-        if(customPoiViews != null && !customPoiViews.isEmpty()) {
+        if(customPoiViews != null) {
             List<CustomPoiView> poiOnlyViews = new ArrayList<>();
             areaCustomPoiViews.clear();
 

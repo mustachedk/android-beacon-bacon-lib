@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="wrap_content"
     android:background="@color/colorListHeader"
-    android:gravity="center_vertical"
-    android:paddingEnd="@dimen/general_horizontal_margin"
-    android:paddingStart="@dimen/general_horizontal_margin"
-    android:text="Stuff and Places"
-    android:textColor="@android:color/white"
-    android:textSize="16sp"
-    android:id="@+id/header_item_text"/>
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/header_item_text"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_weight="70"
+        android:gravity="center_vertical"
+        android:paddingEnd="@dimen/general_horizontal_margin"
+        android:paddingStart="@dimen/general_horizontal_margin"
+        android:text="Stuff and Places"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/header_item_btn"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="@dimen/general_horizontal_margin"
+        android:layout_weight="30"
+        android:background="@android:color/white"
+        android:text="@string/deselect_all"
+        android:textAllCaps="false" />
+</LinearLayout>

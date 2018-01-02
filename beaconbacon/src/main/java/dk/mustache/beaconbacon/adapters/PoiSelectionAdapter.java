@@ -26,10 +26,12 @@ THE SOFTWARE.
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.AppCompatCheckBox;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -59,6 +61,7 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
     public interface addSelectedPoisInterface {
         void addSelectedPoi(BBPoi poi);
         void removeSelectedPoi(BBPoi poi);
+        void removeAllPois();
     }
 
     public PoiSelectionAdapter(Context context, List<BBPoiMenuItem> poiMenuItems, List<BBPoi> selectedPois, addSelectedPoisInterface addSelectedPoisInterface) {
@@ -118,9 +121,14 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                 public void onClick(View view) {
                     holder.checkBox.setChecked(!holder.checkBox.isChecked());
                     if(holder.checkBox.isChecked()) {
+                        if(selectedPois == null)
+                            selectedPois = new ArrayList<>();
+
                         addSelectedPoisInterface.addSelectedPoi(poiMenuItems.get(position).getPoi());
+                        selectedPois.add(poiMenuItems.get(position).getPoi());
                     } else {
                         addSelectedPoisInterface.removeSelectedPoi(poiMenuItems.get(position).getPoi());
+                        selectedPois.remove(poiMenuItems.get(position).getPoi());
                     }
                 }
             });
@@ -156,12 +164,33 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
     }
 
     @Override
-    public View getHeaderView(int position, View convertView, ViewGroup parent) {
+    public View getHeaderView(final int position, View convertView, ViewGroup parent) {
         if(poiMenuItems.get(position).getPoi() == null) {
             HeaderViewHolder holder;
 
             holder = new HeaderViewHolder();
             convertView = inflater.inflate(R.layout.layout_poi_selection_header_item, parent, false);
+
+            holder.button = convertView.findViewById(R.id.header_item_btn);
+            if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+                holder.button.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+
+            if(position == 0) {
+                holder.button.setVisibility(View.VISIBLE);
+                holder.button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        addSelectedPoisInterface.removeAllPois();
+
+                        selectedPois = null;
+
+                        notifyDataSetChanged();
+                    }
+                });
+            } else {
+                holder.button.setVisibility(View.GONE);
+            }
+
             holder.header = convertView.findViewById(R.id.header_item_text);
             convertView.setTag(holder);
 
@@ -182,6 +211,7 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
 
     class HeaderViewHolder {
         TextView header;
+        Button button;
     }
 
     class ViewHolder {
