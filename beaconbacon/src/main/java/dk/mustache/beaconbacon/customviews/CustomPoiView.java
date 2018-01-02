@@ -78,9 +78,6 @@ public class CustomPoiView {
     public float areaHeight;
     public float areaWidth;
 
-    public float areaScaleInit;
-
-
 
     //region Constructors
     public CustomPoiView(Context context, Bitmap iconBitmap, float x, float y, float radius, String title, boolean isFindTheBook) {
@@ -103,8 +100,6 @@ public class CustomPoiView {
 
         generateFloatValuesForArea(area);
         generatePathAndPaintForArea(color);
-
-        this.radius = (int) dpToPx(15);
 
         cx = centerX;
         cy = centerY;
@@ -147,21 +142,32 @@ public class CustomPoiView {
             path.close();
 
             canvas.drawPath(path, paint);
-            // TODO: FIX SIZE OF INFO INDOW!?
+
             if (infoWindowText != null && infoWindowText.getVisibility() == View.VISIBLE) {
-                int x = (int) ((centerX) - infoWindowText.getWidth() / 2);
-                int y = (int) ((centerY) - infoWindowText.getHeight() - radius);
-                int x2 = (int) ((centerX) - infoBoxArrow.getWidth() / 2);
-                int y2 = (int) ((centerY) - infoBoxArrow.getHeight() / 2 - radius);
-                drawInfoBox(canvas, x, y, x2, y2);
+                    int x = (int) ((centerX) - infoWindowText.getWidth()*scaleFactor / 2);
+                    int y = (int) ((centerY) - infoWindowText.getHeight()*scaleFactor - areaHeight/2);
+                    int x2 = (int) ((centerX) - infoBoxArrow.getWidth()*scaleFactor / 2);
+                    int y2 = (int) ((centerY) - infoBoxArrow.getHeight()*scaleFactor / 2 - areaHeight/2);
+                drawAreaInfoBox(canvas, x, y, x2, y2);
             }
         }
 
     }
 
     private void drawInfoBox(Canvas canvas, int x, int y, int x2, int y2) {
-        canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxText, infoBoxText.getWidth(), infoBoxText.getHeight(), false), x, y - infoBoxArrow.getHeight() / 3 + 2, null);
-        canvas.drawBitmap(Bitmap.createScaledBitmap(infoBoxArrow, infoBoxArrow.getWidth(), infoBoxArrow.getHeight(), false), x2, y2, null);
+        Bitmap infoBoxBitmap = Bitmap.createScaledBitmap(infoBoxText, infoBoxText.getWidth(), infoBoxText.getHeight(), false);
+        Bitmap infoBoxArrowBitmap = Bitmap.createScaledBitmap(infoBoxArrow, infoBoxArrow.getWidth(), infoBoxArrow.getHeight(), false);
+
+        canvas.drawBitmap(infoBoxBitmap, x, y - infoBoxArrow.getHeight() / 3 + 2, null);
+        canvas.drawBitmap(infoBoxArrowBitmap, x2, y2, null);
+    }
+
+    private void drawAreaInfoBox(Canvas canvas, int x, int y, int x2, int y2) {
+        Bitmap infoBoxBitmap = Bitmap.createScaledBitmap(infoBoxText, (int)(infoBoxText.getWidth()*scaleFactor), (int)(infoBoxText.getHeight()*scaleFactor), false);
+        Bitmap infoBoxArrowBitmap = Bitmap.createScaledBitmap(infoBoxArrow, (int)(infoBoxArrow.getWidth()*scaleFactor), (int)(infoBoxArrow.getHeight()*scaleFactor), false);
+
+        canvas.drawBitmap(infoBoxBitmap, x, y - infoBoxArrow.getHeight()*scaleFactor / 3 + 2 * scaleFactor, null);
+        canvas.drawBitmap(infoBoxArrowBitmap, x2, y2, null);
     }
 
     /**
@@ -176,6 +182,7 @@ public class CustomPoiView {
     }
 
     public boolean areaContains(float x, float y, float radius) {
+        // // TODO: Check Inside Rect instead of Radius
         return Math.hypot(centerX - x, centerY - y) < radius;
     }
 
@@ -211,16 +218,18 @@ public class CustomPoiView {
         float highY = 0.0f;
 
         for (int i = 0; i < areaFloats.size(); i++) {
+            float x = areaFloats.get(i);
+            float y = areaFloats.get(i + 1);
+
             if (lowX == 0.0f && lowY == 0.0f) {
-                lowX = areaFloats.get(i);
-                lowY = areaFloats.get(i + 1);
-                highX = areaFloats.get(i);
-                highY = areaFloats.get(i + 1);
+                // Default (set both low and high of first coordinate set)
+                lowX = highX = x;
+                lowY = highY = y;
             } else {
-                lowX = Math.min(lowX, areaFloats.get(i));
-                lowY = Math.max(lowY, areaFloats.get(i + 1));
-                highX = Math.min(lowX, areaFloats.get(i));
-                highY = Math.max(highY, areaFloats.get(i + 1));
+                lowX = Math.min(lowX, x);
+                highX = Math.max(highX, x);
+                lowY = Math.min(lowY, y);
+                highY = Math.max(highY, y);
             }
             //Jump double for x/y values
             i++;
@@ -230,6 +239,8 @@ public class CustomPoiView {
 
         centerX = lowX + (areaWidth / 2);
         centerY = lowY + (areaHeight / 2);
+
+        radius = Math.max(areaWidth/2, areaHeight/2);
 
     }
     //endregion
