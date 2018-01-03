@@ -30,7 +30,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.os.Handler;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -45,12 +44,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 import dk.mustache.beaconbacon.enums.PoiType;
-import dk.mustache.beaconbacon.fragments.FindTheBookFragment;
 
 import static android.graphics.Matrix.*;
 import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
@@ -58,8 +55,8 @@ import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 public class MapHolderView extends AppCompatImageView {
     private Context context;
 
-    private float MAX_DRAG = 300.f;
-    private float MAX_DRAG_BOTTOM = 500.f;
+    private float MAX_DRAG_HORIZONTAL = 300.f;
+    private float MAX_DRAG_VERTICAL = 500.f;
     private final float MIN_ZOOM = 1.0f;
     private float MAX_ZOOM = 1.0f;
     private float scaleFactor = 1.0f;
@@ -114,11 +111,10 @@ public class MapHolderView extends AppCompatImageView {
             Display display = windowManager.getDefaultDisplay();
             metrics = new DisplayMetrics();
             display.getMetrics(metrics);
-            MAX_DRAG = (float)(metrics.widthPixels * 0.15);
-            MAX_DRAG_BOTTOM = (float)(metrics.heightPixels * 0.25);
+            MAX_DRAG_HORIZONTAL = (float)(metrics.widthPixels * 0.40);
+            MAX_DRAG_VERTICAL = (float)(metrics.heightPixels * 0.40);
         }
 
-//        areaPOIInfoWindows = new ArrayList<>();
     }
     //endregion
 
@@ -176,17 +172,17 @@ public class MapHolderView extends AppCompatImageView {
             boolean limitDrag = false;
 
             // Limit Left Drag
-            if (mapCurrentX() > MAX_DRAG) {
+            if (mapCurrentX() > MAX_DRAG_HORIZONTAL) {
                 // Revert translate.
-                distanceX = mapCurrentX() - MAX_DRAG;
+                distanceX = mapCurrentX() - MAX_DRAG_HORIZONTAL;
                 matrix.postTranslate(-distanceX, 0);
                 mapWasTranslated(-distanceX, 0);
             }
 
             // Limit Top Drag
-            if (mapCurrentY() > MAX_DRAG) {
+            if (mapCurrentY() > MAX_DRAG_VERTICAL) {
                 // Revert translate.
-                distanceY = mapCurrentY() - MAX_DRAG;
+                distanceY = mapCurrentY() - MAX_DRAG_VERTICAL;
                 matrix.postTranslate(0, -distanceY);
                 mapWasTranslated(0, -distanceY);
             }
@@ -196,7 +192,7 @@ public class MapHolderView extends AppCompatImageView {
             float screenWidth = metrics.widthPixels;
 
             float newX = bitmapWidth + mapCurrentX();
-            float maxX = screenWidth - MAX_DRAG;
+            float maxX = screenWidth - MAX_DRAG_HORIZONTAL;
             if (newX < maxX) {
                 distanceX = maxX - newX;
                 matrix.postTranslate(distanceX, 0);
@@ -209,7 +205,7 @@ public class MapHolderView extends AppCompatImageView {
             float screenHeight = metrics.heightPixels;
 
             float newY = bitmapHeight + mapCurrentY();
-            float maxY = screenHeight - MAX_DRAG_BOTTOM;
+            float maxY = screenHeight - MAX_DRAG_VERTICAL;
             if (newY < maxY) {
                 distanceY = maxY - newY;
                 matrix.postTranslate(0, distanceY);
@@ -249,16 +245,6 @@ public class MapHolderView extends AppCompatImageView {
 
     private void handleTapForPOIAreas(MotionEvent event) {
         for (CustomPoiView poi : areaCustomPoiViews) {
-
-            Log.d("1", "EventX: " + event.getX());
-            Log.d("1", "EventY: " + event.getY());
-            Log.d("1", "EventX/mapCurrentScaleX: " + event.getX()/mapCurrentScaleX());
-            Log.d("1", "EventY/mapCurrentScaleY: " + event.getY()/mapCurrentScaleY());
-
-            Log.d("1", "Radius: " + poi.radius);
-            Log.d("1", "Radius/mapCurrentScaleX: " + poi.radius/mapCurrentScaleX());
-
-            // TODO: FIX TOUCH INSIDE POI!!!!!!!!
 
             float x = event.getX() - mapCurrentX();
             float y = event.getY() - mapCurrentY();
