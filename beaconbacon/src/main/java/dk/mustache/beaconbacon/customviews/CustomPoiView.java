@@ -167,7 +167,7 @@ public class CustomPoiView {
         Bitmap infoBoxBitmap = Bitmap.createScaledBitmap(infoBoxText, (int)(infoBoxText.getWidth()*scaleFactor), (int)(infoBoxText.getHeight()*scaleFactor), false);
         Bitmap infoBoxArrowBitmap = Bitmap.createScaledBitmap(infoBoxArrow, (int)(infoBoxArrow.getWidth()*scaleFactor), (int)(infoBoxArrow.getHeight()*scaleFactor), false);
 
-        canvas.drawBitmap(infoBoxBitmap, x, y - infoBoxArrow.getHeight()*scaleFactor / 3 + 2 * scaleFactor, null);
+        canvas.drawBitmap(infoBoxBitmap, x, y - infoBoxArrow.getHeight()*scaleFactor/3 + 3*scaleFactor, null);
         canvas.drawBitmap(infoBoxArrowBitmap, x2, y2, null);
     }
 
