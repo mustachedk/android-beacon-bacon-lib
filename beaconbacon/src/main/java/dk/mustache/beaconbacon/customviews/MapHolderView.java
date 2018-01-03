@@ -119,7 +119,6 @@ public class MapHolderView extends AppCompatImageView {
     //endregion
 
 
-
     //region Draw & Touch
     @Override
     protected void onDraw(Canvas canvas) {
@@ -438,7 +437,7 @@ public class MapHolderView extends AppCompatImageView {
         if(responseObject != null) {
             findTheBookAreaObject = new CustomPoiView(context,
                     findTheBookResponseObject.getData().get(0).getLocation().getArea(),
-                    BeaconBaconManager.getInstance().getConfigurationObject().getTintColor(),
+                    context.getResources().getColor(BeaconBaconManager.getInstance().getConfigurationObject().getTintColor()),
                     BeaconBaconManager.getInstance().getRequestObject().getTitle());
         } else {
             invalidate();
