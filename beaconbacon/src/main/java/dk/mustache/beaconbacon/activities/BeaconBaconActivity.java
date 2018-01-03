@@ -24,7 +24,9 @@ THE SOFTWARE.
 */
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -34,6 +36,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -80,6 +84,7 @@ import dk.mustache.beaconbacon.datamodels.BBPoi;
 import dk.mustache.beaconbacon.datamodels.BBPoiMenuItem;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 import dk.mustache.beaconbacon.enums.DisplayType;
+import dk.mustache.beaconbacon.fragments.FindTheBookFragment;
 import dk.mustache.beaconbacon.fragments.PlaceSelectionFragment;
 import dk.mustache.beaconbacon.fragments.PoiSelectionFragment;
 import dk.mustache.beaconbacon.interfaces.FindTheBookAsyncResponse;
@@ -95,6 +100,8 @@ import static dk.mustache.beaconbacon.BBApplication.PLACE_SELECTION_FRAGMENT;
 import static dk.mustache.beaconbacon.BBApplication.POI_SELECTION_FRAGMENT;
 
 public class BeaconBaconActivity extends AppCompatActivity implements View.OnClickListener, SpecificPlaceAsyncResponse, MenuOverviewAsyncResponse, FindTheBookAsyncResponse, FloorImageAsyncResponse, IconImageAsyncResponse {
+    public static int boxHeight = -1;
+
     //RootView is Used to show the Snackbar
     private FrameLayout rootView;
     public CustomSnackbar snackbar;
@@ -364,7 +371,8 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
         //Calculate Toolbar height
         TypedValue tv = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) params.topMargin = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
+            params.topMargin = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
 
         snackbarView.setLayoutParams(params);
         snackbar.setAction(getResources().getString(R.string.general_finish), new View.OnClickListener() {
@@ -462,10 +470,12 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void run() {
                             Log.i("BeaconBaconActivity", "Updating map layout.");
-                            if (!isFindingFloorImage && !isFindingPoiIcons) {
+                            if (!isFindingFloorImage && !isFindingPoiIcons && !isFindingBook && !isLocatingFindTheBookFloor) {
                                 progressBar.setVisibility(View.GONE);
                                 fabPoi.setVisibility(View.VISIBLE);
-                                if (BeaconBaconManager.getInstance().getRequestObject() != null && bookWasFound) fabFindTheBook.setVisibility(View.VISIBLE);
+
+                                if (BeaconBaconManager.getInstance().getRequestObject() != null && bookWasFound)
+                                    fabFindTheBook.setVisibility(View.VISIBLE);
 
                                 mapHolderView.invalidate();
                                 mapHolderView.clearAnimation();
@@ -499,6 +509,17 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void run() {
                         if (updateFindTheBook) {
+                            //Should we display FTB Info?
+                            SharedPreferences sharedPref = getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
+                            if (!sharedPref.getBoolean("ftb_onboarding_info", false)) {
+                                FindTheBookFragment findTheBookFragment = new FindTheBookFragment();
+                                FragmentTransaction ft2 = getSupportFragmentManager().beginTransaction();
+                                ft2.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                                ft2.add(R.id.fragment_container, findTheBookFragment);
+                                ft2.addToBackStack(null);
+                                ft2.commit();
+                            }
+
                             updateFindTheBook = false;
                             isLocatingFindTheBookFloor = true;
 
@@ -514,8 +535,9 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             }
 
             if (!isLocatingFindTheBookFloor) {
-                if (BeaconBaconManager.getInstance().getRequestObject() != null)
+                if (BeaconBaconManager.getInstance().getRequestObject() != null) {
                     mapHolderView.setFindTheBook(BeaconBaconManager.getInstance().getRequestObject().getImage(), BeaconBaconManager.getInstance().getResponseObject());
+                }
 
                 updateToolbarTitle(BeaconBaconManager.getInstance().getCurrentPlace());
             }
@@ -535,6 +557,9 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void updatePlace(BBPlace place) {
+        if(selectedPois != null)
+            selectedPois.clear();
+        
         //Loop all places to find this one
         for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
             if (BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId() == place.getId()) {

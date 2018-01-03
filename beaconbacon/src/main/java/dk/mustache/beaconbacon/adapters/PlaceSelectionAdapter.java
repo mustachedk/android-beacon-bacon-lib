@@ -88,9 +88,6 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
                 }
 
                 if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                    ((BeaconBaconActivity) context).fabFindTheBook.show();
-
-                if(BeaconBaconManager.getInstance().getRequestObject() != null)
                     ((BeaconBaconActivity) context).findABook(String.valueOf(currentPlace.getId()));
 
                 if(((BeaconBaconActivity) context).snackbar != null) {

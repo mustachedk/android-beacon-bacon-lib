@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ftb_root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        android:id="@+id/ftb_box_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/general_horizontal_margin"
+        android:layout_marginStart="@dimen/general_horizontal_margin"
+        android:layout_marginTop="@dimen/general_vertical_margin"
+        android:background="@drawable/white_box_shadowed"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/general_vertical_margin"
+        android:paddingEnd="@dimen/general_horizontal_margin"
+        android:paddingStart="@dimen/general_horizontal_margin"
+        android:paddingTop="@dimen/general_vertical_margin">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/general_vertical_margin"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/ftb_is_here"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/general_vertical_margin"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/ftb_description"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/ftb_ok_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/general_horizontal_margin"
+                android:layout_weight="1"
+                android:background="@android:color/black"
+                android:text="@string/general_ok"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/ftb_ok_dont_show_again_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/black"
+                android:text="@string/general_ok_dont_show_again"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ftb_window_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ftb_box_layout"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="@dimen/general_vertical_margin"
+        android:layout_marginTop="-6.5dp"
+        android:src="@drawable/ic_text_window_arrow" />
+</RelativeLayout>
