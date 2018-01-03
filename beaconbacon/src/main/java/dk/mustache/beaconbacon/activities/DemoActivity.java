@@ -52,7 +52,9 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
     private Button placeUnsupported;
 
     private String placeId = null;
-    private String faustId = "29715394";
+    // private String faustId = "29715394"; // POI
+    private String faustId = "24120236"; // Area
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
