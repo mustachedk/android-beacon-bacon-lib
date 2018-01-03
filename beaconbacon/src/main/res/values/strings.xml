@@ -8,6 +8,8 @@
     <string name="toolbar_place_selection">Vælg bibliotek</string>
 
     <string name="deselect_all">Fravælg alle</string>
+    <string name="ftb_description">Brug knapperne i nederste højre hjørne til at navigere med. Husk du altid kan reservere dit materiale her i app\'en, hvis du mod forventning ikke kan finde den på biblioteket.</string>
+    <string name="ftb_is_here">Her er dit materiale</string>
 
     <!--Alerts-->
     <string name="alert_title_general">Noget gik galt</string>
@@ -16,5 +18,6 @@
     <string name="alert_message_find_book">\'%s\' blev ikke fundet på %s. Hvis du ikke kan finde lokationen, så husk du altid kan reservere direkte i app'en.</string>
 
     <string name="general_ok">OK</string>
+    <string name="general_ok_dont_show_again">OK, vis ikke igen</string>
     <string name="general_finish">Afslut</string>
 </resources>

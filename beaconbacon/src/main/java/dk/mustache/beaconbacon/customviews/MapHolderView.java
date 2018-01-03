@@ -25,15 +25,16 @@ THE SOFTWARE.
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
+import android.os.Handler;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -44,10 +45,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 import dk.mustache.beaconbacon.enums.PoiType;
+import dk.mustache.beaconbacon.fragments.FindTheBookFragment;
 
 import static android.graphics.Matrix.*;
 import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
@@ -457,6 +460,26 @@ public class MapHolderView extends AppCompatImageView {
         } else {
             matrix.postTranslate(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx - poiHolderView.findTheBookObject.radius/2, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy - dpToPx(70) - poiHolderView.findTheBookObject.radius/2);
             poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx - poiHolderView.findTheBookObject.radius/2, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy - dpToPx(70) - poiHolderView.findTheBookObject.radius/2);
+        }
+
+        //Should we display FTB Info?
+        SharedPreferences sharedPref = context.getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
+        if (!sharedPref.getBoolean("ftb_onboarding_info", false)) {
+            final Handler handler = new Handler();
+            final Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (BeaconBaconActivity.boxHeight != -1) {
+                        matrix.postTranslate(0, BeaconBaconActivity.boxHeight / 2 + 50);
+                        poiHolderView.mapWasTranslated(0, BeaconBaconActivity.boxHeight / 2 + 50);
+
+                        invalidate();
+                    } else {
+                        handler.postDelayed(this, 10);
+                    }
+                }
+            };
+            handler.postDelayed(runnable, 10);
         }
 
         //Update view
