@@ -145,6 +145,7 @@ public class MapHolderView extends AppCompatImageView {
 
         if (areaCustomPoiViews != null) {
             for (CustomPoiView poi : areaCustomPoiViews) {
+                //poi.scaleFactor = scaleFactor;
                 poi.draw(canvas);
             }
         }
@@ -258,7 +259,12 @@ public class MapHolderView extends AppCompatImageView {
             Log.d("1", "Radius/mapCurrentScaleX: " + poi.radius/mapCurrentScaleX());
 
             // TODO: FIX TOUCH INSIDE POI!!!!!!!!
-            if (poi.areaContains(event.getX(), event.getY(), poi.radius)) {
+
+            float x = event.getX() - mapCurrentX();
+            float y = event.getY() - mapCurrentY();
+
+            // poi.radius/mapCurrentScaleX()
+            if (poi.areaContains(x/mapCurrentScaleX(), y/mapCurrentScaleY(), poi.radius)) {
                 String name = poi.toString();
                 if(poi.infoWindowText.getVisibility() == GONE)
                     poi.infoWindowText.setVisibility(VISIBLE);
@@ -311,7 +317,8 @@ public class MapHolderView extends AppCompatImageView {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
-//            MAX_DRAG *= detector.getScaleFactor();
+            float validZoom = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
+
             if(scaleFactor >= MIN_ZOOM && scaleFactor <= MAX_ZOOM) {
                 float scale = detector.getScaleFactor();
 
@@ -324,8 +331,6 @@ public class MapHolderView extends AppCompatImageView {
 
                 matrix.postTranslate(-translationX, -translationY);
 
-//                Log.d("currentTranslationX | currentTranslationY", currentTranslationX + " | " + currentTranslationY);
-
                 //Notify POIs map was scaled
                 poiHolderView.mapWasScaled(scale, translationX, translationY);
                 if(areaCustomPoiViews != null) {
@@ -334,6 +339,7 @@ public class MapHolderView extends AppCompatImageView {
                         poi.currentX -= translationX;
                         poi.currentY /= scale;
                         poi.currentY -= translationY;
+                        poi.scaleFactor = MAX_ZOOM/validZoom;
                     }
                 }
 
@@ -345,7 +351,8 @@ public class MapHolderView extends AppCompatImageView {
 
                 invalidate();
             }
-            scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
+
+            scaleFactor = validZoom;
 
             return true;
         }
@@ -401,12 +408,12 @@ public class MapHolderView extends AppCompatImageView {
                 if (poi.iconBitmap != null) {
                     poiOnlyViews.add(poi);
                 } else {
+                    poi.scaleFactor = MAX_ZOOM/scaleFactor;
                     areaCustomPoiViews.add(poi);
                 }
             }
             poiHolderView.setupPois(poiOnlyViews, scaleInit, xTranslationInit, yTranslationInit);
 
-            //poiHolderView.setupPoiAreas(areaCustomPoiViews, scaleInit, 0, 0);
         }
     }
 
