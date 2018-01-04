@@ -47,7 +47,7 @@ import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.api.GetAllPlacesAsync;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
-import dk.mustache.beaconbacon.datamodels.AllPlaces;
+import dk.mustache.beaconbacon.datamodels.BBAllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBConfigurationObject;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
 import dk.mustache.beaconbacon.datamodels.BBRequestObject;
@@ -57,8 +57,6 @@ import static dk.mustache.beaconbacon.BBApplication.FAUST_ID;
 import static dk.mustache.beaconbacon.BBApplication.PLACE_ID;
 
 public class DemoActivity extends AppCompatActivity implements View.OnClickListener, AllPlacesAsyncResponse {
-    public static final String TAG = "BeaconBacon";
-
     private Button configNoStyle;
     private Button configStyle1;
     private Button configStyle2;
@@ -78,8 +76,6 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
     //private String baseUrl = "https://wayfindingkkb.dk/api/v2/";
 
     private String apiKey = "$2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm";
-
-    GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
 
 
 
@@ -112,38 +108,8 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
         mapNoWayfinding.setOnClickListener(this);
         mapWayfinding.setOnClickListener(this);
 
+        //Instantiate the BeaconBaconManager - MUST before applying Configuration Object
         BeaconBaconManager.createInstance(BBApplication.getContext());
-    }
-
-    private void initBeaconBacon() {
-        //Instantiate our ApiManager
-        ApiManager.createInstance(BBApplication.getContext());
-
-        //Get the basics of All Places right away
-        getAllPlacesAsync.delegate = this;
-        ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
-    }
-
-    @Override
-    public void allPlacesAsyncFinished(JsonObject output) {
-        Log.i(TAG, "All places fetched");
-
-        //Map JsonObject output to the AllPlaces class
-        JsonElement mJson =  new JsonParser().parse(output.toString());
-        AllPlaces allPlaces = new Gson().fromJson(mJson, AllPlaces.class);
-
-        //Sort the Place's floors by Order
-        if(allPlaces.getData() != null) {
-            Collections.sort(allPlaces.getData(), new Comparator<BBPlace>() {
-                @Override
-                public int compare(BBPlace place1, BBPlace place2) {
-                    return place1.getOrder() - place2.getOrder();
-                }
-            });
-        }
-
-        //Set all places in our BeaconBaconManager
-        BeaconBaconManager.getInstance().setAllPlaces(allPlaces);
     }
 
     @Override
@@ -225,5 +191,39 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
 
     private void applyPlace(String placeId) {
         this.placeId = placeId;
+    }
+
+
+
+    private void initBeaconBacon() {
+        //Instantiate our ApiManager
+        ApiManager.createInstance(BBApplication.getContext());
+
+        GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
+        //Get the basics of All Places right away
+        getAllPlacesAsync.delegate = this;
+        ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
+    }
+
+    @Override
+    public void allPlacesAsyncFinished(JsonObject output) {
+        Log.i(BBApplication.TAG, "All places fetched");
+
+        //Map JsonObject output to the BBAllPlaces class
+        JsonElement mJson =  new JsonParser().parse(output.toString());
+        BBAllPlaces allPlaces = new Gson().fromJson(mJson, BBAllPlaces.class);
+
+        //Sort the Place's floors by Order
+        if(allPlaces.getData() != null) {
+            Collections.sort(allPlaces.getData(), new Comparator<BBPlace>() {
+                @Override
+                public int compare(BBPlace place1, BBPlace place2) {
+                    return place1.getOrder() - place2.getOrder();
+                }
+            });
+        }
+
+        //Set all places in our BeaconBaconManager
+        BeaconBaconManager.getInstance().setAllPlaces(allPlaces);
     }
 }

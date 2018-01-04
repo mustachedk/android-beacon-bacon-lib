@@ -36,7 +36,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -65,9 +64,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import dk.mustache.beaconbacon.BBApplication;
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.api.FindTheBookAsync;
+import dk.mustache.beaconbacon.api.GetAllPlacesAsync;
 import dk.mustache.beaconbacon.api.GetFloorImageAsync;
 import dk.mustache.beaconbacon.api.GetIconImageAsync;
 import dk.mustache.beaconbacon.api.GetMenuOverviewAsync;
@@ -77,6 +78,7 @@ import dk.mustache.beaconbacon.customviews.CustomSnackbar;
 import dk.mustache.beaconbacon.customviews.MapHolderView;
 import dk.mustache.beaconbacon.customviews.PoiHolderView;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
+import dk.mustache.beaconbacon.datamodels.BBAllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBFaustDataObject;
 import dk.mustache.beaconbacon.datamodels.BBFloor;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
@@ -87,6 +89,7 @@ import dk.mustache.beaconbacon.enums.DisplayType;
 import dk.mustache.beaconbacon.fragments.FindTheBookFragment;
 import dk.mustache.beaconbacon.fragments.PlaceSelectionFragment;
 import dk.mustache.beaconbacon.fragments.PoiSelectionFragment;
+import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 import dk.mustache.beaconbacon.interfaces.FindTheBookAsyncResponse;
 import dk.mustache.beaconbacon.interfaces.FloorImageAsyncResponse;
 import dk.mustache.beaconbacon.interfaces.IconImageAsyncResponse;
@@ -99,10 +102,18 @@ import static dk.mustache.beaconbacon.BBApplication.PLACE_ID;
 import static dk.mustache.beaconbacon.BBApplication.PLACE_SELECTION_FRAGMENT;
 import static dk.mustache.beaconbacon.BBApplication.POI_SELECTION_FRAGMENT;
 
-public class BeaconBaconActivity extends AppCompatActivity implements View.OnClickListener, SpecificPlaceAsyncResponse, MenuOverviewAsyncResponse, FindTheBookAsyncResponse, FloorImageAsyncResponse, IconImageAsyncResponse {
+public class BeaconBaconActivity extends AppCompatActivity implements View.OnClickListener,
+                                                                        SpecificPlaceAsyncResponse,
+                                                                        MenuOverviewAsyncResponse,
+                                                                        FindTheBookAsyncResponse,
+                                                                        FloorImageAsyncResponse,
+                                                                        IconImageAsyncResponse,
+                                                                        AllPlacesAsyncResponse {
+
+    //TODO This could possibly be done a little bit smarter
     public static int boxHeight = -1;
 
-    //RootView is Used to show the Snackbar
+    //RootView is used to show the Snackbar
     private FrameLayout rootView;
     public CustomSnackbar snackbar;
 
@@ -143,6 +154,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     private boolean bookWasFound;
     private boolean updateFindTheBook = true;
     private boolean isLocatingFindTheBookFloor;
+    private boolean readyToUpdateFindTheBook;
 
 
     //region Android Lifecycle
@@ -175,50 +187,11 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     }
     //endregion
 
-    private void init() {
-        //Get place_id and faust_id if any
-        String place_id = getIntent().getStringExtra(PLACE_ID);
-        String faust_id = getIntent().getStringExtra(FAUST_ID);
-
-        if (place_id != null) {
-            //Loop all places to find this one and set toolbar titles
-            for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
-                if (Objects.equals(String.valueOf(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId()), place_id)) {
-                    //We don't know the floor name until we've fetched a Specific Place, so we set the place name only initially
-                    toolbarSubtitle.setText(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getName());
-                    break;
-                }
-            }
-
-            if (faust_id != null) {
-                //We have place_id and a faust_id
-                if (BeaconBaconManager.getInstance().getRequestObject() != null) {
-                    Log.e("BeaconBaconActivity", "Faust id provided, finding the book for the user.");
-                    findABook(place_id);
-                } else {
-                    Log.e("BeaconBaconActivity", "Faust id provided, but no Request Object was set. Create a new BBRequestObject and set it to the BeaconBaconManager before opening the BeaconBaconActivity.");
-                }
-
-                Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
-                findSpecificPlace(place_id, true);
-            } else {
-                Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
-
-                //We have a place id only
-                findSpecificPlace(place_id, false);
-            }
-
-        } else {
-            Log.i("BeaconBaconActivity", "No place id was provided, sending user to place selection.");
-
-            progressBar.setVisibility(View.GONE);
-
-            //We have no place id, send user to place selection
-            openPlaceSelectionFragment();
-        }
-    }
 
 
+    /**
+     * This region sets up the general UI
+     */
     //region Setup
     private void setupProgressBar() {
         //Setup Progress bar
@@ -228,11 +201,13 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
     private void setupCustomViews() {
         //Initialize custom views to Hold the Map and POIs
-        mapHolderView = new MapHolderView(this);
         poiHolderView = new PoiHolderView(this);
+
+        mapHolderView = new MapHolderView(this);
+        mapHolderView.poiHolderView = poiHolderView;
+
         mapView.addView(mapHolderView);
         mapView.addView(poiHolderView);
-        mapHolderView.poiHolderView = poiHolderView;
     }
 
     private void setupToolbar() {
@@ -277,6 +252,75 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     //endregion
 
 
+
+    /**
+     * This method initializes the BeaconBaconActivity based on the input provided through the Intent.
+     * Input can be either nothing, a place_id, or a place_id and faust_id.
+     */
+    private void init() {
+        //Ensure we have all places
+        if(BeaconBaconManager.getInstance().getAllPlaces() != null) {
+            //Get place_id and faust_id if any
+            String place_id = getIntent().getStringExtra(PLACE_ID);
+            String faust_id = getIntent().getStringExtra(FAUST_ID);
+
+            if (place_id != null) {
+                //Loop all places to find this one and set toolbar titles
+                for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
+                    if (Objects.equals(String.valueOf(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId()), place_id)) {
+                        //We don't know the floor name until we've fetched a Specific Place, so we set the place name only initially
+                        toolbarSubtitle.setText(BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getName());
+                        break;
+                    }
+                }
+
+                if (faust_id != null) {
+                    //We have place_id and a faust_id
+                    if (BeaconBaconManager.getInstance().getRequestObject() != null) {
+                        Log.i("BeaconBaconActivity", "Faust id provided, finding the book for the user.");
+                        findABook(place_id);
+                    } else {
+                        Log.e("BeaconBaconActivity", "Faust id provided, but no Request Object was set. Create a new BBRequestObject and set it to the BeaconBaconManager before opening the BeaconBaconActivity.");
+                    }
+
+                    Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
+                    findSpecificPlace(place_id, true);
+                } else {
+                    Log.i("BeaconBaconActivity", "No Faust id was provided, proceeding with Place id only.");
+                    Log.i("BeaconBaconActivity", "Place id was provided, finding the place for the user.");
+
+                    //We have a place id only
+                    findSpecificPlace(place_id, false);
+                }
+
+            } else {
+                Log.i("BeaconBaconActivity", "No place id was provided, sending user to place selection.");
+
+                progressBar.setVisibility(View.GONE);
+
+                //We have no place id, send user to place selection
+                openPlaceSelectionFragment();
+            }
+
+        } else {
+            //Call to get all places has not been made before opening BeaconBaconActivity, display error in console
+            Log.e("BeaconBaconActivity", "Faust id provided, but no Request Object was set. Create a new BBRequestObject and set it to the BeaconBaconManager before opening the BeaconBaconActivity.");
+
+            //Fetch all places
+            GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
+
+            ApiManager.createInstance(BBApplication.getContext());
+
+            getAllPlacesAsync.delegate = this;
+            ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
+        }
+    }
+
+
+
+    /**
+     * This region handles setting up menus and handles clicks on menu items and other UI elements
+     */
     //region Menus & Clicks
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -291,6 +335,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
                 //Let the fragment consume the event
                 return false;
+
             } else {
                 //Dismiss activity
                 finish();
@@ -305,19 +350,33 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View view) {
         //Cannot build library with switch statements, converted to if-else instead
-        int i = view.getId();
-        if (i == R.id.bb_toolbar_title_layout) {
+        int viewId = view.getId();
+        if (viewId == R.id.bb_toolbar_title_layout) {
             hideGuiElements();
             placeSelectionFragment = new PlaceSelectionFragment();
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_bottom, R.anim.slide_in_bottom, R.anim.slide_out_bottom).replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_bottom,
+                                        R.anim.slide_out_bottom,
+                                        R.anim.slide_in_bottom,
+                                        R.anim.slide_out_bottom)
+                    .replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT)
+                    .addToBackStack(null)
+                    .commit();
 
-        } else if (i == R.id.map_poi_fab) {
+        } else if (viewId == R.id.map_poi_fab) {
             hideGuiElements();
             poiSelectionFragment = new PoiSelectionFragment();
             poiSelectionFragment.selectedPois = selectedPois;
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_bottom, R.anim.slide_in_bottom, R.anim.slide_out_bottom).replace(R.id.fragment_container, poiSelectionFragment, POI_SELECTION_FRAGMENT).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_bottom,
+                            R.anim.slide_out_bottom,
+                            R.anim.slide_in_bottom,
+                            R.anim.slide_out_bottom)
+                    .replace(R.id.fragment_container, poiSelectionFragment, POI_SELECTION_FRAGMENT)
+                    .addToBackStack(null)
+                    .commit();
 
-        } else if (i == R.id.map_ftb_fab) {
+        } else if (viewId == R.id.map_ftb_fab) {
             for (int j = 0; j < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); j++) {
                 if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(j).getId()) {
                     updateCurrentFloor(j, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
@@ -326,16 +385,18 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                 }
             }
 
-        } else if (i == R.id.bb_toolbar_arrow_left) {
+        } else if (viewId == R.id.bb_toolbar_arrow_left) {
             updateArrows(-1);
 
-        } else if (i == R.id.bb_toolbar_arrow_right) {
+        } else if (viewId == R.id.bb_toolbar_arrow_right) {
             updateArrows(1);
         }
     }
     //endregion
 
 
+
+    //FIXME - Cleanup + Structure this neatly
     //region Find the Book
     private void checkIfBookWasFound() {
         if (!bookWasFound) {
@@ -387,8 +448,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         snackbar.show();
     }
     //endregion
-
-
     //region Place and Find The Book initialization
     private void openPlaceSelectionFragment() {
         final Handler handler = new Handler();
@@ -446,6 +505,11 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     //endregion
 
 
+
+    //FIXME - Cleanup
+    /**
+     * This region handles actual updates to the UI
+     */
     //region Update Content
     private void updateToolbar() {
         toolbarSubtitle.setText(BeaconBaconManager.getInstance().getCurrentPlace().getName());
@@ -455,11 +519,23 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         updateArrows(0);
     }
 
+    private void updateToolbarTitle(BBPlace newCurrentPlace) {
+        toolbarSubtitle.setText(newCurrentPlace.getName());
+        if (newCurrentPlace.getFloors() != null && newCurrentPlace.getFloors().size() != 0) {
+            toolbarTitle.setText(newCurrentPlace.getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getName());
+        } else {
+            toolbarTitle.setText("-");
+        }
+
+        updateArrows(0);
+    }
+
     private void updateMapView() {
         if (isFindingFloorImage || isFindingPoiIcons) {
-            Log.i("BeaconBaconActivity", "Updating map layout.");
+            Log.i("BeaconBaconActivity", "We're still locating a Floor image or POI icons for this Place.");
             return;
         }
+
         try {
             mapHolderView.animate().alpha(0).withEndAction(new Runnable() {
                 @Override
@@ -468,7 +544,26 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                     final Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
+                            if (!isFindingBook && BeaconBaconManager.getInstance().getRequestObject() != null && !isFindingFloorImage) {
+                                if (updateFindTheBook) {
+                                    readyToUpdateFindTheBook = true;
+                                    isLocatingFindTheBookFloor = true;
+
+                                    for (int i = 0; i < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
+                                        if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(i).getId()) {
+                                            updateCurrentFloor(i, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
+
+                                            updateFindTheBook = false;
+
+                                            //Return to avoid double update of MapHolderView
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+
                             Log.i("BeaconBaconActivity", "Updating map layout.");
+
                             if (!isFindingFloorImage && !isFindingPoiIcons && !isFindingBook && !isLocatingFindTheBookFloor) {
                                 progressBar.setVisibility(View.GONE);
                                 fabPoi.setVisibility(View.VISIBLE);
@@ -478,68 +573,56 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
                                 mapHolderView.invalidate();
                                 mapHolderView.clearAnimation();
-                                mapHolderView.animate().alpha(1).setDuration(300).start();
+                                mapHolderView.animate().alpha(1).setDuration(200).start();
+
+
+
+                                if (mapHolderView.poiHolderView != null) {
+                                    mapHolderView.poiHolderView.floorWasSwitched();
+                                }
+
+                                int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
+                                BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
+                                mapView.setBackgroundColor(Color.parseColor(currentFloor.getMap_background_color()));
+
+                                mapHolderView.setImageBitmap(currentFloorImage);
+
+                                mapHolderView.setMapPois(customPOIViewsList);
+
+                                if (readyToUpdateFindTheBook) {
+                                    showFindTheBookSnackbar();
+
+                                    //Should we display FTB Info?
+                                    SharedPreferences sharedPref = getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
+                                    if (!sharedPref.getBoolean("ftb_onboarding_info", false)) {
+                                        FindTheBookFragment findTheBookFragment = new FindTheBookFragment();
+                                        FragmentTransaction ft2 = getSupportFragmentManager().beginTransaction();
+                                        ft2.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
+                                        ft2.add(R.id.fragment_container, findTheBookFragment);
+                                        ft2.addToBackStack(null);
+                                        ft2.commit();
+                                    }
+
+                                    readyToUpdateFindTheBook = false;
+                                }
+
+                                if (!isLocatingFindTheBookFloor) {
+                                    if (BeaconBaconManager.getInstance().getRequestObject() != null) {
+                                        mapHolderView.setFindTheBook(BeaconBaconManager.getInstance().getRequestObject().getImage(), BeaconBaconManager.getInstance().getResponseObject());
+                                    }
+
+                                    updateToolbarTitle(BeaconBaconManager.getInstance().getCurrentPlace());
+                                }
 
                             } else {
-                                Log.i("BeaconBaconActivity", "We're still finding a map image for this floor or setting up POI icons, retrying in 10ms");
-                                handler.postDelayed(this, 10);
+                                Log.i("BeaconBaconActivity", "We're still finding a map image for this floor or setting up POI icons, retrying in 100ms");
+                                handler.postDelayed(this, 100);
                             }
                         }
                     };
-                    handler.postDelayed(runnable, 10);
+                    handler.postDelayed(runnable, 0);
                 }
-            }).setDuration(300).start();
-
-            if (mapHolderView.poiHolderView != null) {
-                mapHolderView.poiHolderView.floorWasSwitched();
-            }
-
-            int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
-            BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
-            mapView.setBackgroundColor(Color.parseColor(currentFloor.getMap_background_color()));
-
-            mapHolderView.setImageBitmap(currentFloorImage);
-
-            mapHolderView.setMapPois(customPOIViewsList);
-
-            if (!isFindingBook && BeaconBaconManager.getInstance().getRequestObject() != null && !isFindingFloorImage) {
-                final Handler handler = new Handler();
-                final Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (updateFindTheBook) {
-                            //Should we display FTB Info?
-                            SharedPreferences sharedPref = getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
-                            if (!sharedPref.getBoolean("ftb_onboarding_info", false)) {
-                                FindTheBookFragment findTheBookFragment = new FindTheBookFragment();
-                                FragmentTransaction ft2 = getSupportFragmentManager().beginTransaction();
-                                ft2.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out);
-                                ft2.add(R.id.fragment_container, findTheBookFragment);
-                                ft2.addToBackStack(null);
-                                ft2.commit();
-                            }
-
-                            updateFindTheBook = false;
-                            isLocatingFindTheBookFloor = true;
-
-                            for (int i = 0; i < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
-                                if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(i).getId())
-                                    updateCurrentFloor(i, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
-                            }
-                        }
-                    }
-                };
-                //TODO What is this delay good for?
-                handler.postDelayed(runnable, 10);
-            }
-
-            if (!isLocatingFindTheBookFloor) {
-                if (BeaconBaconManager.getInstance().getRequestObject() != null) {
-                    mapHolderView.setFindTheBook(BeaconBaconManager.getInstance().getRequestObject().getImage(), BeaconBaconManager.getInstance().getResponseObject());
-                }
-
-                updateToolbarTitle(BeaconBaconManager.getInstance().getCurrentPlace());
-            }
+            }).setDuration(200).start();
 
         } catch (Exception e) {
             Log.e("BBActivity - ErrorMap", e.getLocalizedMessage());
@@ -576,16 +659,11 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
                 //Set current Place and floor
                 updateCurrentPlace(place);
-
                 updateCurrentFloor(0, BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(0).getId());
-
                 updateToolbar();
 
                 if (place.getFloors() != null && place.getFloors().size() > 0 && !Objects.equals(place.getFloors().get(0).getImage(), "")) {
-
-//                    GetFloorImageAsync getFloorImageAsync = new GetFloorImageAsync();
-//                    getFloorImageAsync.delegate = this;
-//                    ApiManager.getInstance().getFloorImage(getFloorImageAsync);
+                    //Moved method
                 } else {
                     mapHolderView.setMapPois(null);
                     mapHolderView.setFindTheBook(null, null);
@@ -634,6 +712,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                 arrowRight.setClickable(true);
                 arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right));
             }
+
         } else {
             toolbarTitle.setText("-");
             arrowLeft.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_left_light));
@@ -648,9 +727,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         BeaconBaconManager.getInstance().setCurrentFloorId(newCurrentFloorId);
         BBPlace currentPlace = BeaconBaconManager.getInstance().getCurrentPlace();
 
-
         if (currentPlace.getFloors() != null && currentPlace.getFloors().size() > 0 && !Objects.equals(currentPlace.getFloors().get(newCurrentFloorIndex).getImage(), "")) {
-
             // Set BEFORE Invoking Async Tasks.
             isFindingFloorImage = true;
             isFindingPoiIcons = true;
@@ -677,44 +754,13 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     //endregion
 
 
-    //region Updates from Fragments
-    public void setSelectedPois(List<BBPoi> selectedPois) {
-        this.selectedPois = selectedPois;
 
-        isFindingPoiIcons = true;
-        GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
-        getIconImageAsync.delegate = this;
-        ApiManager.getInstance().getIconImage(this, getIconImageAsync, selectedPois);
-    }
-
-    public void setNewCurrentPlace(BBPlace newCurrentPlace) {
-        updateToolbarTitle(newCurrentPlace);
-
-        progressBar.setVisibility(View.VISIBLE);
-
-        getSupportFragmentManager().popBackStack();
-
-        //Initiate Fetch Specific Place
-        GetSpecificPlaceAsync getSpecificPlaceAsync = new GetSpecificPlaceAsync();
-        getSpecificPlaceAsync.delegate = this;
-        ApiManager.getInstance().fetchSpecificPlaceAsync(getSpecificPlaceAsync, String.valueOf(newCurrentPlace.getId()));
-    }
-
-    private void updateToolbarTitle(BBPlace newCurrentPlace) {
-        toolbarSubtitle.setText(newCurrentPlace.getName());
-        if (newCurrentPlace.getFloors() != null && newCurrentPlace.getFloors().size() != 0) {
-            toolbarTitle.setText(newCurrentPlace.getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getName());
-        } else {
-            toolbarTitle.setText("-");
-        }
-
-        updateArrows(0);
-    }
-    //endregion
-
-
+    //FIXME - Cleanup
+    /**
+     * This region handles implementation of Interfaces exposed to the Async Tasks
+     */
     //region Async Tasks Finished
-    //---Images
+    //region Images
     @Override
     public void floorImageAsyncFinished(Bitmap bitmap) {
         isFindingFloorImage = false;
@@ -725,7 +771,8 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             isLocatingFindTheBookFloor = false;
         }
 
-        updateMapView();
+        if(!isFindingPoiIcons)
+            updateMapView();
     }
 
     @Override
@@ -734,9 +781,10 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
         customPOIViewsList = customPoiViews;
 
-        updateMapView();
+        if(!isFindingFloorImage)
+            updateMapView();
     }
-    //---
+    //endregion
 
     @Override
     public void specificPlaceAsyncFinished(final JsonObject output) {
@@ -756,45 +804,18 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                         updatePlace(place);
                         updateMenuOverview(place);
 
-                        if (BeaconBaconManager.getInstance().getRequestObject() != null) checkIfBookWasFound();
+                        if (BeaconBaconManager.getInstance().getRequestObject() != null)
+                            checkIfBookWasFound();
                     } else {
-                        handler.postDelayed(this, 10);
+                        Log.i("BeaconBaconActivity", "We're currently locating an item for this place, retrying in 100ms");
+                        handler.postDelayed(this, 100);
                     }
                 }
             };
-            Log.i("BeaconBaconActivity", "We're locating an item for this place, retrying in 10ms");
-            handler.postDelayed(runnable, 10);
+            handler.postDelayed(runnable, 0);
         } else {
             //No such place found, open place selection
             openPlaceSelectionFragment();
-        }
-    }
-
-    @Override
-    public void menuOverviewAsyncFinished(Bundle output) {
-        int placeId = Integer.valueOf(output.getString("place_id"));
-
-        Gson gson = new Gson();
-        String jsonOutput = output.getString("json");
-        Type listType = new TypeToken<List<BBPoiMenuItem>>() {
-        }.getType();
-        List<BBPoiMenuItem> menuItems = gson.fromJson(jsonOutput, listType);
-
-        //Sort the Place's floors by Order
-        if (menuItems != null) {
-            Collections.sort(menuItems, new Comparator<BBPoiMenuItem>() {
-                @Override
-                public int compare(BBPoiMenuItem order1, BBPoiMenuItem order2) {
-                    return order1.getOrder() - order2.getOrder();
-                }
-            });
-        }
-
-        //Find the place and update the POI Menu items
-        for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
-            if (placeId == BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId()) {
-                BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).setPoiMenuItem(menuItems);
-            }
         }
     }
 
@@ -840,8 +861,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                     }
 
                     BeaconBaconManager.getInstance().setResponseObject(responseObject);
-
-                    showFindTheBookSnackbar();
                 } else {
                     bookWasFound = false;
                     hideFindTheBookElements();
@@ -857,9 +876,92 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
         isFindingBook = false;
     }
+
+    @Override
+    public void menuOverviewAsyncFinished(Bundle output) {
+        int placeId = Integer.valueOf(output.getString("place_id"));
+
+        Gson gson = new Gson();
+        String jsonOutput = output.getString("json");
+        Type listType = new TypeToken<List<BBPoiMenuItem>>() {
+        }.getType();
+        List<BBPoiMenuItem> menuItems = gson.fromJson(jsonOutput, listType);
+
+        //Sort the Place's floors by Order
+        if (menuItems != null) {
+            Collections.sort(menuItems, new Comparator<BBPoiMenuItem>() {
+                @Override
+                public int compare(BBPoiMenuItem order1, BBPoiMenuItem order2) {
+                    return order1.getOrder() - order2.getOrder();
+                }
+            });
+        }
+
+        //Find the place and update the POI Menu items
+        for (int i = 0; i < BeaconBaconManager.getInstance().getAllPlaces().getData().size(); i++) {
+            if (placeId == BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).getId()) {
+                BeaconBaconManager.getInstance().getAllPlaces().getData().get(i).setPoiMenuItem(menuItems);
+            }
+        }
+    }
+
+    @Override
+    public void allPlacesAsyncFinished(JsonObject output) {
+        Log.i(BBApplication.TAG, "All places fetched");
+
+        //Map JsonObject output to the BBAllPlaces class
+        JsonElement mJson =  new JsonParser().parse(output.toString());
+        BBAllPlaces allPlaces = new Gson().fromJson(mJson, BBAllPlaces.class);
+
+        //Sort the Place's floors by Order
+        if(allPlaces.getData() != null) {
+            Collections.sort(allPlaces.getData(), new Comparator<BBPlace>() {
+                @Override
+                public int compare(BBPlace place1, BBPlace place2) {
+                    return place1.getOrder() - place2.getOrder();
+                }
+            });
+        }
+
+        //Set all places in our BeaconBaconManager
+        BeaconBaconManager.getInstance().setAllPlaces(allPlaces);
+    }
     //endregion
 
 
+
+    /**
+     * This region handles updates to the Activity received from Fragments (Set new Place, Set selected POIs)
+     */
+    //region Updates from Fragments
+    public void setSelectedPois(List<BBPoi> selectedPois) {
+        this.selectedPois = selectedPois;
+
+        isFindingPoiIcons = true;
+        GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
+        getIconImageAsync.delegate = this;
+        ApiManager.getInstance().getIconImage(this, getIconImageAsync, selectedPois);
+    }
+
+    public void setNewCurrentPlace(BBPlace newCurrentPlace) {
+        updateToolbarTitle(newCurrentPlace);
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        getSupportFragmentManager().popBackStack();
+
+        //Initiate Fetch Specific Place
+        GetSpecificPlaceAsync getSpecificPlaceAsync = new GetSpecificPlaceAsync();
+        getSpecificPlaceAsync.delegate = this;
+        ApiManager.getInstance().fetchSpecificPlaceAsync(getSpecificPlaceAsync, String.valueOf(newCurrentPlace.getId()));
+    }
+    //endregion
+
+
+
+    /**
+     * This region handles everything else, right now, only displaying alerts
+     */
     //region Misc
     private void showAlert(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

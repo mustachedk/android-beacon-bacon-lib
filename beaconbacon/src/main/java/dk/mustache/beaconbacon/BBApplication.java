@@ -25,24 +25,10 @@ THE SOFTWARE.
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import java.util.Collections;
-import java.util.Comparator;
-
-import dk.mustache.beaconbacon.api.ApiManager;
-import dk.mustache.beaconbacon.api.GetAllPlacesAsync;
-import dk.mustache.beaconbacon.data.BeaconBaconManager;
-import dk.mustache.beaconbacon.datamodels.AllPlaces;
-import dk.mustache.beaconbacon.datamodels.BBPlace;
-import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 
 public class BBApplication extends Application {
+    public static final String TAG = "BeaconBacon";
+
     public static final String PLACE_SELECTION_FRAGMENT = "place_selection_fragment";
     public static final String POI_SELECTION_FRAGMENT = "poi_selection_fragment";
     public static final String PLACE_ID = "place_id";
