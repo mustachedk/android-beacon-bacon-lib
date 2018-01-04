@@ -53,7 +53,7 @@ public class PoiHolderView extends AppCompatImageView {
     private float xTranslation;
     private float yTranslation;
     private Bitmap findTheBookOriginalIcon;
-    private BBResponseObject findTheBookResponseObject;
+    public BBResponseObject findTheBookResponseObject;
     //private List<CustomAreaInfoView> areaPOIInfoWindows;
 
 

@@ -79,7 +79,7 @@ public class MapHolderView extends AppCompatImageView {
 //    private List<CustomAreaInfoView> areaPOIInfoWindows = new ArrayList<>();
     public CustomPoiView findTheBookAreaObject;
     private BBResponseObject findTheBookResponseObject;
-
+    private boolean hasShownFTBAlert = false;
 
 
     //region Constructors & Initialization
@@ -418,7 +418,7 @@ public class MapHolderView extends AppCompatImageView {
                 this.setupFindTheBook(responseObject);
             }
 
-            if (poiHolderView.findTheBookObject != null) {
+            if (poiHolderView.findTheBookObject != null || findTheBookAreaObject != null) {
                 for(int i = 0; i< BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
                     if(BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentFloorId()) {
 
@@ -445,37 +445,59 @@ public class MapHolderView extends AppCompatImageView {
     }
 
     public void scrollToBook() {
-        //Translate the map
+        // Translate the map
+        float snackBarHeight = dpToPx(70); // TODO: Get from actual sncakbar.
+        float centerScreenX = metrics.widthPixels / 2;
+        float centerScreenY = metrics.heightPixels / 2;
+
+        float posX;
+        float posY;
         if(findTheBookAreaObject != null) {
-            matrix.postTranslate(metrics.widthPixels / 2 - findTheBookAreaObject.centerY * scaleInit, metrics.heightPixels / 2 - findTheBookAreaObject.centerX * scaleInit);
-            poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - findTheBookAreaObject.centerY * scaleInit, metrics.heightPixels / 2 - findTheBookAreaObject.centerX * scaleInit);
+            posX = findTheBookAreaObject.centerX;
+            posY = findTheBookAreaObject.centerY;
         } else {
-            matrix.postTranslate(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx - poiHolderView.findTheBookObject.radius/2, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy - dpToPx(70) - poiHolderView.findTheBookObject.radius/2);
-            poiHolderView.mapWasTranslated(metrics.widthPixels / 2 - poiHolderView.findTheBookObject.cx - poiHolderView.findTheBookObject.radius/2, metrics.heightPixels / 2 - poiHolderView.findTheBookObject.cy - dpToPx(70) - poiHolderView.findTheBookObject.radius/2);
+            posX = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosX();
+            posY = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosY();
         }
+
+        float offsetX = mapCurrentX() + centerScreenX - posX * mapCurrentScaleX();
+        float offsetY = mapCurrentY() + centerScreenY - posY * mapCurrentScaleY();
 
         //Should we display FTB Info?
         SharedPreferences sharedPref = context.getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
-        if (!sharedPref.getBoolean("ftb_onboarding_info", false)) {
+        if (!sharedPref.getBoolean("ftb_onboarding_info", false) && !hasShownFTBAlert) {
             final Handler handler = new Handler();
-            final Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (BeaconBaconActivity.boxHeight != -1) {
-                        matrix.postTranslate(0, BeaconBaconActivity.boxHeight / 2 + 50);
-                        poiHolderView.mapWasTranslated(0, BeaconBaconActivity.boxHeight / 2 + 50);
 
-                        invalidate();
-                    } else {
-                        handler.postDelayed(this, 10);
-                    }
-                }
-            };
-            handler.postDelayed(runnable, 10);
+            final Runnable runnable = createRunnable(handler, offsetX, offsetX);
+            handler.postDelayed(runnable, 100);
+
+        } else {
+            postTranslateAll(offsetX, offsetY);
+            invalidate();
         }
-
-        //Update view
-        invalidate();
     }
     //endregion
+
+    private Runnable createRunnable(final Handler handler, final float offsetX, final float offsetY){
+
+        Runnable aRunnable = new Runnable(){
+            public void run(){
+
+                if (BeaconBaconActivity.boxHeight != -1) {
+                    hasShownFTBAlert = true;
+                    postTranslateAll(offsetX, offsetY + BeaconBaconActivity.boxHeight - 50);
+                    invalidate();
+                } else {
+                    handler.postDelayed(this, 100);
+                }
+            }
+        };
+
+        return aRunnable;
+
+    }
+    private void postTranslateAll(float x, float y) {
+        matrix.postTranslate(x, y);
+        poiHolderView.mapWasTranslated(x, y);
+    }
 }

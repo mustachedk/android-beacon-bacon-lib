@@ -88,8 +88,7 @@ public class CustomPoiView {
         this.cx = x;
         this.cy = y;
 
-
-        this.radius = (int) dpToPx(15);
+        this.radius = isFindTheBook ? (int) dpToPx(20) : (int) dpToPx(15);
         this.title = title;
 
         generateInfoWindow();

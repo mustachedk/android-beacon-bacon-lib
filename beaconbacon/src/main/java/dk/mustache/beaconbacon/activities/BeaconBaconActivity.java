@@ -482,8 +482,8 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                 mapHolderView.animate().alpha(1).setDuration(300).start();
 
                             } else {
-                                Log.i("BeaconBaconActivity", "We're still finding a map image for this floor or setting up POI icons, retrying in 10ms");
-                                handler.postDelayed(this, 10);
+                                Log.i("BeaconBaconActivity", "We're still finding a map image for this floor or setting up POI icons, retrying in 100ms");
+                                handler.postDelayed(this, 100);
                             }
                         }
                     };
@@ -498,6 +498,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
             BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
             mapView.setBackgroundColor(Color.parseColor(currentFloor.getMap_background_color()));
+//            mapView.setBackgroundColor(Color.RED); // TEST
 
             mapHolderView.setImageBitmap(currentFloorImage);
 
