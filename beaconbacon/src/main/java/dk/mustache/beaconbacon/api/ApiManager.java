@@ -45,12 +45,6 @@ public class ApiManager {
     private static ApiManager instance;
     private Context context;
 
-    //Test Environment
-    private static final String BASE_URL = "https://app.beaconbacon.io/api/v2/";
-    //Production Environment
-//    private static final String BASE_URL = "https://wayfindingkkb.dk/api/v2/";
-
-    private static final String API_KEY = "Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm";
     private static final String AUTHORIZATION = "Authorization";
 
     private ApiService apiService;
@@ -84,7 +78,7 @@ public class ApiManager {
     //region ApiService and Picasso Setup
     private void setupApiService() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(BeaconBaconManager.getInstance().getConfigurationObject().getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -105,7 +99,7 @@ public class ApiManager {
                     @Override
                     public Response intercept(@NonNull Chain chain) throws IOException {
                         Request newRequest = chain.request().newBuilder()
-                                .addHeader(AUTHORIZATION, API_KEY)
+                                .addHeader(AUTHORIZATION, BeaconBaconManager.getInstance().getConfigurationObject().getApiKey())
                                 .build();
 
                         return chain.proceed(newRequest);

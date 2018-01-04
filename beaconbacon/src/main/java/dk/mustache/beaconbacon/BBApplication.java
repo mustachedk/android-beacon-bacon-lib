@@ -42,55 +42,20 @@ import dk.mustache.beaconbacon.datamodels.AllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
 import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 
-public class BBApplication extends Application implements AllPlacesAsyncResponse {
-    public static final String TAG = "BeaconBacon";
+public class BBApplication extends Application {
     public static final String PLACE_SELECTION_FRAGMENT = "place_selection_fragment";
     public static final String POI_SELECTION_FRAGMENT = "poi_selection_fragment";
     public static final String PLACE_ID = "place_id";
     public static final String FAUST_ID = "faust_id";
-
-    public static final Integer MAP_REDUCTION_VALUE = 2;
 
     private static Context context;
     public static Context getContext(){
         return context;
     }
 
-    GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
-
     @Override
     public void onCreate() {
         super.onCreate();
         context = this;
-
-        //Instantiate our ApiManager
-        ApiManager.createInstance(this);
-        BeaconBaconManager.createInstance(this);
-
-        //Get the basics of All Places right away
-        getAllPlacesAsync.delegate = this;
-        ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
-    }
-
-    @Override
-    public void allPlacesAsyncFinished(JsonObject output) {
-        Log.i(TAG, "All places fetched");
-
-        //Map JsonObject output to the AllPlaces class
-        JsonElement mJson =  new JsonParser().parse(output.toString());
-        AllPlaces allPlaces = new Gson().fromJson(mJson, AllPlaces.class);
-
-        //Sort the Place's floors by Order
-        if(allPlaces.getData() != null) {
-            Collections.sort(allPlaces.getData(), new Comparator<BBPlace>() {
-                @Override
-                public int compare(BBPlace place1, BBPlace place2) {
-                    return place1.getOrder() - place2.getOrder();
-                }
-            });
-        }
-
-        //Set all places in our BeaconBaconManager
-        BeaconBaconManager.getInstance().setAllPlaces(allPlaces);
     }
 }

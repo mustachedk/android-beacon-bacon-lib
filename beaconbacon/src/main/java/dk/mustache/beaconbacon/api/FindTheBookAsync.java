@@ -49,7 +49,7 @@ public class FindTheBookAsync extends AsyncTask<String, Void, JsonObject> {
         data.addProperty("Faust", BeaconBaconManager.getInstance().getRequestObject().getFaust_id());
         jsonObject.add("data", data);
 
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().findTheBook(strings[0], jsonObject);
+        Call<JsonObject> call = ApiManager.getInstance().getApiService().findTheBook(strings[0], jsonObject, BeaconBaconManager.getInstance().getConfigurationObject().getApiKey());
 
         Response<JsonObject> response = null;
         try {

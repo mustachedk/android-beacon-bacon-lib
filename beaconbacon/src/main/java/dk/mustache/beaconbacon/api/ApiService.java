@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -35,30 +36,26 @@ THE SOFTWARE.
 
 public interface ApiService {
     @Headers({
-            "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",
             "Accept: application/json"
     })
     @GET("place")
-    Call<JsonObject> getAllPlaces();
+    Call<JsonObject> getAllPlaces(@Header("Authorization") String authorization);
 
     @Headers({
-            "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",
             "Accept: application/json"
     })
     @GET("place/{place_id}")
-    Call<JsonObject> getSpecificPlace(@Path("place_id") String place_id);
+    Call<JsonObject> getSpecificPlace(@Path("place_id") String place_id, @Header("Authorization") String authorization);
 
     @Headers({
-            "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",
             "Accept: application/json",
     })
     @GET("place/{place_id}/menu")
-    Call<JsonArray> getMenuOverview(@Path("place_id") String place_id);
+    Call<JsonArray> getMenuOverview(@Path("place_id") String place_id, @Header("Authorization") String authorization);
 
     @Headers({
-            "Authorization: Bearer $2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm",
             "Accept: application/json"
     })
     @POST("place/{place_id}/find")
-    Call<JsonObject> findTheBook(@Path("place_id") String place_id, @Body JsonObject body);
+    Call<JsonObject> findTheBook(@Path("place_id") String place_id, @Body JsonObject body, @Header("Authorization") String authorization);
 }
