@@ -25,8 +25,7 @@ THE SOFTWARE.
 
 import android.content.Context;
 
-import dk.mustache.beaconbacon.api.ApiManager;
-import dk.mustache.beaconbacon.datamodels.AllPlaces;
+import dk.mustache.beaconbacon.datamodels.BBAllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBConfigurationObject;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
 import dk.mustache.beaconbacon.datamodels.BBRequestObject;
@@ -36,7 +35,7 @@ public class BeaconBaconManager {
     private static BeaconBaconManager instance;
     private Context context;
 
-    private AllPlaces allPlaces;
+    private BBAllPlaces allPlaces;
     private BBPlace currentPlace;
     private Integer currentFloorIndex;
     private Integer currentFloorId;
@@ -68,11 +67,11 @@ public class BeaconBaconManager {
 
 
     //region Getters and Setters
-    public AllPlaces getAllPlaces() {
+    public BBAllPlaces getAllPlaces() {
         return allPlaces;
     }
 
-    public void setAllPlaces(AllPlaces allPlaces) {
+    public void setAllPlaces(BBAllPlaces allPlaces) {
         this.allPlaces = allPlaces;
     }
 

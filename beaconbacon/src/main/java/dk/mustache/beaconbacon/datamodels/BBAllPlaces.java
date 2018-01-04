@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 import java.util.List;
 
-public class AllPlaces {
+public class BBAllPlaces {
     private int total;
     private int per_page;
     private int current_page;
@@ -36,7 +36,7 @@ public class AllPlaces {
     private int to;
     private List<BBPlace> data;
 
-    public AllPlaces() {
+    public BBAllPlaces() {
     }
 
 

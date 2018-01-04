@@ -568,11 +568,30 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                 mapHolderView.clearAnimation();
                                 mapHolderView.animate().alpha(1).setDuration(200).start();
 
+<<<<<<< HEAD
+                            } else {
+                                Log.i("BeaconBaconActivity", "We're still finding a map image for this floor or setting up POI icons, retrying in 100ms");
+                                handler.postDelayed(this, 100);
+                            }
+                        }
+                    };
+                    handler.postDelayed(runnable, 10);
+                }
+            }).setDuration(300).start();
+=======
+>>>>>>> feature/clean-up
 
 
+<<<<<<< HEAD
+            int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
+            BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
+            mapView.setBackgroundColor(Color.parseColor(currentFloor.getMap_background_color()));
+//            mapView.setBackgroundColor(Color.RED); // TEST
+=======
                                 if (mapHolderView.poiHolderView != null) {
                                     mapHolderView.poiHolderView.floorWasSwitched();
                                 }
+>>>>>>> feature/clean-up
 
                                 int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
                                 BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
