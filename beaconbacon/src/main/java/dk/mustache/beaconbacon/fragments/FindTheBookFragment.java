@@ -35,9 +35,11 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.activities.BeaconBaconActivity;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 
 public class FindTheBookFragment extends Fragment implements View.OnClickListener {
     private RelativeLayout rootLayout;
@@ -65,6 +67,16 @@ public class FindTheBookFragment extends Fragment implements View.OnClickListene
         okBtn.setOnClickListener(this);
         okDontShowAgainBtn = view.findViewById(R.id.ftb_ok_dont_show_again_btn);
         okDontShowAgainBtn.setOnClickListener(this);
+
+        TextView header = view.findViewById(R.id.ftb_header);
+        TextView text = view.findViewById(R.id.ftb_text);
+
+        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null) {
+            header.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+            text.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+            okBtn.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+            okDontShowAgainBtn.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+        }
 
         return view;
     }

@@ -3,6 +3,7 @@
     android:id="@+id/ftb_root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="?attr/actionBarSize"
     android:gravity="center">
 
     <LinearLayout
@@ -21,24 +22,26 @@
         android:paddingTop="@dimen/general_vertical_margin">
 
         <TextView
+            android:id="@+id/ftb_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/general_vertical_margin"
+            android:layout_marginBottom="10dp"
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/ftb_is_here"
             android:textColor="@android:color/black"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <TextView
+            android:id="@+id/ftb_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/general_vertical_margin"
+            android:layout_marginBottom="10dp"
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/ftb_description"
             android:textColor="@android:color/black"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,26 +52,26 @@
                 android:id="@+id/ftb_ok_btn"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_marginEnd="@dimen/general_horizontal_margin"
                 android:layout_weight="1"
                 android:background="@android:color/black"
                 android:text="@string/general_ok"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                android:textSize="12sp" />
 
             <Button
                 android:id="@+id/ftb_ok_dont_show_again_btn"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_weight="1"
                 android:background="@android:color/black"
                 android:text="@string/general_ok_dont_show_again"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 

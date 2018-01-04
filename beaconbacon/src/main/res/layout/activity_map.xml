@@ -23,7 +23,9 @@
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
         android:background="@color/mapBackground"
-        android:src="@drawable/ic_close"/>
+        android:src="@drawable/ic_close">
+
+    </FrameLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -65,11 +67,14 @@
         android:id="@+id/map_progress_bar"
         style="?android:attr/progressBarStyleInverse"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="28dp" />
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
+
 </FrameLayout>

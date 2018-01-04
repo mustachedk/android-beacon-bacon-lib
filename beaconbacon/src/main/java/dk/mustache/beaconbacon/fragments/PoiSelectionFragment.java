@@ -90,22 +90,8 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
-            if(getActivity() != null) {
-                ((BeaconBaconActivity) getActivity()).setSelectedPois(selectedPois);
-                ((BeaconBaconActivity) getActivity()).fabPoi.show();
-
-                if(BeaconBaconManager.getInstance().getRequestObject() != null)
-                    ((BeaconBaconActivity) getActivity()).fabFindTheBook.show();
-
-                if(((BeaconBaconActivity) getActivity()).snackbar != null) {
-                    ((BeaconBaconActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
-                    ((BeaconBaconActivity) getActivity()).snackbar.getView().animate()
-                            .alpha(1)
-                            .setDuration(300)
-                            .start();
-                }
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
+            if(getActivity() != null)
+                ((BeaconBaconActivity) getActivity()).closePoiSelectionFragment(selectedPois);
 
             return true;
         }

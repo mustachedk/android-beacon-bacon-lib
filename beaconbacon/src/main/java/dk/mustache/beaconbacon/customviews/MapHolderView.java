@@ -447,8 +447,8 @@ public class MapHolderView extends AppCompatImageView {
     public void scrollToBook() {
         // Translate the map
         float snackBarHeight = dpToPx(70); // TODO: Get from actual sncakbar.
-        float centerScreenX = metrics.widthPixels / 2;
-        float centerScreenY = metrics.heightPixels / 2;
+        float centerScreenX = this.getWidth() / 2;
+        float centerScreenY = this.getHeight() / 2;
 
         float posX;
         float posY;
@@ -460,16 +460,16 @@ public class MapHolderView extends AppCompatImageView {
             posY = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosY();
         }
 
-        float offsetX = mapCurrentX() + centerScreenX - posX * mapCurrentScaleX();
-        float offsetY = mapCurrentY() + centerScreenY - posY * mapCurrentScaleY();
+        float offsetX = -mapCurrentX() + centerScreenX - posX * mapCurrentScaleX();
+        float offsetY = -mapCurrentY() + centerScreenY - posY * mapCurrentScaleY();
 
         //Should we display FTB Info?
         SharedPreferences sharedPref = context.getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
         if (!sharedPref.getBoolean("ftb_onboarding_info", false) && !hasShownFTBAlert) {
             final Handler handler = new Handler();
 
-            final Runnable runnable = createRunnable(handler, offsetX, offsetX);
-            handler.postDelayed(runnable, 100);
+            final Runnable runnable = createRunnable(handler, offsetX, offsetY);
+            handler.postDelayed(runnable, 0);
 
         } else {
             postTranslateAll(offsetX, offsetY);
@@ -485,10 +485,10 @@ public class MapHolderView extends AppCompatImageView {
 
                 if (BeaconBaconActivity.boxHeight != -1) {
                     hasShownFTBAlert = true;
-                    postTranslateAll(offsetX, offsetY + BeaconBaconActivity.boxHeight - 50);
+                    postTranslateAll(offsetX, offsetY +  BeaconBaconActivity.boxHeight/2 + dpToPx(15));
                     invalidate();
                 } else {
-                    handler.postDelayed(this, 100);
+                    handler.postDelayed(this, 10);
                 }
             }
         };

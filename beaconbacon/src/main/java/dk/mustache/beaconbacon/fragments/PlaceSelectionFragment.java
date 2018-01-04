@@ -79,6 +79,8 @@ public class PlaceSelectionFragment extends Fragment {
         return view;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -89,24 +91,7 @@ public class PlaceSelectionFragment extends Fragment {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
             if(getActivity() != null)
-                ((BeaconBaconActivity) getActivity()).fabPoi.show();
-
-            if(getActivity() != null && BeaconBaconManager.getInstance().getRequestObject() != null)
-                ((BeaconBaconActivity) getActivity()).fabFindTheBook.show();
-
-            if(((BeaconBaconActivity) getActivity()).snackbar != null) {
-                ((BeaconBaconActivity) getActivity()).snackbar.getView().setVisibility(View.VISIBLE);
-                ((BeaconBaconActivity) getActivity()).snackbar.getView().animate()
-                        .alpha(1)
-                        .setDuration(300)
-                        .start();
-            }
-
-            //If we have no place, just finish
-            if(BeaconBaconManager.getInstance().getCurrentPlace() == null)
-                getActivity().finish();
-            else
-                getActivity().getSupportFragmentManager().popBackStack();
+                ((BeaconBaconActivity) getActivity()).closePlaceSelectionFragment();
 
             return true;
         }

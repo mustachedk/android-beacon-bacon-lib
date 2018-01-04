@@ -183,6 +183,22 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         BeaconBaconManager.getInstance().setCurrentFloorIndex(-1);
         BeaconBaconManager.getInstance().setCurrentFloorId(-1);
     }
+
+    @Override
+    public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            Log.d("Backstack entry 0 name", getSupportFragmentManager().getBackStackEntryAt(0).getName());
+
+            if (Objects.equals(getSupportFragmentManager().getBackStackEntryAt(0).getName(), PLACE_SELECTION_FRAGMENT))
+                closePlaceSelectionFragment();
+            else if (Objects.equals(getSupportFragmentManager().getBackStackEntryAt(0).getName(), POI_SELECTION_FRAGMENT))
+                closePoiSelectionFragment(poiSelectionFragment.selectedPois);
+        } else {
+            super.onBackPressed();
+        }
+
+    }
+
     //endregion
 
 
@@ -234,11 +250,11 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         //FABs
         fabPoi = findViewById(R.id.map_poi_fab);
         fabPoi.setOnClickListener(this);
-        fabPoi.setColorFilter(new PorterDuffColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP));
+        fabPoi.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP));
 
         fabFindTheBook = findViewById(R.id.map_ftb_fab);
         fabFindTheBook.setOnClickListener(this);
-        fabFindTheBook.setColorFilter(new PorterDuffColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP));
+        fabFindTheBook.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP));
 
 
         if (BeaconBaconManager.getInstance().getRequestObject() != null && BeaconBaconManager.getInstance().getRequestObject().getImage() != null) {
@@ -358,7 +374,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                         R.anim.slide_in_bottom,
                                         R.anim.slide_out_bottom)
                     .replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT)
-                    .addToBackStack(null)
+                    .addToBackStack(PLACE_SELECTION_FRAGMENT)
                     .commit();
 
         } else if (viewId == R.id.map_poi_fab) {
@@ -371,7 +387,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                             R.anim.slide_in_bottom,
                             R.anim.slide_out_bottom)
                     .replace(R.id.fragment_container, poiSelectionFragment, POI_SELECTION_FRAGMENT)
-                    .addToBackStack(null)
+                    .addToBackStack(POI_SELECTION_FRAGMENT)
                     .commit();
 
         } else if (viewId == R.id.map_ftb_fab) {
@@ -971,6 +987,44 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         GetSpecificPlaceAsync getSpecificPlaceAsync = new GetSpecificPlaceAsync();
         getSpecificPlaceAsync.delegate = this;
         ApiManager.getInstance().fetchSpecificPlaceAsync(getSpecificPlaceAsync, String.valueOf(newCurrentPlace.getId()));
+    }
+
+    public void closePlaceSelectionFragment() {
+        fabPoi.show();
+
+        if(BeaconBaconManager.getInstance().getRequestObject() != null)
+            fabFindTheBook.show();
+
+        if(snackbar != null) {
+            snackbar.getView().setVisibility(View.VISIBLE);
+            snackbar.getView().animate()
+                    .alpha(1)
+                    .setDuration(300)
+                    .start();
+        }
+
+        //If we have no place, just finish
+        if(BeaconBaconManager.getInstance().getCurrentPlace() == null)
+            finish();
+        else
+            getSupportFragmentManager().popBackStack();
+    }
+
+    public void closePoiSelectionFragment(List<BBPoi> selectedPois) {
+        setSelectedPois(selectedPois);
+        fabPoi.show();
+
+        if(BeaconBaconManager.getInstance().getRequestObject() != null)
+            fabFindTheBook.show();
+
+        if(snackbar != null) {
+            snackbar.getView().setVisibility(View.VISIBLE);
+            snackbar.getView().animate()
+                    .alpha(1)
+                    .setDuration(300)
+                    .start();
+        }
+        getSupportFragmentManager().popBackStack();
     }
     //endregion
 
