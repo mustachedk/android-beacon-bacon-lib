@@ -40,6 +40,9 @@ import dk.mustache.beaconbacon.R;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBResponseObject;
 
+/**
+ * Treat this as a Black Box
+ */
 public class PoiHolderView extends AppCompatImageView {
     private Context context;
 

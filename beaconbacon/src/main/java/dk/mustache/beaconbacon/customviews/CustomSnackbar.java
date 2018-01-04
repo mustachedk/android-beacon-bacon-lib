@@ -74,7 +74,6 @@ public class CustomSnackbar extends BaseTransientBottomBar<CustomSnackbar> {
         if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
             textSubheader.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
-        //TODO Validate on Pre 21 devices
         customSnackbar.getView().setElevation(0.0f);
 
         return customSnackbar;

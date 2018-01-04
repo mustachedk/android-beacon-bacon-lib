@@ -3,7 +3,6 @@
     <string name="action_close">Luk</string>
     <string name="toolbar_chevron_left">Naviger til venstre i steder</string>
     <string name="toolbar_chevron_right">Naviger til højre i steder</string>
-    <string name="toolbar_place_title">Navn på sted</string>
     <string name="toolbar_poi_selection">Interessepunkter</string>
     <string name="toolbar_place_selection">Vælg bibliotek</string>
 

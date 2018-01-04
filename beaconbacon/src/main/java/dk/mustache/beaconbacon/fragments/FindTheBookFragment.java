@@ -85,20 +85,24 @@ public class FindTheBookFragment extends Fragment implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ftb_root_view:
-                getActivity().getSupportFragmentManager().popBackStack();
+                if(getActivity() != null)
+                    getActivity().getSupportFragmentManager().popBackStack();
                 break;
 
             case R.id.ftb_ok_btn:
-                getActivity().getSupportFragmentManager().popBackStack();
+                if(getActivity() != null)
+                    getActivity().getSupportFragmentManager().popBackStack();
                 break;
 
             case R.id.ftb_ok_dont_show_again_btn:
-                SharedPreferences sharedPref = getActivity().getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putBoolean("ftb_onboarding_info", true);
-                editor.apply();
+                if(getActivity() != null) {
+                    SharedPreferences sharedPref = getActivity().getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putBoolean("ftb_onboarding_info", true);
+                    editor.apply();
 
-                getActivity().getSupportFragmentManager().popBackStack();
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
                 break;
         }
     }

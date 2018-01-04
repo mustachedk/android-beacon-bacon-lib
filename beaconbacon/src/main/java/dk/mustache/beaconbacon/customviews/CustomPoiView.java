@@ -29,9 +29,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
-import android.graphics.Region;
-import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -46,6 +43,9 @@ import dk.mustache.beaconbacon.data.BeaconBaconManager;
 
 import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 
+/**
+ * Treat this as a Black Box
+ */
 public class CustomPoiView {
     private Context context;
 

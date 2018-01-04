@@ -76,7 +76,6 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/ftb_window_arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ftb_box_layout"

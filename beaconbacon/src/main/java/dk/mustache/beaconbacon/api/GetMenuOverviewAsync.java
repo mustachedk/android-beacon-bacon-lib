@@ -36,6 +36,8 @@ import dk.mustache.beaconbacon.interfaces.MenuOverviewAsyncResponse;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static dk.mustache.beaconbacon.BBApplication.PLACE_ID;
+
 public class GetMenuOverviewAsync extends AsyncTask<String, Void, Bundle> {
     public MenuOverviewAsyncResponse delegate = null;
 
@@ -56,7 +58,7 @@ public class GetMenuOverviewAsync extends AsyncTask<String, Void, Bundle> {
         if(response != null && response.body() != null)
             bundle.putString("json", response.body().toString());
 
-        bundle.putString("place_id", strings[0]);
+        bundle.putString(PLACE_ID, strings[0]);
 
         return bundle;
     }

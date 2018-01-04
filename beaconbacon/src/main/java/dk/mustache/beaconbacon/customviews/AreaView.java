@@ -38,10 +38,6 @@ public class AreaView extends FrameLayout {
         super(context);
     }
 
-    public AreaView(Context context, int color) {
-        super(context);
-    }
-
     public AreaView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }

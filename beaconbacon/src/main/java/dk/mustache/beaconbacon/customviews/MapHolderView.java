@@ -52,6 +52,9 @@ import dk.mustache.beaconbacon.enums.PoiType;
 import static android.graphics.Matrix.*;
 import static dk.mustache.beaconbacon.utils.Converter.dpToPx;
 
+/**
+ * Treat this as a Black Box
+ */
 public class MapHolderView extends AppCompatImageView {
     private Context context;
 
@@ -480,7 +483,7 @@ public class MapHolderView extends AppCompatImageView {
 
     private Runnable createRunnable(final Handler handler, final float offsetX, final float offsetY){
 
-        Runnable aRunnable = new Runnable(){
+        Runnable runnable = new Runnable(){
             public void run(){
 
                 if (BeaconBaconActivity.boxHeight != -1) {
@@ -493,9 +496,10 @@ public class MapHolderView extends AppCompatImageView {
             }
         };
 
-        return aRunnable;
+        return runnable;
 
     }
+
     private void postTranslateAll(float x, float y) {
         matrix.postTranslate(x, y);
         poiHolderView.mapWasTranslated(x, y);
