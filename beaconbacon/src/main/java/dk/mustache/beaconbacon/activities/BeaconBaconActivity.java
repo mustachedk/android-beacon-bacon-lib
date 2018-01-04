@@ -433,6 +433,8 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             snackbar.dismiss();
         }
 
+        
+
         BeaconBaconManager.getInstance().setRequestObject(null);
         mapHolderView.setFindTheBook(null, null);
         mapHolderView.findTheBookAreaObject = null;
