@@ -147,8 +147,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
     //Booleans for AsyncTasks to update map synchronously
     private boolean isFindingBook;
-    private boolean isFindingSpecificPlace;
-    private boolean isFindingMenuForPlace;
     private boolean isFindingFloorImage;
     private boolean isFindingPoiIcons;
     private boolean bookWasFound;
@@ -396,15 +394,22 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
 
 
-    //FIXME - Cleanup + Structure this neatly
-    //region Find the Book
-    private void checkIfBookWasFound() {
-        if (!bookWasFound) {
-            showAlert(getString(R.string.alert_title_find_book), String.format(getString(R.string.alert_message_find_book), BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getCurrentPlace().getName()));
-            hideFindTheBookElements();
-        }
+    //region Find The Book
+    /**
+     * Initiates an AsyncTask to Find the book
+     */
+    public void findABook(String place_id) {
+        isFindingBook = true;
+
+        //A Request object was set, lets find the book
+        FindTheBookAsync findTheBookAsync = new FindTheBookAsync();
+        findTheBookAsync.delegate = this;
+        ApiManager.getInstance().findTheBookAsync(findTheBookAsync, place_id);
     }
 
+    /**
+     * Hides all UI Elements (Snackbar and Fab) related to FindTheBook, and resets FindTheBook variables
+     */
     private void hideFindTheBookElements() {
         fabFindTheBook.setVisibility(View.GONE);
         if (snackbar != null) {
@@ -417,6 +422,9 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         mapHolderView.findTheBookAreaObject = null;
     }
 
+    /**
+     * Handles the initialization of a custom Snackbar for FindTheBook
+     */
     @SuppressLint("Range")
     private void showFindTheBookSnackbar() {
         snackbar = CustomSnackbar.make(rootView, CustomSnackbar.LENGTH_INDEFINITE);
@@ -448,53 +456,40 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         snackbar.show();
     }
     //endregion
-    //region Place and Find The Book initialization
+
+
+
+    //region Place
+    /**
+     * Handles the initialization of a PlaceSelectionFragment
+     */
     private void openPlaceSelectionFragment() {
-        final Handler handler = new Handler();
-        final Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (BeaconBaconManager.getInstance().getAllPlaces() != null && BeaconBaconManager.getInstance().getAllPlaces().getData() != null) {
-                    //We haven't gotten a place, let's prompt the user to select one
-                    hideGuiElements();
-                    progressBar.setVisibility(View.GONE);
+        if (BeaconBaconManager.getInstance().getAllPlaces() != null && BeaconBaconManager.getInstance().getAllPlaces().getData() != null) {
+            //We haven't gotten a place, let's prompt the user to select one
+            hideGuiElements();
+            progressBar.setVisibility(View.GONE);
 
-                    placeSelectionFragment = new PlaceSelectionFragment();
-                    getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.hold_anim, R.anim.slide_out_bottom, R.anim.hold_anim, R.anim.slide_out_bottom).replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT).addToBackStack(null).commit();
-                } else {
-                    Log.i("BeaconBaconActivity", "GetAllPlaces has not been set yet, or contains no data, retrying in 10ms");
-                    handler.postDelayed(this, 10);
-                }
+            placeSelectionFragment = new PlaceSelectionFragment();
+            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.hold_anim, R.anim.slide_out_bottom, R.anim.hold_anim, R.anim.slide_out_bottom).replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT).addToBackStack(null).commit();
 
-            }
-        };
-        handler.postDelayed(runnable, 10);
-    }
+        } else {
+            //Call to get all places has not been made display error in console
+            Log.e("BeaconBaconActivity", "Faust id provided, but no Request Object was set. Create a new BBRequestObject and set it to the BeaconBaconManager before opening the BeaconBaconActivity.");
 
-    private void hideGuiElements() {
-        fabPoi.hide();
-        fabFindTheBook.hide();
-        if (snackbar != null) {
-            snackbar.getView().animate().alpha(0).withEndAction(new Runnable() {
-                @Override
-                public void run() {
-                    snackbar.getView().setVisibility(View.GONE);
-                }
-            }).setDuration(300).start();
+            //Fetch all places
+            GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
+
+            ApiManager.createInstance(BBApplication.getContext());
+
+            getAllPlacesAsync.delegate = this;
+            ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
         }
     }
 
-    public void findABook(String place_id) {
-        isFindingBook = true;
-
-        //A Request object was set, lets find the book
-        FindTheBookAsync findTheBookAsync = new FindTheBookAsync();
-        findTheBookAsync.delegate = this;
-        ApiManager.getInstance().findTheBookAsync(findTheBookAsync, place_id);
-    }
-
+    /**
+     * Initiates an AsyncTask to find a specific place
+     */
     private void findSpecificPlace(String place_id, boolean awaitFindBook) {
-        isFindingSpecificPlace = true;
         isFindingBook = awaitFindBook;
 
         //Initiate Fetch Specific Place
@@ -506,7 +501,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
 
 
-    //FIXME - Cleanup
     /**
      * This region handles actual updates to the UI
      */
@@ -521,11 +515,10 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
     private void updateToolbarTitle(BBPlace newCurrentPlace) {
         toolbarSubtitle.setText(newCurrentPlace.getName());
-        if (newCurrentPlace.getFloors() != null && newCurrentPlace.getFloors().size() != 0) {
+        if (newCurrentPlace.getFloors() != null && newCurrentPlace.getFloors().size() != 0)
             toolbarTitle.setText(newCurrentPlace.getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex()).getName());
-        } else {
+        else
             toolbarTitle.setText("-");
-        }
 
         updateArrows(0);
     }
@@ -629,15 +622,32 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    /**
+     * Get the menu overview for the provided place
+     *
+     * @param place BBPlace for which to find Menu Overview
+     */
     private void updateMenuOverview(BBPlace place) {
-        isFindingMenuForPlace = true;
-
-        //Get the menu overview right away
         GetMenuOverviewAsync getMenuOverviewAsync = new GetMenuOverviewAsync();
         getMenuOverviewAsync.delegate = this;
         ApiManager.getInstance().fetchMenuOverviewAsync(getMenuOverviewAsync, String.valueOf(place.getId()));
     }
 
+    /**
+     * Update Current Place
+     *
+     * @param newCurrentPlace BBPlace to set as current
+     */
+    private void updateCurrentPlace(BBPlace newCurrentPlace) {
+        progressBar.setVisibility(View.VISIBLE);
+        BeaconBaconManager.getInstance().setCurrentPlace(newCurrentPlace);
+    }
+
+    /**
+     * Update Place
+     *
+     * @param place BBPlace to update
+     */
     private void updatePlace(BBPlace place) {
         if(selectedPois != null)
             selectedPois.clear();
@@ -675,6 +685,44 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    /**
+     * Update Floor
+     *
+     * @param newCurrentFloorIndex new floor index
+     * @param newCurrentFloorId new floor id
+     */
+    private void updateCurrentFloor(int newCurrentFloorIndex, int newCurrentFloorId) {
+        progressBar.setVisibility(View.VISIBLE);
+
+        BeaconBaconManager.getInstance().setCurrentFloorIndex(newCurrentFloorIndex);
+        BeaconBaconManager.getInstance().setCurrentFloorId(newCurrentFloorId);
+        BBPlace currentPlace = BeaconBaconManager.getInstance().getCurrentPlace();
+
+        if (currentPlace.getFloors() != null && currentPlace.getFloors().size() > 0 && !Objects.equals(currentPlace.getFloors().get(newCurrentFloorIndex).getImage(), "")) {
+            // Set BEFORE Invoking Async Tasks.
+            isFindingFloorImage = true;
+            isFindingPoiIcons = true;
+
+            GetFloorImageAsync getFloorImageAsync = new GetFloorImageAsync();
+            getFloorImageAsync.delegate = this;
+            ApiManager.getInstance().getFloorImage(getFloorImageAsync);
+
+            GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
+            getIconImageAsync.delegate = this;
+            ApiManager.getInstance().getIconImage(this, getIconImageAsync, selectedPois);
+
+        } else {
+            mapHolderView.setMapPois(null);
+            mapHolderView.setFindTheBook(null, null);
+            mapHolderView.setImageBitmap(null);
+        }
+    }
+
+    /**
+     * Updates the arrows in the Toolbar
+     *
+     * @param direction which the user pressed (1 for right, -1 for left)
+     */
     private void updateArrows(int direction) {
         if (BeaconBaconManager.getInstance().getCurrentPlace() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size() != 0) {
 
@@ -719,43 +767,10 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             arrowRight.setImageDrawable(getResources().getDrawable(R.drawable.ic_chevron_right_light));
         }
     }
-
-    private void updateCurrentFloor(int newCurrentFloorIndex, int newCurrentFloorId) {
-        progressBar.setVisibility(View.VISIBLE);
-
-        BeaconBaconManager.getInstance().setCurrentFloorIndex(newCurrentFloorIndex);
-        BeaconBaconManager.getInstance().setCurrentFloorId(newCurrentFloorId);
-        BBPlace currentPlace = BeaconBaconManager.getInstance().getCurrentPlace();
-
-        if (currentPlace.getFloors() != null && currentPlace.getFloors().size() > 0 && !Objects.equals(currentPlace.getFloors().get(newCurrentFloorIndex).getImage(), "")) {
-            // Set BEFORE Invoking Async Tasks.
-            isFindingFloorImage = true;
-            isFindingPoiIcons = true;
-
-            GetFloorImageAsync getFloorImageAsync = new GetFloorImageAsync();
-            getFloorImageAsync.delegate = this;
-            ApiManager.getInstance().getFloorImage(getFloorImageAsync);
-
-            GetIconImageAsync getIconImageAsync = new GetIconImageAsync();
-            getIconImageAsync.delegate = this;
-            ApiManager.getInstance().getIconImage(this, getIconImageAsync, selectedPois);
-
-        } else {
-            mapHolderView.setMapPois(null);
-            mapHolderView.setFindTheBook(null, null);
-            mapHolderView.setImageBitmap(null);
-        }
-    }
-
-    private void updateCurrentPlace(BBPlace newCurrentPlace) {
-        progressBar.setVisibility(View.VISIBLE);
-        BeaconBaconManager.getInstance().setCurrentPlace(newCurrentPlace);
-    }
     //endregion
 
 
 
-    //FIXME - Cleanup
     /**
      * This region handles implementation of Interfaces exposed to the Async Tasks
      */
@@ -789,7 +804,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void specificPlaceAsyncFinished(final JsonObject output) {
         Log.i("BeaconBaconActivity", "Place found, updating layout.");
-        isFindingSpecificPlace = false;
 
         if (output != null) {
             final Handler handler = new Handler();
@@ -804,8 +818,11 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                         updatePlace(place);
                         updateMenuOverview(place);
 
-                        if (BeaconBaconManager.getInstance().getRequestObject() != null)
-                            checkIfBookWasFound();
+                        if (BeaconBaconManager.getInstance().getRequestObject() != null && !bookWasFound) {
+                            showAlert(getString(R.string.alert_title_find_book), String.format(getString(R.string.alert_message_find_book), BeaconBaconManager.getInstance().getRequestObject().getTitle(), BeaconBaconManager.getInstance().getCurrentPlace().getName()));
+                            hideFindTheBookElements();
+                        }
+
                     } else {
                         Log.i("BeaconBaconActivity", "We're currently locating an item for this place, retrying in 100ms");
                         handler.postDelayed(this, 100);
@@ -960,7 +977,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
 
     /**
-     * This region handles everything else, right now, only displaying alerts
+     * This region handles everything else, right now, only displaying alerts and hiding UI elements
      */
     //region Misc
     private void showAlert(String title, String message) {
@@ -975,6 +992,19 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void hideGuiElements() {
+        fabPoi.hide();
+        fabFindTheBook.hide();
+        if (snackbar != null) {
+            snackbar.getView().animate().alpha(0).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    snackbar.getView().setVisibility(View.GONE);
+                }
+            }).setDuration(300).start();
+        }
     }
     //endregion
 }
