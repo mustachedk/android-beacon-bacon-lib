@@ -30,7 +30,7 @@ import com.google.gson.JsonObject;
 
 import java.io.IOException;
 
-import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -42,7 +42,7 @@ public class GetAllPlacesAsync extends AsyncTask<Void, Void, JsonObject> {
     @Override
     protected JsonObject doInBackground(Void... voids) {
 
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getAllPlaces();
+        Call<JsonObject> call = ApiManager.getInstance().getApiService().getAllPlaces(BeaconBaconManager.getInstance().getConfigurationObject().getApiKey());
 
         Response<JsonObject> response = null;
         try {

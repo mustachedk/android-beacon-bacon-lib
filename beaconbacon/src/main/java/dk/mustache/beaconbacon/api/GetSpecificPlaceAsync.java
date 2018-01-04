@@ -30,6 +30,7 @@ import com.google.gson.JsonObject;
 
 import java.io.IOException;
 
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.interfaces.SpecificPlaceAsyncResponse;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -40,7 +41,7 @@ public class GetSpecificPlaceAsync extends AsyncTask<String, Void, JsonObject> {
     @Override
     protected JsonObject doInBackground(String... strings) {
 
-        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0]);
+        Call<JsonObject> call = ApiManager.getInstance().getApiService().getSpecificPlace(strings[0], BeaconBaconManager.getInstance().getConfigurationObject().getApiKey());
 
         Response<JsonObject> response = null;
         try {

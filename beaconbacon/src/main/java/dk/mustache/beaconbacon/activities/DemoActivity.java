@@ -29,20 +29,36 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 
+import dk.mustache.beaconbacon.BBApplication;
 import dk.mustache.beaconbacon.R;
+import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.api.GetAllPlacesAsync;
 import dk.mustache.beaconbacon.data.BeaconBaconManager;
+import dk.mustache.beaconbacon.datamodels.AllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBConfigurationObject;
+import dk.mustache.beaconbacon.datamodels.BBPlace;
 import dk.mustache.beaconbacon.datamodels.BBRequestObject;
+import dk.mustache.beaconbacon.interfaces.AllPlacesAsyncResponse;
 
 import static dk.mustache.beaconbacon.BBApplication.FAUST_ID;
 import static dk.mustache.beaconbacon.BBApplication.PLACE_ID;
 
-public class DemoActivity extends AppCompatActivity implements View.OnClickListener {
+public class DemoActivity extends AppCompatActivity implements View.OnClickListener, AllPlacesAsyncResponse {
+    public static final String TAG = "BeaconBacon";
+
     private Button configNoStyle;
     private Button configStyle1;
     private Button configStyle2;
@@ -54,6 +70,17 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
     private String placeId = null;
 //    private String faustId = "29715394"; // POI
     private String faustId = "24120236"; // Area
+
+
+    //Test Environment
+    private String baseUrl = "https://app.beaconbacon.io/api/v2/";
+    //Production Environment
+    //private String baseUrl = "https://wayfindingkkb.dk/api/v2/";
+
+    private String apiKey = "$2y$10$xNbv82pkfvDT7t4I2cwkLu4csCtd75PIZ/G06LylcMnjwdj/vmJtm";
+
+    GetAllPlacesAsync getAllPlacesAsync = new GetAllPlacesAsync();
+
 
 
     @Override
@@ -84,6 +111,39 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
 
         mapNoWayfinding.setOnClickListener(this);
         mapWayfinding.setOnClickListener(this);
+
+        BeaconBaconManager.createInstance(BBApplication.getContext());
+    }
+
+    private void initBeaconBacon() {
+        //Instantiate our ApiManager
+        ApiManager.createInstance(BBApplication.getContext());
+
+        //Get the basics of All Places right away
+        getAllPlacesAsync.delegate = this;
+        ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
+    }
+
+    @Override
+    public void allPlacesAsyncFinished(JsonObject output) {
+        Log.i(TAG, "All places fetched");
+
+        //Map JsonObject output to the AllPlaces class
+        JsonElement mJson =  new JsonParser().parse(output.toString());
+        AllPlaces allPlaces = new Gson().fromJson(mJson, AllPlaces.class);
+
+        //Sort the Place's floors by Order
+        if(allPlaces.getData() != null) {
+            Collections.sort(allPlaces.getData(), new Comparator<BBPlace>() {
+                @Override
+                public int compare(BBPlace place1, BBPlace place2) {
+                    return place1.getOrder() - place2.getOrder();
+                }
+            });
+        }
+
+        //Set all places in our BeaconBaconManager
+        BeaconBaconManager.getInstance().setAllPlaces(allPlaces);
     }
 
     @Override
@@ -95,12 +155,12 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.config_style_1:
                 setConfigBtnColor(configStyle1);
-                applyConfiguration("Arial.ttf", android.R.color.holo_red_dark);
+                applyConfiguration("Arial.ttf", android.R.color.holo_red_dark, baseUrl, apiKey);
                 break;
 
             case R.id.config_style_2:
                 setConfigBtnColor(configStyle2);
-                applyConfiguration("Courier New.ttf", android.R.color.holo_green_dark);
+                applyConfiguration("Courier New.ttf", android.R.color.holo_green_dark, baseUrl, apiKey);
                 break;
 
             case R.id.place_kbh_bib:
@@ -145,12 +205,14 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
         button.setBackgroundColor(getResources().getColor(R.color.mapBackground));
     }
 
-    private void applyConfiguration(String fontName, int color) {
+    private void applyConfiguration(String fontName, int color, String baseUrl, String apiKey) {
         AssetManager assetManager = getApplicationContext().getAssets();
         Typeface typeface = Typeface.createFromAsset(assetManager, String.format(Locale.getDefault(), "fonts/%s", fontName));
 
         //Apply to a new Configuration Object
-        BeaconBaconManager.getInstance().setConfigurationObject(new BBConfigurationObject(typeface, color));
+        BeaconBaconManager.getInstance().setConfigurationObject(new BBConfigurationObject(typeface, color, baseUrl, String.format("Bearer %s", apiKey)));
+
+        initBeaconBacon();
     }
 
     private void setPlaceBtnColor(Button button) {

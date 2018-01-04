@@ -175,7 +175,6 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     }
     //endregion
 
-
     private void init() {
         //Get place_id and faust_id if any
         String place_id = getIntent().getStringExtra(PLACE_ID);

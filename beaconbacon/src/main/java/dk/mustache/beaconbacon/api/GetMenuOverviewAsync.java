@@ -31,6 +31,7 @@ import com.google.gson.JsonArray;
 import java.io.IOException;
 
 import dk.mustache.beaconbacon.api.ApiManager;
+import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.interfaces.MenuOverviewAsyncResponse;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -41,7 +42,7 @@ public class GetMenuOverviewAsync extends AsyncTask<String, Void, Bundle> {
     @Override
     protected Bundle doInBackground(String... strings) {
 
-        Call<JsonArray> call = ApiManager.getInstance().getApiService().getMenuOverview(strings[0]);
+        Call<JsonArray> call = ApiManager.getInstance().getApiService().getMenuOverview(strings[0], BeaconBaconManager.getInstance().getConfigurationObject().getApiKey());
 
         Response<JsonArray> response = null;
         try {

@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 import android.content.Context;
 
+import dk.mustache.beaconbacon.api.ApiManager;
 import dk.mustache.beaconbacon.datamodels.AllPlaces;
 import dk.mustache.beaconbacon.datamodels.BBConfigurationObject;
 import dk.mustache.beaconbacon.datamodels.BBPlace;
