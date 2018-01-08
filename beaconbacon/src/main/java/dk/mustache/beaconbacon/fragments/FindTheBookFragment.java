@@ -83,27 +83,25 @@ public class FindTheBookFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.ftb_root_view:
-                if(getActivity() != null)
-                    getActivity().getSupportFragmentManager().popBackStack();
-                break;
+        int i = view.getId();
+        if (i == R.id.ftb_root_view) {
+            if (getActivity() != null)
+                getActivity().getSupportFragmentManager().popBackStack();
 
-            case R.id.ftb_ok_btn:
-                if(getActivity() != null)
-                    getActivity().getSupportFragmentManager().popBackStack();
-                break;
+        } else if (i == R.id.ftb_ok_btn) {
+            if (getActivity() != null)
+                getActivity().getSupportFragmentManager().popBackStack();
 
-            case R.id.ftb_ok_dont_show_again_btn:
-                if(getActivity() != null) {
-                    SharedPreferences sharedPref = getActivity().getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putBoolean("ftb_onboarding_info", true);
-                    editor.apply();
+        } else if (i == R.id.ftb_ok_dont_show_again_btn) {
+            if (getActivity() != null) {
+                SharedPreferences sharedPref = getActivity().getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean("ftb_onboarding_info", true);
+                editor.apply();
 
-                    getActivity().getSupportFragmentManager().popBackStack();
-                }
-                break;
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+
         }
     }
 }
