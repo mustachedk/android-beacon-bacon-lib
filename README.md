@@ -4,12 +4,12 @@
 
    (Read how to setup Places / Points of Interest / Beacons etc. [here](https://github.com/nosuchagency/beacon-bacon))
 2. Import the beacon-bacon-android library into your project
-  * Using gradle, add the library to your application's dependency list `implementation 'com.github.mustachedk:android-beacon-bacon-lib:1.0.0'`
+  * Using gradle, add the library to your application's dependency list `implementation 'com.github.mustachedk:android-beacon-bacon-lib:1.0.1'`
 3. Follow the instructions below to start using Beacon-Bacon
 
 
 ## How to use
-You can see an example of using the library in the [Beacon-Bacon Android Demo](/*Link goes here*/)
+You can see an example of using the library in the [Beacon-Bacon Android Demo Project](https://github.com/mustachedk/android-beacon-bacon-demo)
 
 ### Configure API and UI
 ```Java
