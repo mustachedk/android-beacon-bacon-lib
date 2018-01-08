@@ -393,7 +393,9 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
         } else if (viewId == R.id.map_ftb_fab) {
             for (int j = 0; j < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); j++) {
                 if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(j).getId()) {
-                    updateCurrentFloor(j, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
+                    if(BeaconBaconManager.getInstance().getCurrentFloorId() != BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId())
+                        updateCurrentFloor(j, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
+
                     mapHolderView.scrollToBook();
                     break;
                 }
@@ -426,7 +428,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     /**
      * Hides all UI Elements (Snackbar and Fab) related to FindTheBook, and resets FindTheBook variables
      */
-    private void hideFindTheBookElements() {
+    public void hideFindTheBookElements() {
         fabFindTheBook.setVisibility(View.GONE);
         if (snackbar != null) {
             snackbar.getView().setVisibility(View.GONE);

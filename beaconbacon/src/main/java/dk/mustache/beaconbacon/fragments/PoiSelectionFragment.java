@@ -104,7 +104,8 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
         if(selectedPois == null)
             selectedPois = new ArrayList<>();
 
-        selectedPois.add(poi);
+        if(!selectedPois.contains(poi))
+            selectedPois.add(poi);
     }
 
     @Override
@@ -114,6 +115,6 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
 
     @Override
     public void removeAllPois() {
-        selectedPois = null;
+        selectedPois.clear();
     }
 }

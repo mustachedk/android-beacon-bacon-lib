@@ -122,6 +122,7 @@ public class MapHolderView extends AppCompatImageView {
     //endregion
 
 
+
     //region Draw & Touch
     @Override
     protected void onDraw(Canvas canvas) {
@@ -497,7 +498,6 @@ public class MapHolderView extends AppCompatImageView {
         };
 
         return runnable;
-
     }
 
     private void postTranslateAll(float x, float y) {

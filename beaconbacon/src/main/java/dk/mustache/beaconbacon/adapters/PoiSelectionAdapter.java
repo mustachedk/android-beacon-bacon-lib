@@ -125,7 +125,8 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                             selectedPois = new ArrayList<>();
 
                         addSelectedPoisInterface.addSelectedPoi(poiMenuItems.get(position).getPoi());
-                        selectedPois.add(poiMenuItems.get(position).getPoi());
+                        if(!selectedPois.contains(poiMenuItems.get(position).getPoi()))
+                            selectedPois.add(poiMenuItems.get(position).getPoi());
                     } else {
                         addSelectedPoisInterface.removeSelectedPoi(poiMenuItems.get(position).getPoi());
                         selectedPois.remove(poiMenuItems.get(position).getPoi());
@@ -182,7 +183,7 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                     public void onClick(View view) {
                         addSelectedPoisInterface.removeAllPois();
 
-                        selectedPois = null;
+                        selectedPois.clear();
 
                         notifyDataSetChanged();
                     }

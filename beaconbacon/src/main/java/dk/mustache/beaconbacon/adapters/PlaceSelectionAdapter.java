@@ -83,6 +83,7 @@ public class PlaceSelectionAdapter extends RecyclerView.Adapter<PlaceSelectionAd
                 notifyDataSetChanged();
 
                 if(places != null) {
+                    ((BeaconBaconActivity) context).hideFindTheBookElements();
                     ((BeaconBaconActivity) context).setNewCurrentPlace(currentPlace);
                     ((BeaconBaconActivity) context).fabPoi.show();
                 }

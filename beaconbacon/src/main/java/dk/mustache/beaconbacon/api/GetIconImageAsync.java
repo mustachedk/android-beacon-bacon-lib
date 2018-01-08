@@ -61,6 +61,7 @@ public class GetIconImageAsync extends AsyncTask<List<BBPoi>, Void, List<CustomP
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
+
                                 } else if (Objects.equals(locations.get(i).getPoi().getType(), "area")) {
                                     if (!Objects.equals(locations.get(i).getArea(), ""))
                                         customPoiViewList.add(new CustomPoiView(BeaconBaconManager.getInstance().getContext(), locations.get(i).getArea(), Color.parseColor(locations.get(i).getPoi().getColor()), locations.get(i).getPoi().getName()));
