@@ -109,8 +109,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                                                         FloorImageAsyncResponse,
                                                                         IconImageAsyncResponse,
                                                                         AllPlacesAsyncResponse {
-
-    //TODO This could possibly be done a little bit smarter
+    
     public static int boxHeight = -1;
 
     //RootView is used to show the Snackbar
