@@ -152,8 +152,7 @@ public class DemoActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.map_wayfinding:
-                BeaconBaconManager.getInstance().setRequestObject(new BBRequestObject("IMS", faustId, "En mand der hedder Ove", "SK", BitmapFactory.decodeResource(getResources(), R.drawable
-                        .ic_book)));
+                BeaconBaconManager.getInstance().setRequestObject(new BBRequestObject("IMS", faustId, "En mand der hedder Ove", "SK", BitmapFactory.decodeResource(getResources(), R.drawable.ic_book)));
                 Intent intentWayfinding = new Intent(DemoActivity.this, BeaconBaconActivity.class);
                 intentWayfinding.putExtra(PLACE_ID, placeId);
                 intentWayfinding.putExtra(FAUST_ID, faustId);
