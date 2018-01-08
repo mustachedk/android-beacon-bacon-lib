@@ -45,7 +45,7 @@ private void initBeaconBacon() {
     ApiManager.getInstance().fetchAllPlacesAsync(getAllPlacesAsync);
 }
 
-//Listen for the result by implementing the AllPlacesAsyncResponse
+//Listen for the result by implementing the AllPlacesAsyncResponse Interface
 @Override
 public void allPlacesAsyncFinished(JsonObject output) {
     Log.i(BBApplication.TAG, "All places fetched");

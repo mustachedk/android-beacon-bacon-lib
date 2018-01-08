@@ -1,10 +1,10 @@
-apply plugin: 'com.android.application'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "dk.mustache.beaconbacon"
+//        applicationId "dk.mustache.beaconbacon"
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 2
