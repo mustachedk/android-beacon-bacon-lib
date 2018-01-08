@@ -4,7 +4,8 @@
 
    (Read how to setup Places / Points of Interest / Beacons etc. [here](https://github.com/nosuchagency/beacon-bacon))
 2. Import the beacon-bacon-android library into your project
-  * Using gradle, add the library to your application's dependency list `implementation 'com.github.mustachedk:android-beacon-bacon-lib:-SNAPSHOT'` TODO: SHOULD BE MASTER VERSION
+  * Using gradle, add the library to your application's dependency list
+    `implementation 'com.github.mustachedk:android-beacon-bacon-lib:-SNAPSHOT'` TODO: SHOULD BE MASTER VERSION
 3. Follow the instructions below to start using Beacon-Bacon
 
 ## How to use
@@ -28,5 +29,5 @@ If you discover a security vulnerability within the Beacon Bacon Android library
 ## Contributing
 Beacon Bacon is still in early development, so we have not yet developed a Contribution Guide. Pull requests are always welcome.
 
-##License
+## License
 The Beacon Bacon Android Library is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
