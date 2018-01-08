@@ -12,7 +12,8 @@
 You can see an example of using the library in the [Beacon-Bacon Android Demo](/*Link goes here*/)
 
 ### Configure API and UI
-` //Create an instance of the BeaconBaconManager with the context of the BBApplication
+```Java
+//Create an instance of the BeaconBaconManager with the context of the BBApplication
 BeaconBaconManager.createInstance(BBApplication.getContext());
 
 //Set a Configuration Object to the BeaconBaconManager
@@ -28,10 +29,12 @@ private void applyConfiguration(String fontName, int color, String baseUrl, Stri
     BeaconBaconManager.getInstance().setConfigurationObject(new BBConfigurationObject(typeface, color, baseUrl, String.format("Bearer %s", apiKey)));
 
     initBeaconBacon();
-}`
+}
+```
 
 ### Initialize BeaconBacon
-` //When the BeaconBaconManager has been instantiated and a Configuration Object has been set, initialize BeaconBacon and make a call to GetAllPlacesAsync
+```Java
+//When the BeaconBaconManager has been instantiated and a Configuration Object has been set, initialize BeaconBacon and make a call to GetAllPlacesAsync
 private void initBeaconBacon() {
     //Instantiate our ApiManager
     ApiManager.createInstance(BBApplication.getContext());
@@ -63,18 +66,22 @@ public void allPlacesAsyncFinished(JsonObject output) {
 
     //Set all places in our BeaconBaconManager
     BeaconBaconManager.getInstance().setAllPlaces(allPlaces);
-}`
+}
+```
 
 ### Initiate map without way finding
-`//PLACE_ID is a String included in the BBApplication and can be statically imported.
+```Java
+//PLACE_ID is a String included in the BBApplication and can be statically imported.
 //placeId is a String with the id of the place. Use -1 as default to have user select the place from a list.
 Intent intentNoWayfinding = new Intent(<your_activity_name_here>.this, BeaconBaconActivity.class);
 intentNoWayfinding.putExtra(PLACE_ID, placeId);
 startActivity(intentNoWayfinding);
 overridePendingTransition(R.anim.slide_in_bottom, R.anim.hold_anim);`
+```
 
 ### Initiate way finding with an IMS Request
-`//Place id used as explained above
+```Java
+//Place id used as explained above
 //FAUST_ID is a String included in the BBApplication and can be statically imported.
 //faustId is a String with the faust id of the item to be found.
 //First, set a new RequestObject to the BeaconBaconManager
@@ -85,8 +92,8 @@ Intent intentWayfinding = new Intent(<your_activity_name_here>.this, BeaconBacon
 intentWayfinding.putExtra(PLACE_ID, placeId);
 intentWayfinding.putExtra(FAUST_ID, faustId);
 startActivity(intentWayfinding);
-overridePendingTransition(R.anim.slide_in_bottom, R.anim.hold_anim);`
-
+overridePendingTransition(R.anim.slide_in_bottom, R.anim.hold_anim);
+```
 
 ## Security Vulnerabilities
 If you discover a security vulnerability within the Beacon Bacon Android library, please send an email to us at [developer@mustache.dk](mailto:developer@mustache.dk). All security vulnerabilities will be promptly addressed.
