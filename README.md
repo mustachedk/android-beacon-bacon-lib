@@ -12,7 +12,7 @@
 You can see an example of using the library in the [Beacon-Bacon Android Demo](/*Link goes here*/)
 
 ### Configure API and UI
-`//Create an instance of the BeaconBaconManager with the context of the BBApplication
+` //Create an instance of the BeaconBaconManager with the context of the BBApplication
 BeaconBaconManager.createInstance(BBApplication.getContext());
 
 //Set a Configuration Object to the BeaconBaconManager
@@ -31,7 +31,7 @@ private void applyConfiguration(String fontName, int color, String baseUrl, Stri
 }`
 
 ### Initialize BeaconBacon
-`//When the BeaconBaconManager has been instantiated and a Configuration Object has been set, initialize BeaconBacon and make a call to GetAllPlacesAsync
+` //When the BeaconBaconManager has been instantiated and a Configuration Object has been set, initialize BeaconBacon and make a call to GetAllPlacesAsync
 private void initBeaconBacon() {
     //Instantiate our ApiManager
     ApiManager.createInstance(BBApplication.getContext());
