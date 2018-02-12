@@ -6,5 +6,12 @@
 
     <application
         android:name=".BBApplication">
+
+        <activity
+            android:name=".activities.BeaconBaconActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 </manifest>
