@@ -52,17 +52,17 @@ public class GetFloorImageAsync extends AsyncTask<Void, Void, Bitmap> {
 
             if (windowManager != null) {
                 try {
-//                    BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex());
-//                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).get();
-
                     BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex());
+                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).get();
 
-                    final int width = (int) pxToDp(Integer.valueOf(currentFloor.getMap_width_in_pixels()));
-                    final int height = (int) pxToDp(Integer.valueOf(currentFloor.getMap_height_in_pixels()));
-
-                    BeaconBaconManager.getInstance().setFloorScale(0.5f);
-
-                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).resize(width/2, height/2).centerCrop().get();
+//                    BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex());
+//
+//                    final int width = (int) pxToDp(Integer.valueOf(currentFloor.getMap_width_in_pixels()));
+//                    final int height = (int) pxToDp(Integer.valueOf(currentFloor.getMap_height_in_pixels()));
+//
+//                    BeaconBaconManager.getInstance().setFloorScale(0.5f);
+//
+//                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).resize(width/2, height/2).centerCrop().get();
 
                 } catch (IOException e) {
                     e.printStackTrace();

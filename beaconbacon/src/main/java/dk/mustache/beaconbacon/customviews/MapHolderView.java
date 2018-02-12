@@ -355,7 +355,7 @@ public class MapHolderView extends AppCompatImageView {
         this.mapBitmap = bitmap;
 
         //Reset the scale factor and drag factors when we load a new place/floor
-        scaleFactor = BeaconBaconManager.getInstance().getFloorScale();
+        scaleFactor = 1.0f;
 
         //Fit image to view
         if(this.mapBitmap != null)
