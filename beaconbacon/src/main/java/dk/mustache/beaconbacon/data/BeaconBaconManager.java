@@ -39,7 +39,7 @@ public class BeaconBaconManager {
     private BBPlace currentPlace;
     private Integer currentFloorIndex;
     private Integer currentFloorId;
-    private Float floorScale;
+    private Float floorScale = 1.0f;
 
     private BBRequestObject requestObject;
     private BBResponseObject responseObject;

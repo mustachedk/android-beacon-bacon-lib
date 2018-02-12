@@ -144,14 +144,13 @@ public class CustomPoiView {
             canvas.drawPath(path, paint);
 
             if (infoWindowText != null && infoWindowText.getVisibility() == View.VISIBLE) {
-                    int x = (int) ((centerX) - infoWindowText.getWidth()*scaleFactor / 2);
-                    int y = (int) ((centerY) - infoWindowText.getHeight()*scaleFactor - areaHeight/2);
-                    int x2 = (int) ((centerX) - infoBoxArrow.getWidth()*scaleFactor / 2);
-                    int y2 = (int) ((centerY) - infoBoxArrow.getHeight()*scaleFactor / 2 - areaHeight/2);
+                    int x = (int) ((centerX) - infoWindowText.getWidth()*scaleFactor / 2 / 2);
+                    int y = (int) ((centerY) - infoWindowText.getHeight()*scaleFactor / 2 - areaHeight/2);
+                    int x2 = (int) ((centerX) - infoBoxArrow.getWidth()*scaleFactor / 2 / 2);
+                    int y2 = (int) ((centerY) - infoBoxArrow.getHeight()*scaleFactor / 2 / 2 - areaHeight/2);
                 drawAreaInfoBox(canvas, x, y, x2, y2);
             }
         }
-
     }
 
     private void drawInfoBox(Canvas canvas, int x, int y, int x2, int y2) {
@@ -163,10 +162,10 @@ public class CustomPoiView {
     }
 
     private void drawAreaInfoBox(Canvas canvas, int x, int y, int x2, int y2) {
-        Bitmap infoBoxBitmap = Bitmap.createScaledBitmap(infoBoxText, (int)(infoBoxText.getWidth()*scaleFactor), (int)(infoBoxText.getHeight()*scaleFactor), false);
-        Bitmap infoBoxArrowBitmap = Bitmap.createScaledBitmap(infoBoxArrow, (int)(infoBoxArrow.getWidth()*scaleFactor), (int)(infoBoxArrow.getHeight()*scaleFactor), false);
+        Bitmap infoBoxBitmap = Bitmap.createScaledBitmap(infoBoxText, (int)(infoBoxText.getWidth()*scaleFactor)/2, (int)(infoBoxText.getHeight()*scaleFactor)/2, false);
+        Bitmap infoBoxArrowBitmap = Bitmap.createScaledBitmap(infoBoxArrow, (int)(infoBoxArrow.getWidth()*scaleFactor)/2, (int)(infoBoxArrow.getHeight()*scaleFactor)/2, false);
 
-        canvas.drawBitmap(infoBoxBitmap, x, y - infoBoxArrow.getHeight()*scaleFactor/3 + 3*scaleFactor, null);
+        canvas.drawBitmap(infoBoxBitmap, x, y - infoBoxArrow.getHeight()/2*scaleFactor/3 + 3*scaleFactor, null);
         canvas.drawBitmap(infoBoxArrowBitmap, x2, y2, null);
     }
 
@@ -209,7 +208,7 @@ public class CustomPoiView {
         if (area != null) this.area = Arrays.asList(area.split(","));
 
         for (String element : this.area) {
-            areaFloats.add(Float.valueOf(element));
+            areaFloats.add(Float.valueOf(element)/2);
         }
 
         float lowX = 0.0f;

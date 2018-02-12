@@ -797,7 +797,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     public void floorImageAsyncFinished(Bitmap bitmap) {
         isFindingFloorImage = false;
 
-        currentFloorImage = bitmap;
+        currentFloorImage = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth()/2, bitmap.getHeight()/2, false);
 
         if (!isFindingBook) {
             isLocatingFindTheBookFloor = false;
