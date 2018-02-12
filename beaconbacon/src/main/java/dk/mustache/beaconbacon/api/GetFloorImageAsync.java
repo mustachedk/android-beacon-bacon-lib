@@ -37,6 +37,8 @@ import dk.mustache.beaconbacon.data.BeaconBaconManager;
 import dk.mustache.beaconbacon.datamodels.BBFloor;
 import dk.mustache.beaconbacon.interfaces.FloorImageAsyncResponse;
 
+import static dk.mustache.beaconbacon.utils.Converter.pxToDp;
+
 public class GetFloorImageAsync extends AsyncTask<Void, Void, Bitmap> {
     public FloorImageAsyncResponse delegate = null;
 
@@ -49,10 +51,16 @@ public class GetFloorImageAsync extends AsyncTask<Void, Void, Bitmap> {
             WindowManager windowManager = (WindowManager) BBApplication.getContext().getSystemService(Context.WINDOW_SERVICE);
 
             if (windowManager != null) {
-
                 try {
+//                    BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex());
+//                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).get();
+
                     BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(BeaconBaconManager.getInstance().getCurrentFloorIndex());
-                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).get();
+
+                    final int width = (int) pxToDp(Integer.valueOf(currentFloor.getMap_width_in_pixels()));
+                    final int height = (int) pxToDp(Integer.valueOf(currentFloor.getMap_height_in_pixels()));
+
+                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).resize(width/3, height/3).centerCrop().get();
 
                 } catch (IOException e) {
                     e.printStackTrace();
