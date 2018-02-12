@@ -3,5 +3,8 @@
     package="dk.mustache.beaconbacon">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    
+
+    <application
+        android:name=".BBApplication">
+    </application>
 </manifest>
