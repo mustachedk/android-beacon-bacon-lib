@@ -60,7 +60,9 @@ public class GetFloorImageAsync extends AsyncTask<Void, Void, Bitmap> {
                     final int width = (int) pxToDp(Integer.valueOf(currentFloor.getMap_width_in_pixels()));
                     final int height = (int) pxToDp(Integer.valueOf(currentFloor.getMap_height_in_pixels()));
 
-                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).resize(width/3, height/3).centerCrop().get();
+                    BeaconBaconManager.getInstance().setFloorScale(0.5f);
+
+                    return ApiManager.getInstance().getPicasso().load(currentFloor.getImage()).resize(width/2, height/2).centerCrop().get();
 
                 } catch (IOException e) {
                     e.printStackTrace();

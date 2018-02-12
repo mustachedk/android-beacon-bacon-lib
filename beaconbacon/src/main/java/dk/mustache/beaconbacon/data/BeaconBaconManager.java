@@ -39,6 +39,7 @@ public class BeaconBaconManager {
     private BBPlace currentPlace;
     private Integer currentFloorIndex;
     private Integer currentFloorId;
+    private Float floorScale;
 
     private BBRequestObject requestObject;
     private BBResponseObject responseObject;
@@ -129,6 +130,14 @@ public class BeaconBaconManager {
 
     public void setCurrentFloorId(Integer currentFloorId) {
         this.currentFloorId = currentFloorId;
+    }
+
+    public Float getFloorScale() {
+        return floorScale;
+    }
+
+    public void setFloorScale(Float floorScale) {
+        this.floorScale = floorScale;
     }
     //endregion
 }
