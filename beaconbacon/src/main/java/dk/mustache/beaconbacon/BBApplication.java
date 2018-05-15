@@ -39,6 +39,11 @@ public class BBApplication extends Application {
         return context;
     }
 
+    public void initialize(Context _context) {
+        super.onCreate();
+        context = _context;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
