@@ -14,7 +14,7 @@
     <string name="alert_title_general">Noget gik galt</string>
     <string name="alert_title_find_book">Lokation blev ikke fundet</string>
     <string name="alert_message_library">Vi kunne ikke finde noget kort til dette bibliotek.</string>
-    <string name="alert_message_find_book">\'%s\' blev ikke fundet på %s. Hvis du ikke kan finde lokationen, så husk du altid kan reservere direkte i app'en.</string>
+    <string formatted="false" name="alert_message_find_book">\'%s\' blev ikke fundet på %s. Hvis du ikke kan finde lokationen, så husk du altid kan reservere direkte i app\'en.</string>
 
     <string name="general_ok">OK</string>
     <string name="general_ok_dont_show_again">OK, vis ikke igen</string>

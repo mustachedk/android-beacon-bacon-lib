@@ -115,6 +115,8 @@ public class PoiSelectionFragment extends Fragment implements PoiSelectionAdapte
 
     @Override
     public void removeAllPois() {
-        selectedPois.clear();
+        if(selectedPois!= null) {
+            selectedPois.clear();
+        }
     }
 }

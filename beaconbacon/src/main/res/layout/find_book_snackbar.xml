@@ -19,6 +19,21 @@
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_no_padding_test" />
 
+    <Button
+        android:id="@+id/snack_action"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="@dimen/general_vertical_margin"
+        android:layout_marginTop="@dimen/general_vertical_margin"
+        android:background="@android:color/black"
+        android:text="Afslut"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="12sp" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -46,19 +61,4 @@
             android:text="TextView"
             android:textSize="12sp" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/snack_action"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="@dimen/general_vertical_margin"
-        android:layout_marginTop="@dimen/general_vertical_margin"
-        android:background="@android:color/black"
-        android:text="Afslut"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="12sp" />
 </RelativeLayout>
