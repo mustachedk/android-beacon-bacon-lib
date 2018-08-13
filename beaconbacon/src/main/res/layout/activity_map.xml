@@ -34,7 +34,7 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/map_poi_fab"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="@dimen/general_vertical_margin"
@@ -47,19 +47,19 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/map_ftb_fab"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@id/map_poi_fab"
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="@dimen/general_vertical_margin"
             android:layout_marginEnd="@dimen/general_horizontal_margin"
+            android:adjustViewBounds="true"
             android:clickable="true"
             android:focusable="true"
+            android:scaleType="fitCenter"
             android:visibility="gone"
             app:backgroundTint="@android:color/white"
-            app:srcCompat="@drawable/ic_no_padding_test"/>
+            app:srcCompat="@drawable/ic_no_padding_test" />
 
     </RelativeLayout>
 
