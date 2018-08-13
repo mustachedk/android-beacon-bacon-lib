@@ -450,9 +450,10 @@ public class MapHolderView extends AppCompatImageView {
 
     public void scrollToBook() {
         // Translate the map
-        float snackBarHeight = dpToPx(70); // TODO: Get from actual sncakbar.
-        float centerScreenX = this.getWidth() / 2;
-        float centerScreenY = this.getHeight() / 2;
+//        float centerScreenX = this.getWidth() / 2;
+//        float centerScreenY = this.getHeight() / 2;
+        float centerScreenX = metrics.widthPixels / 2;
+        float centerScreenY = metrics.heightPixels / 2;
 
         float posX;
         float posY;
