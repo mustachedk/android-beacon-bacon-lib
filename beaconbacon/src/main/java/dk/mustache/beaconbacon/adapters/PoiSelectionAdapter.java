@@ -181,11 +181,11 @@ public class PoiSelectionAdapter extends BaseAdapter implements StickyListHeader
                 holder.button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        addSelectedPoisInterface.removeAllPois();
-
-                        selectedPois.clear();
-
-                        notifyDataSetChanged();
+                        if(selectedPois!= null) {
+                            addSelectedPoisInterface.removeAllPois();
+                            selectedPois.clear();
+                            notifyDataSetChanged();
+                        }
                     }
                 });
             } else {
