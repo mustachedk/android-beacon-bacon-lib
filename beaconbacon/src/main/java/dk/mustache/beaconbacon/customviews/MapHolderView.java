@@ -459,8 +459,8 @@ public class MapHolderView extends AppCompatImageView {
             posX = findTheBookAreaObject.centerX;
             posY = findTheBookAreaObject.centerY;
         } else {
-            posX = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosX();
-            posY = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosY();
+            posX = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosX()/2;
+            posY = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosY()/2;
         }
 
         float offsetX = -mapCurrentX() + centerScreenX - posX * mapCurrentScaleX();
