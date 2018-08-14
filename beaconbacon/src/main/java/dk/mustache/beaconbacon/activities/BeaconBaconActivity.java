@@ -559,14 +559,16 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                     readyToUpdateFindTheBook = true;
                                     isLocatingFindTheBookFloor = true;
 
-                                    for (int i = 0; i < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
-                                        if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(i).getId()) {
-                                            updateCurrentFloor(i, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
+                                    if(BeaconBaconManager.getInstance().getCurrentPlace() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null) {
+                                        for (int i = 0; i < BeaconBaconManager.getInstance().getCurrentPlace().getFloors().size(); i++) {
+                                            if (BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId() == BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(i).getId()) {
+                                                updateCurrentFloor(i, BeaconBaconManager.getInstance().getResponseObject().getData().get(0).getFloor().getId());
 
-                                            updateFindTheBook = false;
+                                                updateFindTheBook = false;
 
-                                            //Return to avoid double update of MapHolderView
-                                            return;
+                                                //Return to avoid double update of MapHolderView
+                                                return;
+                                            }
                                         }
                                     }
                                 }
@@ -591,9 +593,11 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                     mapHolderView.poiHolderView.floorWasSwitched();
                                 }
 
-                                int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
-                                BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
-                                mapView.setBackgroundColor(Color.parseColor(currentFloor.getMap_background_color()));
+                                if(BeaconBaconManager.getInstance().getCurrentPlace() != null && BeaconBaconManager.getInstance().getCurrentPlace().getFloors() != null) {
+                                    int currentFloorIdx = BeaconBaconManager.getInstance().getCurrentFloorIndex();
+                                    BBFloor currentFloor = BeaconBaconManager.getInstance().getCurrentPlace().getFloors().get(currentFloorIdx);
+                                    mapView.setBackgroundColor(Color.parseColor(currentFloor.getMap_background_color()));
+                                }
 
                                 mapHolderView.setImageBitmap(currentFloorImage);
 
@@ -621,7 +625,8 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                                         mapHolderView.setFindTheBook(BeaconBaconManager.getInstance().getRequestObject().getImage(), BeaconBaconManager.getInstance().getResponseObject());
                                     }
 
-                                    updateToolbarTitle(BeaconBaconManager.getInstance().getCurrentPlace());
+                                    if(BeaconBaconManager.getInstance().getCurrentPlace() != null)
+                                        updateToolbarTitle(BeaconBaconManager.getInstance().getCurrentPlace());
                                 }
 
                             } else {

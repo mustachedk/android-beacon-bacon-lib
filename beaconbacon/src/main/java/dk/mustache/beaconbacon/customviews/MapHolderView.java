@@ -463,8 +463,8 @@ public class MapHolderView extends AppCompatImageView {
             posY = poiHolderView.findTheBookResponseObject.getData().get(0).getLocation().getPosY();
         }
 
-        float offsetX = mapCurrentX() + centerScreenX - posX * mapCurrentScaleX();
-        float offsetY = mapCurrentY() + centerScreenY - posY * mapCurrentScaleY();
+        float offsetX = -mapCurrentX() + centerScreenX - posX * mapCurrentScaleX();
+        float offsetY = -mapCurrentY() + centerScreenY - posY * mapCurrentScaleY();
 
         //Should we display FTB Info?
         SharedPreferences sharedPref = context.getSharedPreferences("BeaconBacon_Preferences", Context.MODE_PRIVATE);
