@@ -186,7 +186,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onBackPressed() {
         if(getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            Log.d("Backstack entry 0 name", getSupportFragmentManager().getBackStackEntryAt(0).getName());
+            Log.d("Backstack entry 0 name", "" + getSupportFragmentManager().getBackStackEntryAt(0).getName());
 
             if (Objects.equals(getSupportFragmentManager().getBackStackEntryAt(0).getName(), PLACE_SELECTION_FRAGMENT))
                 closePlaceSelectionFragment();

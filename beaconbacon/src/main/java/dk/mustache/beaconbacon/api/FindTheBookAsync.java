@@ -41,11 +41,13 @@ public class FindTheBookAsync extends AsyncTask<String, Void, JsonObject> {
 
     @Override
     protected JsonObject doInBackground(String... strings) {
-
         //Generate the body for the API service with the request object from BeaconBaconManager
         JsonObject jsonObject = new JsonObject();
         JsonObject data = new JsonObject();
-        jsonObject.addProperty("find_identifier", BeaconBaconManager.getInstance().getRequestObject().getFind_identifier());
+
+        if(BeaconBaconManager.getInstance().getRequestObject() != null)
+            jsonObject.addProperty("find_identifier", BeaconBaconManager.getInstance().getRequestObject().getFind_identifier());
+
         data.addProperty("Faust", BeaconBaconManager.getInstance().getRequestObject().getFaust_id());
         jsonObject.add("data", data);
 
