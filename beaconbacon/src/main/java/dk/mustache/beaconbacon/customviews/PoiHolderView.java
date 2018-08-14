@@ -149,10 +149,10 @@ public class PoiHolderView extends AppCompatImageView {
                 bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_book);
 
             findTheBookObject = new CustomPoiView(context, bitmap,
-                    findTheBookResponseObject.getData().get(0).getLocation().getPosX(),
-                    findTheBookResponseObject.getData().get(0).getLocation().getPosY(),
-                    findTheBookResponseObject.getRadius(),
-                    findTheBookObject.title,
+                    responseObject.getData().get(0).getLocation().getPosX(),
+                    responseObject.getData().get(0).getLocation().getPosY(),
+                    responseObject.getRadius(),
+                    BeaconBaconManager.getInstance().getRequestObject().getTitle(),
                     true);
 
             findTheBookObject.cx = findTheBookObject.cx * scaleInit + xTranslation;
