@@ -487,7 +487,16 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
             progressBar.setVisibility(View.GONE);
 
             placeSelectionFragment = new PlaceSelectionFragment();
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.hold_anim, R.anim.slide_out_bottom, R.anim.hold_anim, R.anim.slide_out_bottom).replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT).addToBackStack(null).commit();
+            try {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.hold_anim, R.anim.slide_out_bottom, R.anim.hold_anim, R.anim.slide_out_bottom)
+                        .replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT)
+                        .addToBackStack(null)
+                        .commit();
+            } catch (IllegalStateException ignored) {
+                // There's no way to avoid getting this if saveInstanceState has already been called.
+            }
 
         } else {
             //Call to get all places has not been made display error in console
