@@ -154,6 +154,9 @@ public class PoiHolderView extends AppCompatImageView {
                     responseObject.getRadius(),
                     BeaconBaconManager.getInstance().getRequestObject().getTitle(),
                     true);
+
+            findTheBookObject.cx = findTheBookObject.cx * scaleInit + xTranslation;
+            findTheBookObject.cy = findTheBookObject.cy * scaleInit + yTranslation;
         } else {
             invalidate();
         }

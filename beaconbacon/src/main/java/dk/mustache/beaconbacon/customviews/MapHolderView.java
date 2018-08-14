@@ -481,7 +481,7 @@ public class MapHolderView extends AppCompatImageView {
     }
     //endregion
 
-    private Runnable createRunnable(final Handler handler, final float offsetX, final float offsetY){
+    private Runnable createRunnable(final Handler handler, final float offsetX, final float offsetY) {
 
         Runnable runnable = new Runnable(){
             public void run(){
