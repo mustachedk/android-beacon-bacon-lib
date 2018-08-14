@@ -492,7 +492,7 @@ public class BeaconBaconActivity extends AppCompatActivity implements View.OnCli
                         .beginTransaction()
                         .setCustomAnimations(R.anim.hold_anim, R.anim.slide_out_bottom, R.anim.hold_anim, R.anim.slide_out_bottom)
                         .replace(R.id.fragment_container, placeSelectionFragment, PLACE_SELECTION_FRAGMENT)
-                        .addToBackStack(null)
+                        .addToBackStack(PLACE_SELECTION_FRAGMENT)
                         .commit();
             } catch (IllegalStateException ignored) {
                 // There's no way to avoid getting this if saveInstanceState has already been called.
