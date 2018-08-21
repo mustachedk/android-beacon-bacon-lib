@@ -58,23 +58,25 @@ public class CustomSnackbar extends BaseTransientBottomBar<CustomSnackbar> {
         final CustomSnackbar customSnackbar = new CustomSnackbar(parent, content, viewCallback);
         customSnackbar.setDuration(duration);
 
-        ImageView imageView = content.findViewById(R.id.snack_image);
-        imageView.setImageBitmap(BeaconBaconManager.getInstance().getRequestObject().getImage());
-        imageView.setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP));
+        if(BeaconBaconManager.getInstance() != null && BeaconBaconManager.getInstance().getRequestObject() != null && BeaconBaconManager.getInstance().getConfigurationObject() != null) {
+            ImageView imageView = content.findViewById(R.id.snack_image);
+            imageView.setImageBitmap(BeaconBaconManager.getInstance().getRequestObject().getImage());
+            imageView.setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP));
 
-        TextView textHeader = content.findViewById(R.id.snack_text_header);
-        textHeader.setText(BeaconBaconManager.getInstance().getRequestObject().getTitle());
-        textHeader.setTextColor(Color.WHITE);
-        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
-            textHeader.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+            TextView textHeader = content.findViewById(R.id.snack_text_header);
+            textHeader.setText(BeaconBaconManager.getInstance().getRequestObject().getTitle());
+            textHeader.setTextColor(Color.WHITE);
+            if (BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+                textHeader.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
-        TextView textSubheader = content.findViewById(R.id.snack_text_subheader);
-        textSubheader.setText(BeaconBaconManager.getInstance().getRequestObject().getSubtitle());
-        textSubheader.setTextColor(Color.WHITE);
-        if(BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
-            textSubheader.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
+            TextView textSubheader = content.findViewById(R.id.snack_text_subheader);
+            textSubheader.setText(BeaconBaconManager.getInstance().getRequestObject().getSubtitle());
+            textSubheader.setTextColor(Color.WHITE);
+            if (BeaconBaconManager.getInstance().getConfigurationObject() != null && BeaconBaconManager.getInstance().getConfigurationObject().getTypeface() != null)
+                textSubheader.setTypeface(BeaconBaconManager.getInstance().getConfigurationObject().getTypeface());
 
-        customSnackbar.getView().setElevation(0.0f);
+            customSnackbar.getView().setElevation(0.0f);
+        }
 
         return customSnackbar;
     }
