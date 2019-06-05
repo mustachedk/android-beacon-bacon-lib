@@ -7,8 +7,8 @@ android {
 //        applicationId "dk.mustache.beaconbacon"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 4
-        versionName "1.0.22"
+        versionCode 5
+        versionName "1.0.23"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
