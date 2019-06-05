@@ -3,7 +3,7 @@ package dk.mustache.beaconbacon.api;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.jakewharton.picasso.OkHttp3Downloader;
+import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
